@@ -207,6 +207,15 @@ namespace Graph
             Output_Bar.SetData(xValueRangeList, yValueList, labelList);
         }
 
+		// Head Dir Data Barのサイズを変える
+		public void ResizeHeadDirDataBar(float width) {
+
+			RectTransform rect0 = GetComponent<RectTransform>();
+			rect0.localScale = new Vector2 (width / 600.0f, 1.0f);
+			rect0.localPosition=new Vector3(width/2,-250,0);
+
+		}
+
         //取得した頭の向きのデータをグラフに表示しやすいようにラベルデータへ変換する
         List<LabelData> TransSensingDataToLabelData(List<Data> dataList)
         {

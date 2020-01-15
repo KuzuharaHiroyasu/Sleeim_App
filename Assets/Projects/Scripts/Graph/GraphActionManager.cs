@@ -10,12 +10,12 @@ namespace Graph {
 
 		void OnEnable () {
 			//タッチマネージャーのイベントリスナを設定
-			TouchManager.Instance.FlickComplete += OnFlickComplete;
+//			TouchManager.Instance.FlickComplete += OnFlickComplete;
 		}
 
 		void OnDisable () {
 			//後処理
-			TouchManager.Instance.FlickComplete -= OnFlickComplete;
+//			TouchManager.Instance.FlickComplete -= OnFlickComplete;
 		}
 
 		void OnFlickComplete (object sender, FlickEventArgs e) {

@@ -39,6 +39,12 @@ namespace Graph
 
         public AxisTimeLabel Output_AggrigateTimeLabel;		//集計のグラフの時間を表示するためのラベル
 
+		public GameObject IbikiMainGraph;
+		public GameObject HeadDirGraphObject;
+		public GameObject ScrollObject;
+		public GameObject SeriesObject;
+
+		bool onceDisplayFlag = false;
 
         void Awake()
         {
@@ -175,10 +181,30 @@ namespace Graph
             //背景のいびきレベルを表示
             IbikiLebelBack.SetActive(true);
 
-            if (dataList != null)
+			if (dataList != null && !onceDisplayFlag)
             {
+
                 //グラフに表示するためにラベルデータを作成
                 List<LabelData> labelDataList = TransSensingDataToLabelData(dataList);
+
+				float hour = sleepingTime (dataList);
+
+				// スクロールビュー
+				RectTransform sRect = ScrollObject.GetComponent<RectTransform>();
+				var y2 = sRect.transform.position.y;
+				sRect.sizeDelta=new Vector2(600*hour,y2); //サイズが変更できる
+
+
+				RectTransform rect0 = IbikiMainGraph.GetComponent<RectTransform>();
+				var x = rect0.transform.position.x;
+				var y = rect0.transform.position.y;
+
+				rect0.sizeDelta=new Vector2(600*hour,y);
+				rect0.localPosition=new Vector3(600*hour/2,200,0);
+
+				// 頭位置グラフの幅変更
+				HeadDirGraphObject.GetComponent<HeadDirGraph> ().ResizeHeadDirDataBar (600*hour);
+
                 //グラフの上限を1fに設定
                 Output_Line.theGraph.yAxis.AxisMaxValue = 1f;
                 //折れ線グラフにいびきデータを設定
@@ -187,6 +213,10 @@ namespace Graph
                 SetIbikiDataToAnalyzeTable();
                 //集計のグラフにデータを設定
                 SetBreathDataToPercentageBarChart(dataList);
+
+				StartCoroutine ("UpdateGraphPosition");
+
+				onceDisplayFlag = true;
             }
         }
 
@@ -285,6 +315,25 @@ namespace Graph
         {
             Output_Line.ClearPointValues();
         }
+
+		float sleepingTime(List<IbikiGraph.Data> dataList){
+
+			System.DateTime detectionStartTime = dataList.First().GetTime().Value;
+			System.DateTime detectionEndTime = dataList.Last().GetTime().Value.AddSeconds(20);
+
+			System.TimeSpan diff = detectionEndTime - detectionStartTime;
+
+			return (float)(diff.TotalHours);
+		}
+
+
+		IEnumerator UpdateGraphPosition()
+		{
+			yield return new WaitForEndOfFrame();
+
+			RectTransform rect0 = SeriesObject.GetComponent<RectTransform>();
+			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-162,0);
+		}
 
         //取得した、いびきの大きさのデータをグラフに表示しやすいようにラベルデータへ変換する
         List<LabelData> TransSensingDataToLabelData(List<IbikiGraph.Data> dataList)
