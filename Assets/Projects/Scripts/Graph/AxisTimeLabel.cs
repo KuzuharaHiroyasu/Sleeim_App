@@ -68,6 +68,11 @@ namespace Graph {
 			SetLabel (dispTimeList, dispTimeLabelList, timeList.First (), timeList.Last ());
 		}
 
+		/// <summary>
+		/// イビキの時間のリストから軸の目盛り・ラベルを設定します。
+		/// 目盛り・ラベルは一時間間隔で設定されます。
+		/// </summary>
+		/// <param name="timeList">Time list.</param>
 		public void SetIbikiAxis (List<DateTime> timeList) {
 
 			ClearMark ();	//上書き可能にするため消しておく
@@ -82,6 +87,38 @@ namespace Graph {
 			isDispStartAndEndTime = false;
 			SetMark (dispTimeList, timeList.First (), timeList.Last ());
 			SetLabel (dispTimeList, dispTimeLabelList, timeList.First (), timeList.Last ());
+		}
+
+		public void SetIbikiScroll(float magnification) {
+			int markObjCount = 0;
+			foreach (GameObject obj in markObjList) {
+
+				RectTransform rectSub = obj.GetComponent<RectTransform>();
+				rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x * magnification,rectSub.transform.localPosition.y);
+				markObjCount++;
+				if (markObjCount == 1) {
+					rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x + 2,rectSub.transform.localPosition.y,0);
+				}
+				else if (markObjCount == markObjList.Count) {
+					rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x - 2,rectSub.transform.localPosition.y,0);
+				}
+
+			}
+			int labelObjCount = 0;
+			foreach (GameObject obj in labelObjList) {
+
+				RectTransform rectSub = obj.GetComponent<RectTransform>();
+				rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x * magnification,rectSub.transform.localPosition.y);
+
+				labelObjCount++;
+				if (labelObjCount == 1) {
+					rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x + 40,rectSub.transform.localPosition.y,0);
+				}
+				else if (labelObjCount == labelObjList.Count) {
+					rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x - 40,rectSub.transform.localPosition.y,0);
+				}
+			}
+
 		}
 
 
@@ -348,14 +385,18 @@ namespace Graph {
 
 		//存在するマークを全て削除します
 		void ClearMark () {
-			foreach (GameObject markObj in markObjList) {
-				Destroy (markObj);
+			while (markObjList.Count > 0) {
+				GameObject obj = markObjList [0];
+				markObjList.Remove (obj);
+				Destroy (obj);
 			}
 		}
 
 		void ClearLabel () {
-			foreach (GameObject labelObj in labelObjList) {
-				Destroy (labelObj);
+			while (labelObjList.Count > 0) {
+				GameObject obj = labelObjList [0];
+				labelObjList.Remove (obj);
+				Destroy (obj);
 			}
 		}
 	}

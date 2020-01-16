@@ -207,12 +207,19 @@ namespace Graph
             Output_Bar.SetData(xValueRangeList, yValueList, labelList);
         }
 
+		bool firstPositionFlag = false;
+
 		// Head Dir Data Barのサイズを変える
 		public void ResizeHeadDirDataBar(float width) {
 
 			RectTransform rect0 = GetComponent<RectTransform>();
 			rect0.localScale = new Vector2 (width / 600.0f, 1.0f);
-			rect0.localPosition=new Vector3(width/2,-250,0);
+			if (!firstPositionFlag) {
+				firstPositionFlag = true;
+				rect0.localPosition=new Vector3(width/2,-242,0);
+			} else {
+				rect0.localPosition=new Vector3(width/2,-536-27,0);
+			}
 
 		}
 

@@ -21,7 +21,7 @@ namespace Graph
         IIbikiData input;						//入力データを取得するためのインターフェース
         public BarChart Output_Bar;				//出力先のバーグラフ
         public WMG_Series Output_Line;			//出力先の折れ線グラフ
-        public AxisTimeLabel Output_TimeLabel;	//時間を表示するためのラベル
+		public AxisTimeLabel Output_TimeLabel;	//時間を表示するためのラベル
         List<Data> dataList;					//表示するいびきデータを自分で持っておく
         public GameObject[] Label;					//いびきグラフで表示するラベル　表示・非表示を切り替える
         public GameObject[] Legend;					//いびきグラフで表示する凡例　表示・非表示を切り替える
@@ -46,6 +46,8 @@ namespace Graph
 		public GameObject StartTimeObject;
 		public GameObject EndTimeObject;
 		public GameObject TimeObjectParent;
+
+		public ScrollRect ScrollRect;
 
 		bool onceDisplayFlag = false;
 
@@ -184,9 +186,8 @@ namespace Graph
             //背景のいびきレベルを表示
             IbikiLebelBack.SetActive(true);
 
-			if (dataList != null && !onceDisplayFlag)
+			if (dataList != null)
             {
-
                 //グラフに表示するためにラベルデータを作成
                 List<LabelData> labelDataList = TransSensingDataToLabelData(dataList);
 
@@ -195,15 +196,26 @@ namespace Graph
 				// スクロールビュー
 				RectTransform sRect = ScrollObject.GetComponent<RectTransform>();
 				var y2 = sRect.transform.position.y;
-				sRect.sizeDelta=new Vector2(600*hour,y2); //サイズが変更できる
+				sRect.sizeDelta=new Vector2(600*hour,186.3f); //サイズが変更できる
+
+				// スクロール位置を初期化
+				if (onceDisplayFlag) {
+					ScrollRect.horizontalNormalizedPosition = 0.0f;
+				}
+
 
 
 				RectTransform rect0 = IbikiMainGraph.GetComponent<RectTransform>();
 				var x = rect0.transform.position.x;
 				var y = rect0.transform.position.y;
 
-				rect0.sizeDelta=new Vector2(600*hour,y);
-				rect0.localPosition=new Vector3(600*hour/2,200,0);
+
+				rect0.sizeDelta=new Vector2(600*hour,227);
+				if (onceDisplayFlag) {
+					rect0.localPosition=new Vector3(600*hour/2,200-321);
+				} else {
+					rect0.localPosition=new Vector3(600*hour/2,200);
+				}
 
 				RectTransform rectStart = StartTimeObject.GetComponent<RectTransform>();
 
@@ -220,33 +232,16 @@ namespace Graph
 
                 //グラフの上限を1fに設定
                 Output_Line.theGraph.yAxis.AxisMaxValue = 1f;
-                //折れ線グラフにいびきデータを設定
-                SetIbikiDataToLineGraph(dataList);
+				//折れ線グラフにいびきデータを設定
+				SetIbikiDataToLineGraph(dataList);
+                
                 //集計の詳細欄にデータを設定
                 SetIbikiDataToAnalyzeTable();
                 //集計のグラフにデータを設定
                 SetBreathDataToPercentageBarChart(dataList);
 
 				//目盛を調整
-				int number = 0;
-				foreach (Transform child in TimeObjectParent.transform)
-				{
-					RectTransform rectSub = child.gameObject.GetComponent<RectTransform>();
-					rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x * hour,rectSub.transform.localPosition.y,0);
-					number++;
-					if (number == 1) {
-						rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x +2,rectSub.transform.localPosition.y,0);
-					}
-					else if (number == TimeObjectParent.transform.childCount / 2) {
-						rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x -2,rectSub.transform.localPosition.y,0);
-					}
-					else if (number == TimeObjectParent.transform.childCount) {
-						rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x -40,rectSub.transform.localPosition.y,0);
-					}
-					else if (number == TimeObjectParent.transform.childCount / 2 + 1) {
-						rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x +40,rectSub.transform.localPosition.y,0);
-					}
-				}
+				Output_TimeLabel.SetIbikiScroll(hour);
 
 				StartCoroutine ("UpdateGraphPosition");
 				SeriesObject.SetActive (false);
@@ -306,6 +301,8 @@ namespace Graph
         //いびきの大きさのデータを折れ線グラフに設定する
         void SetIbikiDataToLineGraph(List<Data> ibikiDataList)
         {
+
+			RemoveIbikiDataFromLineGraph();	//折れ線グラフ初期化
             List<Vector2> valueList = new List<Vector2>();
             for (int i = 0; i < ibikiDataList.Count; i++)
             {
@@ -341,8 +338,9 @@ namespace Graph
             //グラフの時間軸も合わせて設定
             List<System.DateTime> timeList
                 = ibikiDataList.Select(
-                    ibikiData => ibikiData.GetTime().Value).ToList();
-            Output_TimeLabel.SetIbikiAxis(timeList);
+				ibikiData => ibikiData.GetTime().Value).ToList();
+			Output_TimeLabel.SetIbikiAxis (timeList);
+            
         }
 
         //折れ線グラフから表示中のいびきデータを取り除きます
@@ -475,7 +473,7 @@ namespace Graph
             int hour = ((maxHeadDirCount + addCount) / 2) / 3 / 60;
             int min = ((maxHeadDirCount + addCount) / 2) / 3 % 60;
             int sec = ((maxHeadDirCount + addCount) % 2) / 3 * 30;
-            Output_AggrigateTimeLabel.SetAxis(hour, min, sec);
+//            Output_AggrigateTimeLabel.SetAxis(hour, min, sec);
         }
     }
 
