@@ -309,7 +309,6 @@ namespace Graph
             Output_Line.SetPointValues(valueList);
             //グラフの時間軸も合わせて設定
             List<System.DateTime> timeList = breathDataList.Select(ibikiData => ibikiData.GetTime().Value).ToList();
-            Output_TimeLabel.SetAxis(timeList);
         }
 
         //呼吸のデータを集計用グラフに出力

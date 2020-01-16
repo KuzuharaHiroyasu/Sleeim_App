@@ -43,6 +43,9 @@ namespace Graph
 		public GameObject HeadDirGraphObject;
 		public GameObject ScrollObject;
 		public GameObject SeriesObject;
+		public GameObject StartTimeObject;
+		public GameObject EndTimeObject;
+		public GameObject TimeObjectParent;
 
 		bool onceDisplayFlag = false;
 
@@ -202,6 +205,16 @@ namespace Graph
 				rect0.sizeDelta=new Vector2(600*hour,y);
 				rect0.localPosition=new Vector3(600*hour/2,200,0);
 
+				RectTransform rectStart = StartTimeObject.GetComponent<RectTransform>();
+
+				rectStart.localPosition=new Vector3(-600*hour/2+55,rectStart.transform.localPosition.y,0);
+
+				RectTransform rectEnd = EndTimeObject.GetComponent<RectTransform>();
+				rectEnd.localPosition=new Vector3(600*hour/2-55,rectStart.transform.localPosition.y,0);
+
+				StartTimeObject.SetActive (false);
+				EndTimeObject.SetActive (false);
+
 				// 頭位置グラフの幅変更
 				HeadDirGraphObject.GetComponent<HeadDirGraph> ().ResizeHeadDirDataBar (600*hour);
 
@@ -213,6 +226,27 @@ namespace Graph
                 SetIbikiDataToAnalyzeTable();
                 //集計のグラフにデータを設定
                 SetBreathDataToPercentageBarChart(dataList);
+
+				//目盛を調整
+				int number = 0;
+				foreach (Transform child in TimeObjectParent.transform)
+				{
+					RectTransform rectSub = child.gameObject.GetComponent<RectTransform>();
+					rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x * hour,rectSub.transform.localPosition.y,0);
+					number++;
+					if (number == 1) {
+						rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x +2,rectSub.transform.localPosition.y,0);
+					}
+					else if (number == TimeObjectParent.transform.childCount / 2) {
+						rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x -2,rectSub.transform.localPosition.y,0);
+					}
+					else if (number == TimeObjectParent.transform.childCount) {
+						rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x -40,rectSub.transform.localPosition.y,0);
+					}
+					else if (number == TimeObjectParent.transform.childCount / 2 + 1) {
+						rectSub.localPosition=new Vector3(rectSub.transform.localPosition.x +40,rectSub.transform.localPosition.y,0);
+					}
+				}
 
 				StartCoroutine ("UpdateGraphPosition");
 
@@ -307,7 +341,7 @@ namespace Graph
             List<System.DateTime> timeList
                 = ibikiDataList.Select(
                     ibikiData => ibikiData.GetTime().Value).ToList();
-            Output_TimeLabel.SetAxis(timeList);
+            Output_TimeLabel.SetIbikiAxis(timeList);
         }
 
         //折れ線グラフから表示中のいびきデータを取り除きます

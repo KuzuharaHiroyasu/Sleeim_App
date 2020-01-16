@@ -68,6 +68,23 @@ namespace Graph {
 			SetLabel (dispTimeList, dispTimeLabelList, timeList.First (), timeList.Last ());
 		}
 
+		public void SetIbikiAxis (List<DateTime> timeList) {
+
+			ClearMark ();	//上書き可能にするため消しておく
+			ClearLabel ();	//上書き可能にするため消しておく
+
+			TimeSpan dispTimeSpan;
+			dispTimeSpan = new TimeSpan (0, 10, 0);
+			List<DateTime> dispTimeList;
+			List<string> dispTimeLabelList;
+			isDispStartAndEndTime = true;
+			CreateDispTimeList (timeList, dispTimeSpan, out dispTimeList, out dispTimeLabelList);
+			isDispStartAndEndTime = false;
+			SetMark (dispTimeList, timeList.First (), timeList.Last ());
+			SetLabel (dispTimeList, dispTimeLabelList, timeList.First (), timeList.Last ());
+		}
+
+
 		/// <summary>
 		/// 開始地点は0とし、時間の長さを指定してラベルを設定します。
 		/// </summary>
