@@ -178,7 +178,7 @@ public class SceneTransitionManager : MonoBehaviour {
 			isUseTab = false;
 			break;
 		case LoadScene.Home:
-			sceneName = "Home";
+			sceneName = "HomeNew";
 			isUseTab = true;
 			break;
 		case LoadScene.Graph:
@@ -298,7 +298,7 @@ public class SceneTransitionManager : MonoBehaviour {
 			isUseTab = false;
 			break;
 		default:
-			sceneName = "Home";
+			sceneName = "HomeNew";
 			isUseTab = true;
 			break;
 		}

@@ -107,3 +107,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Projects/Scenes/Graph/GraphCompare.unity
     guid: 7739efade91e0c34ca7e64af804fe2bd
+  - enabled: 1
+    path: Assets/Projects/Scenes/Home/HomeNew.unity
+    guid: 752b5afbd991e074087ca324e0089224
