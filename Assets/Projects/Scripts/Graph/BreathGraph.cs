@@ -211,8 +211,6 @@ namespace Graph
                 List<LabelData> labelDataList = TransSensingDataToLabelData(dataList);
                 //バーグラフに呼吸データを設定・表示
                 SetBreathDataToBarChart(dataList, labelDataList);
-                //折れ線グラフに呼吸データを設定・表示
-                SetBreathDataToLineGraph(dataList);
                 //分析データを設定・表示
                 SetBreathDataToAnalyzeTable();
                 //集計のバーグラフを設定・表示

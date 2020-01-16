@@ -249,6 +249,7 @@ namespace Graph
 				}
 
 				StartCoroutine ("UpdateGraphPosition");
+				SeriesObject.SetActive (false);
 
 				onceDisplayFlag = true;
             }
@@ -365,8 +366,9 @@ namespace Graph
 		{
 			yield return new WaitForEndOfFrame();
 
+			SeriesObject.SetActive (true);
 			RectTransform rect0 = SeriesObject.GetComponent<RectTransform>();
-			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-162,0);
+			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150,0);
 		}
 
         //取得した、いびきの大きさのデータをグラフに表示しやすいようにラベルデータへ変換する
