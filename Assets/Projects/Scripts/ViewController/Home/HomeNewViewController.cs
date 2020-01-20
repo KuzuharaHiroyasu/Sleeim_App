@@ -187,6 +187,7 @@ public class HomeNewViewController : ViewControllerBase
     {
         List<SleepData> latestSleepDatas = null;
         SleepHeaderData latestSleepHeaderData = null;
+        ChartInfo chartInfo = null;
         string sleepTime = "-";
 
         string dataPath = Kaimin.Common.Utility.GsDataPath();
@@ -217,8 +218,8 @@ public class HomeNewViewController : ViewControllerBase
         //Step2: Show pie chart
         if (latestSleepDatas != null)
         {
-            ChartInfo chartInfo = CSVManager.convertSleepDataToChartInfo(latestSleepDatas);
-            if(chartInfo != null)
+            chartInfo = CSVManager.convertSleepDataToChartInfo(latestSleepDatas);
+            if (chartInfo != null)
             {
                 double p1 = System.Math.Round((double)(chartInfo.pKaiMin * 100), 1);
                 double p2 = System.Math.Round((double)(chartInfo.pIbiki * 100), 1);
@@ -227,11 +228,17 @@ public class HomeNewViewController : ViewControllerBase
                 p4 = p4 < 0.1 ? 0 : System.Math.Round(p4, 1);
 
                 //p1 = 15; p2 = 20; p3 = 25; p4 = 40;
-                //p1 = 25; p2 = 25; p3 = 25; p4 = 25;
-                double[] pieValues = new double[4] { p1, p2, p3, p4}; //Percents of pKaiMin, Ibiki, Mukokyu, Fumei
+                //p1 = 95; p2 = 3; p3 = 2; p4 = 0;
+                double[] pieValues = new double[4] { p1, p2, p3, p4 }; //Percents of pKaiMin, Ibiki, Mukokyu, Fumei
                 string[] pieLabels = new string[4] { "快眠", "いびき", "無呼吸", "不明" };
                 makePieChart(pieValues, pieLabels);
             }
+        }
+
+        if (chartInfo == null) //No data 
+        {
+            pieInfo.hidePieInfo();
+            piePrefab.fillAmount = 0;
         }
     }
 
