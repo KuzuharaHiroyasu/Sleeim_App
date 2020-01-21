@@ -75,7 +75,13 @@ public class SleepInfoDescriptor : MonoBehaviour {
     /// <summary>
     /// 無呼吸平均回数(時)
     /// </summary>
-    public Text ApneaAverageCount;
+	public Text ApneaAverageCount;
+
+	/// <summary>
+	/// 動作モード
+	/// </summary>
+	public Text ActionModeText;
+
 
 
     /// <summary>
@@ -200,6 +206,10 @@ public class SleepInfoDescriptor : MonoBehaviour {
         ApneaTimeText.text = Graph.Time.CreateHMSString(Data.ApneaTime);
         SnoreCount.text = Data.SnoreCount.ToString() + "<size=24>回</size>";
         ApneaAverageCount.text = Data.ApneaAverageCount.ToString() + "<size=24>回</size>";
+
+		DeviceSetting deviceSetting = UserDataManager.Setting.DeviceSettingData.Load();
+		ActionModeText.text = deviceSetting.ActionModeText;
+		ActionModeText.rectTransform.sizeDelta = new Vector2(ActionModeText.preferredWidth, ActionModeText.preferredHeight);
     }
 
     //睡眠時間をテキストに設定する

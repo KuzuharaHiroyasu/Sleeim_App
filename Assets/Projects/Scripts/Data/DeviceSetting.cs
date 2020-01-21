@@ -27,6 +27,39 @@ public class DeviceSetting {
     /// </summary>
     public ActionMode ActionMode { get; set; } = ActionMode.SuppressModeIbiki;
 
+
+
+	/// <summary>
+	/// 動作モード 文字列
+	/// </summary>
+	public string ActionModeText
+	{
+		get
+		{
+			string ret = "-";
+			switch (ActionMode)
+			{
+			case ActionMode.SuppressModeIbiki:
+				ret = "抑制モード(いびき)";
+				break;
+			case ActionMode.SuppressMode:
+				ret = "抑制モード(いびき+無呼吸)";
+				break;
+			case ActionMode.MonitoringMode:
+				ret = "モニタリング";
+				break;
+			case ActionMode.SuppressModeMukokyu:
+				ret = "抑制モード（無呼吸）";
+				break;
+			default:
+				// 何もしない
+				break;
+			}
+			return ret;
+		}
+	}
+
+
     /// <summary>
     /// いびき感度
     /// </summary>
