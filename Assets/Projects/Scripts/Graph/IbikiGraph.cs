@@ -192,6 +192,9 @@ namespace Graph
                 List<LabelData> labelDataList = TransSensingDataToLabelData(dataList);
 
 				float hour = sleepingTime (dataList);
+				if (hour < 1.0f) {
+					hour = 0.95f;
+				}
 
 				// スクロールビュー
 				RectTransform sRect = ScrollObject.GetComponent<RectTransform>();
