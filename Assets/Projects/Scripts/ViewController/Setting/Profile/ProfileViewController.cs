@@ -265,7 +265,7 @@ public class ProfileViewController : ViewControllerBase {
 		//遷移元シーンに戻る
 		if (IsSettingAllItem ()) {
 			//メニューの設定から遷移してきたため、設定画面に戻る
-			SceneTransitionManager.LoadLevel (SceneTransitionManager.LoadScene.Setting);
+			SceneTransitionManager.LoadLevel (isTapFromHome() ? SceneTransitionManager.LoadScene.Home : SceneTransitionManager.LoadScene.Setting);
 		} else {
 			//設定されてない項目がある場合ダイアログを表示する
 			StartCoroutine (TellExistUnSetItem ());

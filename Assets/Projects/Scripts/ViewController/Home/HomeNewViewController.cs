@@ -220,7 +220,7 @@ public class HomeNewViewController : ViewControllerBase
                     double p4 = 100 - p1 - p2 - p3;
                     p4 = p4 < 0.1 ? 0 : System.Math.Round(p4, 1);
 
-                    //p1 = 15; p2 = 20; p3 = 25; p4 = 40;
+                    //p1 = 5; p2 = 6; p3 = 7; p4 = 82;
                     //p1 = 95; p2 = 3; p3 = 2; p4 = 0;
                     double[] pieValues = new double[4] { p1, p2, p3, p4 }; //Percents of pKaiMin, Ibiki, Mukokyu, Fumei
                     string[] pieLabels = new string[4] { "快眠", "いびき", "無呼吸", "不明" };
@@ -279,6 +279,7 @@ public class HomeNewViewController : ViewControllerBase
             //Rotate image to top middle
             float zRotation = 180f;
             float zPieInfoRotation = 180f;
+            float drawAngleTotal = 0;
             
             for (int i = 0; i < numPie; i++)
             {
@@ -292,7 +293,7 @@ public class HomeNewViewController : ViewControllerBase
                 image.fillAmount = fillAmount;
                 image.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, zRotation));
 
-                int[] position = getPositionByPercent(fillAmount * 100);
+                int[] position = getPositionByPercent(fillAmount * 100, drawAngleTotal);
                 PieInfo p = Instantiate(pieInfo) as PieInfo;
                 p.transform.SetParent(image.transform, false);
                 p.transform.localPosition = new Vector3(position[0], position[1] + 189, 0);
@@ -301,13 +302,15 @@ public class HomeNewViewController : ViewControllerBase
                     p.drawPieInfo(pieLabels[i], pieValues[i]);
                 }
 
-                zPieInfoRotation += fillAmount * 360;
-                zRotation -= fillAmount * 360;
+                float rotateAngle = fillAmount * 360;
+                zPieInfoRotation += rotateAngle;
+                zRotation -= rotateAngle;
+                drawAngleTotal += rotateAngle;
             }
         }
     }
 
-    public int[] getPositionByPercent(double percent)
+    public int[] getPositionByPercent(double percent, float drawAngleTotal)
     {
         var dict = new Dictionary<double, int[]>();
         dict[0]    = new int[2] { -2, -320 };
@@ -319,34 +322,45 @@ public class HomeNewViewController : ViewControllerBase
         dict[2.5]  = new int[2] { -10, -320 };
         dict[3]    = new int[2] { -11, -320 };
         dict[4]    = new int[2] { -15, -320 };
-        dict[5]    = new int[2] { -19, -320 };
-        dict[6]    = new int[2] { -24, -320 };
-        dict[7]    = new int[2] { -28, -320 };
-        dict[7.5]  = new int[2] { -29, -320 };
-        dict[8]    = new int[2] { -32, -320 };
-        dict[9]    = new int[2] { -35, -320 };
 
-        dict[10]   = new int[2] { -40, -320 };
-        dict[11]   = new int[2] { -43, -320 };
-        dict[12]   = new int[2] { -46, -320 };
-        dict[13]   = new int[2] { -50, -320 };
-        dict[14]   = new int[2] { -55, -315 };
-        dict[15]   = new int[2] { -60, -310 };
-        dict[16]   = new int[2] { -64, -310 };
-        dict[17]   = new int[2] { -68, -305 };
-        dict[18]   = new int[2] { -70, -300 };
-        dict[19]   = new int[2] { -72, -300 };
+        if ((45 <= drawAngleTotal && drawAngleTotal <= 135) || (225 <= drawAngleTotal && drawAngleTotal <= 315))
+        {
+            dict[5] = new int[2] { -28, -325 };
+            dict[6] = new int[2] { -35, -325 };
+            dict[7] = new int[2] { -35, -325 };
+            dict[7.5] = new int[2] { -35, -325 };
+            dict[8] = new int[2] { -35, -325 };
+            dict[9] = new int[2] { -35, -325 };
+        } else {
+            dict[5] = new int[2] { -19, -335 };
+            dict[6] = new int[2] { -24, -335 };
+            dict[7] = new int[2] { -28, -335 };
+            dict[7.5] = new int[2] { -29, -335 };
+            dict[8] = new int[2] { -32, -335 };
+            dict[9] = new int[2] { -35, -335 };
+        }
 
-        dict[20]   = new int[2] { -74, -295 };
-        dict[21]   = new int[2] { -77, -290 };
-        dict[22]   = new int[2] { -78, -288 };
-        dict[23]   = new int[2] { -80, -288 };
-        dict[24]   = new int[2] { -82, -286 };
-        dict[25]   = new int[2] { -86, -283 };
-        dict[26]   = new int[2] { -88, -278 };
-        dict[27]   = new int[2] { -89, -273 };
-        dict[28]   = new int[2] { -89, -271 };
-        dict[29]   = new int[2] { -91, -268 };
+        dict[10] = new int[2] { -40, -320 };
+        dict[11] = new int[2] { -43, -320 };
+        dict[12] = new int[2] { -46, -320 };
+        dict[13] = new int[2] { -50, -320 };
+        dict[14] = new int[2] { -55, -315 };
+        dict[15] = new int[2] { -60, -310 };
+        dict[16] = new int[2] { -64, -310 };
+        dict[17] = new int[2] { -68, -305 };
+        dict[18] = new int[2] { -70, -300 };
+        dict[19] = new int[2] { -72, -300 };
+
+        dict[20] = new int[2] { -74, -295 };
+        dict[21] = new int[2] { -77, -290 };
+        dict[22] = new int[2] { -78, -288 };
+        dict[23] = new int[2] { -80, -288 };
+        dict[24] = new int[2] { -82, -286 };
+        dict[25] = new int[2] { -86, -283 };
+        dict[26] = new int[2] { -88, -278 };
+        dict[27] = new int[2] { -89, -273 };
+        dict[28] = new int[2] { -89, -271 };
+        dict[29] = new int[2] { -91, -268 };
 
         dict[30] = new int[2] { -93, -265 };
         dict[31] = new int[2] { -95, -263 };
@@ -448,6 +462,7 @@ public class HomeNewViewController : ViewControllerBase
     //「ニックネーム」ボタンが押されると呼び出される
     public void OnProfileButtonTap()
     {
+        PlayerPrefs.SetInt("tapFromHome", 1);
         SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.Profile);
     }
 
@@ -467,6 +482,7 @@ public class HomeNewViewController : ViewControllerBase
     /// </summary>
     public void OnDeviceSettingButtonTap()
     {
+        PlayerPrefs.SetInt("tapFromHome", 1);
         SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
     }
 

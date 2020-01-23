@@ -31,4 +31,16 @@ public class ViewControllerBase : MonoBehaviour {
 		//ダイアログ表示中であれば、遷移しないように
 		return !DialogBase.IsDisp ();
 	}
+
+    public bool isTapFromHome()
+    {
+        int tapFromHome = PlayerPrefs.GetInt("tapFromHome", 0);
+        if (tapFromHome == 1)
+        {
+            PlayerPrefs.SetInt("tapFromHome", 0); //Reset
+            return true;
+        }
+
+        return false;
+    }
 }

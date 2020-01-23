@@ -49,7 +49,7 @@ public class DeviceSettingViewController : ViewControllerBase {
     /// </summary>
     public void OnReturnButtonTap() {
         FlushTempDeviceSetting();
-        SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.Setting);
+        SceneTransitionManager.LoadLevel(isTapFromHome() ? SceneTransitionManager.LoadScene.Home : SceneTransitionManager.LoadScene.Setting);
     }
 
     /// <summary>
