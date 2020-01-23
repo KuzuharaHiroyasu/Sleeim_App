@@ -1552,6 +1552,7 @@ GameObject:
   - component: {fileID: 1404055858}
   - component: {fileID: 1404055859}
   - component: {fileID: 1404055860}
+  - component: {fileID: 1404055861}
   m_Layer: 5
   m_Name: Panel
   m_TagString: Untagged
@@ -1595,9 +1596,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b89640b496220478b88a0313df93bf32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1404055861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1404055857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 594bc4782c7c4eb4d85cbc9679ec0dc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   isAutoScale: 0
-  simulateOnPlay: 1
-  simulateType: 1
+  simulateOnPlay: 0
+  simulateType: 2
   isPortrait: 1
 --- !u!1 &1620652254
 GameObject:
