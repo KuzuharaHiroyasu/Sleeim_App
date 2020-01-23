@@ -5213,9 +5213,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 820434870}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b89640b496220478b88a0313df93bf32, type: 3}
+  m_Script: {fileID: 11500000, guid: 594bc4782c7c4eb4d85cbc9679ec0dc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isAutoScale: 1
+  simulateOnPlay: 1
+  simulateType: 1
+  isPortrait: 1
 --- !u!1 &836120645
 GameObject:
   m_ObjectHideFlags: 0
