@@ -372,7 +372,7 @@ Prefab:
     - target: {fileID: 114017440171118696, guid: 9039ebbe05ac38443aeba4f65eb1c866,
         type: 2}
       propertyPath: m_Text
-      value: "\u5F37"
+      value: "\u9AD8"
       objectReference: {fileID: 0}
     - target: {fileID: 224376934641715256, guid: 9039ebbe05ac38443aeba4f65eb1c866,
         type: 2}
@@ -675,7 +675,7 @@ Prefab:
     - target: {fileID: 114017440171118696, guid: 9039ebbe05ac38443aeba4f65eb1c866,
         type: 2}
       propertyPath: m_Text
-      value: "\u5F31"
+      value: "\u4F4E"
       objectReference: {fileID: 0}
     - target: {fileID: 114860636548708000, guid: 9039ebbe05ac38443aeba4f65eb1c866,
         type: 2}
@@ -697,6 +697,10 @@ Prefab:
       propertyPath: m_Group
       value: 
       objectReference: {fileID: 911065916}
+    - target: {fileID: 1636901328701490, guid: 9039ebbe05ac38443aeba4f65eb1c866, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 9039ebbe05ac38443aeba4f65eb1c866, type: 2}
   m_IsPrefabParent: 0
