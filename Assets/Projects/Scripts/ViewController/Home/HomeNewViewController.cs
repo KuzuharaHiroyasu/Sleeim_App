@@ -492,6 +492,39 @@ public class HomeNewViewController : ViewControllerBase
         StartCoroutine(SyncDevice());
     }
 
+    public void onDeviceIconTap()
+    {
+        StartCoroutine(ConnectOrDisConnectDevice());
+    }
+
+    IEnumerator ConnectOrDisConnectDevice()
+    {
+        bool isConnecting = UserDataManager.State.isConnectingDevice();
+        if (isConnecting)
+        {
+            //デバイスとの接続を切る
+            BluetoothManager.Instance.Disconnect();
+            deviceIcon.sprite = deviceIcon_NotConnecting;
+        }
+        else
+        {
+            //デバイスと接続
+            string deviceName = UserDataManager.Device.GetPareringDeviceName();
+            string deviceAdress = UserDataManager.Device.GetPareringBLEAdress();
+            bool isDeviceConnectSuccess = false;
+            yield return StartCoroutine(DeviceConnect(deviceName, deviceAdress, (bool isSuccess) => isDeviceConnectSuccess = isSuccess));
+            Debug.Log("Connecting_Result:" + isDeviceConnectSuccess);
+            if (!isDeviceConnectSuccess)
+            {
+                //デバイス接続に失敗すれば
+                yield break;
+            }
+
+            //デバイスアイコンの表示を更新する
+            UpdateDeviceIcon();
+        }
+    }
+
     /*** Private functions ***/
     //デバイスと同期をとる
     IEnumerator SyncDevice()

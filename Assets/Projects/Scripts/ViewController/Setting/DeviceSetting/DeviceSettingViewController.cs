@@ -21,6 +21,7 @@ public class DeviceSettingViewController : ViewControllerBase {
     /// 一時保存されたデバイス設定
     /// </summary>
     public static DeviceSetting TempDeviceSetting;
+    public static DeviceSetting LastDeviceSetting;
 
     /// <summary>
     /// シーンタグ
@@ -40,6 +41,7 @@ public class DeviceSettingViewController : ViewControllerBase {
         if (TempDeviceSetting == null) {
             TempDeviceSetting = UserDataManager.Setting.DeviceSettingData.Load();
         }
+        LastDeviceSetting = UserDataManager.Setting.DeviceSettingData.Load();
 
         showCurrentSettingInfo();
     }
@@ -48,7 +50,54 @@ public class DeviceSettingViewController : ViewControllerBase {
     /// 戻るボタン押下イベントハンドラ
     /// </summary>
     public void OnReturnButtonTap() {
-        FlushTempDeviceSetting();
+        StartCoroutine(BackButtonCoroutine());
+    }
+
+    IEnumerator BackButtonCoroutine()
+    {
+        bool? isSaveSetting = null;
+
+        if (LastDeviceSetting != null && TempDeviceSetting != null)
+        {
+            if (LastDeviceSetting.ActionMode != TempDeviceSetting.ActionMode
+                || LastDeviceSetting.SnoreSensitivity != TempDeviceSetting.SnoreSensitivity
+                || LastDeviceSetting.SuppressionOperationMaxTime != TempDeviceSetting.SuppressionOperationMaxTime)
+            {
+                MessageDialog.Show(
+                "設定が保存されていません。保存しますか？",
+                    useOK: true,
+                    useCancel: true,
+                    onOK: () => { isSaveSetting = true;  },
+                    onCancel: () => { isSaveSetting = false; },
+                    positiveItemName: "はい",
+                    negativeItemName: "保存せずもどる");
+                    yield return new WaitUntil(() => isSaveSetting != null);
+            }
+        }
+
+        if(isSaveSetting == true) {
+            bool isSuccess = false;
+            string message = "設定変更に失敗しました。";
+
+            yield return StartCoroutine(SendCommandToDeviceCoroutine(
+                                        DeviceSetting.CommandCode,
+                                        (bool b) => isSuccess = b));
+            if (isSuccess) {
+                SaveDeviceSetting();
+                message = "設定を変更しました。";
+            }
+
+            bool isOk = false;
+            MessageDialog.Show(
+                message,
+                useOK: true,
+                useCancel: false,
+                onOK: () => isOk = true);
+            yield return new WaitUntil(() => isOk);
+        } else {
+            FlushTempDeviceSetting();
+        }
+
         SceneTransitionManager.LoadLevel(isTapFromHome() ? SceneTransitionManager.LoadScene.Home : SceneTransitionManager.LoadScene.Setting);
     }
 
@@ -136,6 +185,7 @@ public class DeviceSettingViewController : ViewControllerBase {
             (bool b) => isSuccess = b));
         if (isSuccess) {
             SaveDeviceSetting();
+            LastDeviceSetting = UserDataManager.Setting.DeviceSettingData.Load();
             yield return StartCoroutine(ShowMessageDialogCoroutine("設定を変更しました。"));
         } else {
             yield return StartCoroutine(ShowMessageDialogCoroutine("設定変更に失敗しました。"));
