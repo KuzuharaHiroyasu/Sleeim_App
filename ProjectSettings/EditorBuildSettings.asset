@@ -110,3 +110,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Projects/Scenes/Home/HomeNew.unity
     guid: 752b5afbd991e074087ca324e0089224
+  - enabled: 1
+    path: Assets/Projects/Scenes/Setting/Profile/Birth.unity
+    guid: a3add28cc1a1c436e9b6210d3d9fc26d

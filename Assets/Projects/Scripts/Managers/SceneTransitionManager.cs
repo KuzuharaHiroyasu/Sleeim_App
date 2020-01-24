@@ -45,7 +45,8 @@ public class SceneTransitionManager : MonoBehaviour {
 		BTConnect,			//デバイス接続
 		PrivacyPolicy,		//プライバシーポリシー
 		TermsOfUse,			//利用規約
-        GraphCompare        //比較のグラフ
+        GraphCompare,        //比較のグラフ
+		Birth				//生年月日
 	};
 
 	/// <summary>
@@ -160,6 +161,8 @@ public class SceneTransitionManager : MonoBehaviour {
 			return LoadScene.InitialLunch;
 		case LoadScene.TermsOfUse:
 			return LoadScene.InitialLunch;
+		case LoadScene.Birth:
+			return LoadScene.Profile;
 		default:
 			return LoadScene.Other;
 		}
@@ -295,6 +298,10 @@ public class SceneTransitionManager : MonoBehaviour {
 			break;
 		case LoadScene.TermsOfUse:
 			sceneName = "TermsOfUse";
+			isUseTab = false;
+			break;
+		case LoadScene.Birth:
+			sceneName = "Birth";
 			isUseTab = false;
 			break;
 		default:

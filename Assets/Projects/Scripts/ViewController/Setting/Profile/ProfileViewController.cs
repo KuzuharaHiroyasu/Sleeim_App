@@ -159,6 +159,12 @@ public class ProfileViewController : ViewControllerBase {
 
 	//生年月日のボタンが押されたときに日付ピッカーを表示する
 	public void OnBirthDayButtonTap (Object button) {
+
+
+		#if UNITY_ANDROID
+		SceneTransitionManager.LoadLevel (SceneTransitionManager.LoadScene.Birth);
+		return;
+		#endif
 		DateTime initDate = UserDataManager.Setting.Profile.GetBirthDay ();
 		NativePicker.Instance.ShowDatePicker (GetScreenRect (button as GameObject), initDate, (long val) => {
 			//日付が変更された
