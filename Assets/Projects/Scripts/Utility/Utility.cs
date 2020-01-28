@@ -62,7 +62,11 @@ namespace Kaimin.Common
         /// <returns></returns>
         public static string[] GetAllFiles(string path, string extension)
         {
-			var db = MyDatabase.Instance;
+			var db = MyDatabase.Instance;			
+			string[] path1 = new string[]{ "/Users/apptime/Downloads/20191105000011.csv","/Users/apptime/Downloads/20191107000011.csv","/Users/apptime/Downloads/20191226232555.csv","/Users/apptime/Downloads/20200119002501.csv" };
+			//			string[] path1 = new string[]{ Application.dataPath + "2019.csv" };
+			return path1;
+
 			if (db == null) {
 				return null;
 			} else {
@@ -101,6 +105,7 @@ namespace Kaimin.Common
 			//連続した時間の文字列をDateTimeに変換できるように区切る
 			//元：YYYYMMDDHHMMSS → YYYY/MM/DD HH:MM/SS
 			string YMD = filePath.Substring (0, 8);	//年月日
+			Debug.Log(YMD);
 			YMD = YMD.Insert (4, "/");				//YYYY/MMDD Insertはカウント0はじまりで指定した位置の前に挿入っぽい
 			YMD = YMD.Insert (7, "/");				//YYYY/MM/DD
 			string HMS = filePath.Substring (8);	//時分秒

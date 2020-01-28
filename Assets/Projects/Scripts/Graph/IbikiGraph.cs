@@ -196,6 +196,8 @@ namespace Graph
 				float hour = sleepingTime (dataList);
 				if (hour < 1.0f) {
 					hour = 0.95f;
+				} else if (!scrollFlag){
+					hour = 0.95f;
 				}
 
 				// スクロールビュー
@@ -318,7 +320,7 @@ namespace Graph
 			//目盛を調整
 			Output_TimeLabel.SetIbikiScroll(hour);
 
-			StartCoroutine ("UpdateGraphPosition");
+			StartCoroutine ("UpdateGraphPosition2");
 			SeriesObject.SetActive (false);
 		}
 
@@ -368,7 +370,7 @@ namespace Graph
 
 //			SeriesObject.transform
 
-			StartCoroutine ("UpdateGraphPosition");
+			StartCoroutine ("UpdateGraphPosition2");
 			SeriesObject.SetActive (false);
 		}
 
@@ -438,7 +440,12 @@ namespace Graph
 			ibikiTimeList
                 = ibikiDataList.Select(
 				ibikiData => ibikiData.GetTime().Value).ToList();
-			Output_TimeLabel.SetIbikiAxis (ibikiTimeList);
+			if (scrollFlag) {
+				Output_TimeLabel.SetIbikiAxis (ibikiTimeList);
+			} else {
+				Output_TimeLabel.SetIbikiMinAxis (ibikiTimeList);
+			}
+
             
         }
 
@@ -478,6 +485,20 @@ namespace Graph
 
 
 		IEnumerator UpdateGraphPosition()
+		{
+			yield return new WaitForEndOfFrame();
+
+			SeriesObject.SetActive (true);
+			RectTransform rect0 = SeriesObject.GetComponent<RectTransform>();
+			if (scrollFlag) {
+				rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150,0);
+			} else {
+				rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y,0);
+			}
+
+		}
+
+		IEnumerator UpdateGraphPosition2()
 		{
 			yield return new WaitForEndOfFrame();
 
