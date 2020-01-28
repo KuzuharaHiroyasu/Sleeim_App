@@ -116,6 +116,13 @@ public class WMG_Series : MonoBehaviour {
 		graduallySetPointFlow = null;	//処理が終わったことを他から判定できるようにnullを入れる
 	}
 
+	public bool isRunningGraduallySetPointFlow() {
+		if (graduallySetPointFlow != null) {
+			return true;
+		}
+		return false;
+	}
+
 	/// <summary>
 	/// すべてのポイントを削除します
 	/// </summary>

@@ -48,8 +48,10 @@ namespace Graph
 		public GameObject TimeObjectParent;
 
 		public ScrollRect ScrollRect;
+		public GameObject LinkParent;
 
 		bool onceDisplayFlag = false;
+		List<System.DateTime> ibikiTimeList;
 
         void Awake()
         {
@@ -276,6 +278,100 @@ namespace Graph
             Output_AnalyzeTable.SetActive(false);
         }
 
+		public void ReSizeBig(){
+			float hour = _sleepingTime;
+
+			// スクロールビュー
+			RectTransform sRect = ScrollObject.GetComponent<RectTransform>();
+			var y2 = sRect.transform.position.y;
+			sRect.sizeDelta=new Vector2(600*hour,186.3f); //サイズが変更できる
+
+			// スクロール位置を初期化
+			if (onceDisplayFlag) {
+				ScrollRect.horizontalNormalizedPosition = 0.0f;
+			}
+
+			RectTransform rect0 = IbikiMainGraph.GetComponent<RectTransform>();
+			var x = rect0.transform.position.x;
+			var y = rect0.transform.position.y;
+
+
+			rect0.sizeDelta=new Vector2(600*hour,227);
+			if (onceDisplayFlag) {
+				rect0.localPosition=new Vector3(600*hour/2,200-321);
+			} else {
+				rect0.localPosition=new Vector3(600*hour/2,200);
+			}
+
+			if (Output_Line.isRunningGraduallySetPointFlow ()) {
+				Debug.Log ("描画中");
+			} else {
+				Debug.Log ("描画終了");
+				// 再描画する
+				SetIbikiDataToLineGraph(dataList);
+			}
+
+			// 頭の位置
+			HeadDirGraphObject.GetComponent<HeadDirGraph> ().ResizeHeadDirDataBar (600 * hour);
+			//グラフの時間軸も合わせて設定
+			Output_TimeLabel.SetIbikiAxis (ibikiTimeList);
+			//目盛を調整
+			Output_TimeLabel.SetIbikiScroll(hour);
+
+			StartCoroutine ("UpdateGraphPosition");
+			SeriesObject.SetActive (false);
+		}
+
+
+		public void ReSizeMin(){
+			float hour = 0.95f;
+
+			// スクロールビュー
+			RectTransform sRect = ScrollObject.GetComponent<RectTransform>();
+			var y2 = sRect.transform.position.y;
+			sRect.sizeDelta=new Vector2(600*hour,186.3f); //サイズが変更できる
+
+			// スクロール位置を初期化
+			if (onceDisplayFlag) {
+				ScrollRect.horizontalNormalizedPosition = 0.0f;
+			}
+				
+			RectTransform rect0 = IbikiMainGraph.GetComponent<RectTransform>();
+			var x = rect0.transform.position.x;
+			var y = rect0.transform.position.y;
+
+
+			rect0.sizeDelta=new Vector2(600*hour,227);
+			if (onceDisplayFlag) {
+				rect0.localPosition=new Vector3(600*hour/2,200-321);
+			} else {
+				rect0.localPosition=new Vector3(600*hour/2,200);
+			}
+
+			if (Output_Line.isRunningGraduallySetPointFlow ()) {
+				Debug.Log ("描画中");
+			} else {
+				Debug.Log ("描画終了");
+				// 再描画する
+				SetIbikiDataToLineGraph(dataList);
+			}
+
+//			RectTransform rect1 = SeriesObject.GetComponent<RectTransform>();
+//			rect1.localPosition=new Vector3(rect1.transform.localPosition.x,rect1.transform.localPosition.y-150,0);
+
+			// 頭の位置
+			HeadDirGraphObject.GetComponent<HeadDirGraph> ().ResizeHeadDirDataBar (600 * hour);
+			//グラフの時間軸も合わせて設定
+			Output_TimeLabel.SetIbikiMinAxis (ibikiTimeList);
+			//目盛を調整
+			Output_TimeLabel.SetIbikiScroll(hour);
+
+//			SeriesObject.transform
+
+			StartCoroutine ("UpdateGraphPosition");
+			SeriesObject.SetActive (false);
+		}
+
         //いびきのデータを分析して表に表示する
         void SetIbikiDataToAnalyzeTable()
         {
@@ -339,10 +435,10 @@ namespace Graph
             Output_Line.lineColor = lineColor;
             Output_Line.SetPointValues(valueList);
             //グラフの時間軸も合わせて設定
-            List<System.DateTime> timeList
+			ibikiTimeList
                 = ibikiDataList.Select(
 				ibikiData => ibikiData.GetTime().Value).ToList();
-			Output_TimeLabel.SetIbikiAxis (timeList);
+			Output_TimeLabel.SetIbikiAxis (ibikiTimeList);
             
         }
 
@@ -352,12 +448,30 @@ namespace Graph
             Output_Line.ClearPointValues();
         }
 
+		private float _sleepingTime;
+
+		public float sleepingTime(){
+			return _sleepingTime;
+		}
+
+		private bool scrollFlag = true;
+
+		public bool IsScroll() {
+			return scrollFlag;
+		}
+
+		public void setScroll(bool flag) {
+			scrollFlag = flag;
+		}
+
 		float sleepingTime(List<IbikiGraph.Data> dataList){
 
 			System.DateTime detectionStartTime = dataList.First().GetTime().Value;
 			System.DateTime detectionEndTime = dataList.Last().GetTime().Value.AddSeconds(20);
 
 			System.TimeSpan diff = detectionEndTime - detectionStartTime;
+
+			_sleepingTime = (float)(diff.TotalHours);
 
 			return (float)(diff.TotalHours);
 		}

@@ -292,7 +292,46 @@ namespace Graph
             }
             System.TimeSpan timeSpan = new System.TimeSpan(0, 0, detectTime);
             return timeSpan.ToString();	//hh:mm:ssの形式に変換して返す
-        }
+		}
+
+
+		public void ResizeBig(){
+
+
+			if (dataList != null)
+			{
+				//グラフに表示するためにラベルデータを作成
+				List<LabelData> labelDataList = TransSensingDataToLabelData(dataList);
+				//バーグラフに呼吸データを設定・表示
+				SetBreathDataToBarChart(dataList, labelDataList);
+				//分析データを設定・表示
+				SetBreathDataToAnalyzeTable();
+				//集計のバーグラフを設定・表示
+				SetBreathDataToPercentageBarChart(dataList);
+
+			}
+		}
+
+
+		public void ResizeMin(){
+
+
+			if (dataList != null)
+			{
+				//グラフに表示するためにラベルデータを作成
+				List<LabelData> labelDataList = TransSensingDataToLabelData(dataList);
+				//バーグラフに呼吸データを設定・表示
+				SetBreathDataToBarChart(dataList, labelDataList);
+				//分析データを設定・表示
+				SetBreathDataToAnalyzeTable();
+				//集計のバーグラフを設定・表示
+				SetBreathDataToPercentageBarChart(dataList);
+
+			}
+		}
+
+		public float sleepingTime = 1.0f;
+
 
         //呼吸のデータを折れ線グラフに表示する
         void SetBreathDataToLineGraph(List<Data> breathDataList)

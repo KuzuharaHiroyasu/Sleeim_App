@@ -138,7 +138,7 @@ namespace Graph
         }
 
         //データをグラフに設定します
-        void AttatchDataToGraph()
+        public void AttatchDataToGraph()
         {
             if (dataList == null)
                 return;

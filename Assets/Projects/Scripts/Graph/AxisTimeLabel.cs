@@ -89,6 +89,34 @@ namespace Graph {
 			SetLabel (dispTimeList, dispTimeLabelList, timeList.First (), timeList.Last ());
 		}
 
+		/// <summary>
+		/// イビキの時間のリストから軸の目盛り・ラベルを設定します。
+		/// 目盛り・ラベルは一時間間隔で設定されます。
+		/// </summary>
+		/// <param name="timeList">Time list.</param>
+		public void SetIbikiMinAxis (List<DateTime> timeList) {
+
+			ClearMark ();	//上書き可能にするため消しておく
+			ClearLabel ();	//上書き可能にするため消しておく
+
+			TimeSpan dispTimeSpan;
+			if (CulcTimeCount (timeList, new TimeSpan (1, 0, 0)) <= 6) {	//一時間間隔で6個以下なら
+				dispTimeSpan = new TimeSpan (1, 0, 0);
+			} else if (CulcTimeCount (timeList, new TimeSpan (2, 0, 0)) <= 6) {	//二時間間隔で6個以下なら
+				dispTimeSpan = new TimeSpan (2, 0, 0);
+			} else {
+				//最終5時間間隔で設定(12時間以上睡眠)
+				dispTimeSpan = new TimeSpan (5, 0, 0);
+			}
+			List<DateTime> dispTimeList;
+			List<string> dispTimeLabelList;
+			isDispStartAndEndTime = true;
+			CreateDispTimeList (timeList, dispTimeSpan, out dispTimeList, out dispTimeLabelList, true);
+			isDispStartAndEndTime = false;
+			SetMark (dispTimeList, timeList.First (), timeList.Last ());
+			SetLabel (dispTimeList, dispTimeLabelList, timeList.First (), timeList.Last ());
+		}
+
 		public void SetIbikiScroll(float magnification) {
 			int markObjCount = 0;
 			foreach (GameObject obj in markObjList) {
@@ -203,7 +231,7 @@ namespace Graph {
 		/// <param name="dispTimeSpan">時間間隔の指定</param>
 		/// <param name="resultTimeList">指定した時間間隔で取り出した時間のリスト</param>
 		/// <param name="resultLabelList">表示のために時間を文字列にしたもの</param>
-		void CreateDispTimeList (List<DateTime> timeList, TimeSpan dispTimeSpan, out List<DateTime> resultTimeList, out List<string> resultLabelList) {
+		void CreateDispTimeList (List<DateTime> timeList, TimeSpan dispTimeSpan, out List<DateTime> resultTimeList, out List<string> resultLabelList, bool displayMinute = false) {
 			List<DateTime> result = new List<DateTime> ();
 			List<string> resultLabel = new List<string> ();
 			DateTime first = timeList.First();
@@ -294,7 +322,7 @@ namespace Graph {
 				if (dispTimeSpan.Seconds > 0) {
 					//秒単位で表記が必要なら
 					resultLabel.Add (String.Format ("{0:0}", hour) + ":" + String.Format ("{0:00}", min) + ":" + String.Format ("{0:00}", sec));
-				} else if (dispTimeSpan.Minutes > 0) {
+				} else if (dispTimeSpan.Minutes > 0 || displayMinute) {
 					//分単位で表記が必要なら
 					resultLabel.Add (String.Format ("{0:0}", hour) + ":" + String.Format ("{0:00}", min));
 				} else {
