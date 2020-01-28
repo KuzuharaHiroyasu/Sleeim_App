@@ -192,73 +192,78 @@ public class HomeNewViewController : ViewControllerBase
         string dataPath = Kaimin.Common.Utility.GsDataPath();
         string[] filepaths = Kaimin.Common.Utility.GetAllFiles(dataPath, "*.csv");
 
-        if (filepaths != null && filepaths.Length != 0)
+        try
         {
-            int _selectIndex = filepaths.Length - 1; //最新のファイルを取得
-            latestSleepDatas = CSVSleepDataReader.GetSleepDatas(filepaths[_selectIndex]); //最新の睡眠データのリスト
-            latestSleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(filepaths[_selectIndex]);	//最新の睡眠データのヘッダーデータ
-
-            if (latestSleepHeaderData != null && latestSleepDatas != null)
+            if (filepaths != null && filepaths.Length != 0)
             {
-                DateTime startTime = latestSleepHeaderData.DateTime;
-                DateTime endTime = latestSleepDatas.Select(data => data.GetDateTime()).Last();
+                int _selectIndex = filepaths.Length - 1; //最新のファイルを取得
+                latestSleepDatas = CSVSleepDataReader.GetSleepDatas(filepaths[_selectIndex]); //最新の睡眠データのリスト
+                latestSleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(filepaths[_selectIndex]); //最新の睡眠データのヘッダーデータ
 
-                //Step1: Update SleepTime
-                int sleepTimeSec = Graph.Time.GetDateDifferencePerSecond(startTime, endTime);
-                System.TimeSpan ts = new System.TimeSpan(hours: 0, minutes: 0, seconds: sleepTimeSec);
-                int hourWithDay = 24 * ts.Days + ts.Hours;      // 24時間超えた場合の時間を考慮
-                string sleepTime = string.Format("{0:00}:{1:00}", hourWithDay, ts.Minutes);
-                sleepTimeText.text = sleepTime;
-
-                //Step2: Show pie chart
-                chartInfo = CSVManager.convertSleepDataToChartInfo(latestSleepDatas);
-                if (chartInfo != null)
+                if (latestSleepHeaderData != null && latestSleepDatas != null)
                 {
-                    double p1 = System.Math.Round((double)(chartInfo.pKaiMin * 100), 1);
-                    double p2 = System.Math.Round((double)(chartInfo.pIbiki * 100), 1);
-                    double p3 = System.Math.Round((double)(chartInfo.pMukokyu * 100), 1);
-                    double p4 = 100 - p1 - p2 - p3;
-                    p4 = p4 < 0.1 ? 0 : System.Math.Round(p4, 1);
+                    DateTime startTime = latestSleepHeaderData.DateTime;
+                    DateTime endTime = latestSleepDatas.Select(data => data.GetDateTime()).Last();
 
-                    //p1 = 5; p2 = 6; p3 = 7; p4 = 82;
-                    //p1 = 95; p2 = 3; p3 = 2; p4 = 0;
-                    double[] pieValues = new double[4] { p1, p2, p3, p4 }; //Percents of pKaiMin, Ibiki, Mukokyu, Fumei
-                    string[] pieLabels = new string[4] { "快眠", "いびき", "無呼吸", "不明" };
-                    makePieChart(pieValues, pieLabels);
+                    //Step1: Update SleepTime
+                    int sleepTimeSec = Graph.Time.GetDateDifferencePerSecond(startTime, endTime);
+                    System.TimeSpan ts = new System.TimeSpan(hours: 0, minutes: 0, seconds: sleepTimeSec);
+                    int hourWithDay = 24 * ts.Days + ts.Hours;      // 24時間超えた場合の時間を考慮
+                    string sleepTime = string.Format("{0:00}:{1:00}", hourWithDay, ts.Minutes);
+                    sleepTimeText.text = sleepTime;
+
+                    //Step2: Show pie chart
+                    chartInfo = CSVManager.convertSleepDataToChartInfo(latestSleepDatas);
+                    if (chartInfo != null)
+                    {
+                        double p1 = System.Math.Round((double)(chartInfo.pKaiMin * 100), 1);
+                        double p2 = System.Math.Round((double)(chartInfo.pIbiki * 100), 1);
+                        double p3 = System.Math.Round((double)(chartInfo.pMukokyu * 100), 1);
+                        double p4 = 100 - p1 - p2 - p3;
+                        p4 = p4 < 0.1 ? 0 : System.Math.Round(p4, 1);
+
+                        //p1 = 5; p2 = 6; p3 = 7; p4 = 82;
+                        //p1 = 95; p2 = 3; p3 = 2; p4 = 0;
+                        double[] pieValues = new double[4] { p1, p2, p3, p4 }; //Percents of pKaiMin, Ibiki, Mukokyu, Fumei
+                        string[] pieLabels = new string[4] { "快眠", "いびき", "無呼吸", "不明" };
+                        makePieChart(pieValues, pieLabels);
+                    }
+
+                    //Step 3: Change color of CircleOuter by sleepLevel (睡眠レベルによって色を変える)
+                    //レベル１ 無呼吸平均回数(時)が５回以上 (Dark Gray: 716D6D)
+                    //レベル２ いびき割合が50％以上 (Light Gray: 888D8D)
+                    //レベル３ いびき割合が25％以上 (Red: F20C37)
+                    //レベル４ 睡眠時間が７時間未満 (Yellow: EADB58)
+                    //レベル５ 上記すべての項目を満たしていない (Blue: 3659E5)
+                    int sleepLevel = 5; //Default
+                    int apneaCount = latestSleepHeaderData.ApneaDetectionCount;
+                    double sleepTimeTotal = endTime.Subtract(startTime).TotalSeconds;
+                    //無呼吸平均回数(時)
+                    double apneaAverageCount = sleepTimeTotal == 0 ? 0 : (double)(apneaCount * 3600) / sleepTimeTotal;  // 0除算を回避
+                    apneaAverageCount = Math.Truncate(apneaAverageCount * 10) / 10.0;   // 小数点第2位以下を切り捨て
+                    if (apneaAverageCount >= 5) {
+                        sleepLevel = 1;
+                    } else if (chartInfo.pIbiki >= 0.5) {
+                        sleepLevel = 2;
+                    } else if (chartInfo.pIbiki >= 0.25) {
+                        sleepLevel = 3;
+                    } else if (sleepTimeTotal < 7 * 3600) {
+                        sleepLevel = 4;
+                    }
+
+                    //System.Random random = new System.Random();
+                    //sleepLevel = random.Next(0, 5);
+                    String[] levelColors = new String[5] { "#716D6D", "#888D8D", "#F20C37", "#EADB58", "#3659E5" };
+                    circleOuter.GetComponent<Image>().color = convertHexToColor(levelColors[sleepLevel]);
                 }
-
-                //Step 3: Change color of CircleOuter by sleepLevel (睡眠レベルによって色を変える)
-                //レベル１ 無呼吸平均回数(時)が５回以上 (Dark Gray: 716D6D)
-                //レベル２ いびき割合が50％以上 (Light Gray: 888D8D)
-                //レベル３ いびき割合が25％以上 (Red: F20C37)
-                //レベル４ 睡眠時間が７時間未満 (Yellow: EADB58)
-                //レベル５ 上記すべての項目を満たしていない (Blue: 3659E5)
-                int sleepLevel = 5; //Default
-                int apneaCount = latestSleepHeaderData.ApneaDetectionCount;
-                double sleepTimeTotal = endTime.Subtract(startTime).TotalSeconds;
-                //無呼吸平均回数(時)
-                double apneaAverageCount = sleepTimeTotal == 0 ? 0 : (double)(apneaCount * 3600) / sleepTimeTotal;  // 0除算を回避
-                apneaAverageCount = Math.Truncate(apneaAverageCount * 10) / 10.0;   // 小数点第2位以下を切り捨て
-                if (apneaAverageCount >= 5) {
-                    sleepLevel = 1;
-                } else if (chartInfo.pIbiki >= 0.5) {
-                    sleepLevel = 2;
-                } else if (chartInfo.pIbiki >= 0.25) {
-                    sleepLevel = 3;
-                } else if (sleepTimeTotal < 7*3600) {
-                    sleepLevel = 4;
-                }
-
-                //System.Random random = new System.Random();
-                //sleepLevel = random.Next(0, 5);
-                String[] levelColors = new String[5] { "#716D6D", "#888D8D", "#F20C37", "#EADB58", "#3659E5" };
-                circleOuter.GetComponent<Image>().color = convertHexToColor(levelColors[sleepLevel]);
             }
+        } catch (System.Exception e) {
         }
 
         if (chartInfo == null) //No data 
         {
-            circleOuter.SetActive(false);
+            //circleOuter.SetActive(false);
+            circleOuter.GetComponent<Image>().color = convertHexToColor("#3659E5"); //Blue
             pieInfo.hidePieInfo();
             piePrefab.fillAmount = 0;
             sleepTimeText.text = "-";

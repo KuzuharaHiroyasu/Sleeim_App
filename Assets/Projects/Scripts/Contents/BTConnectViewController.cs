@@ -525,7 +525,7 @@ public class BTConnectViewController : ViewControllerBase
         }
 
         //睡眠データを取得
-        yield return StartCoroutine(homeController.GetSleepDataFlow(
+        yield return StartCoroutine(GetSleepDataFlow(
             getDataCount,
             (List<string> _csvPathList) =>
             {
@@ -619,6 +619,119 @@ public class BTConnectViewController : ViewControllerBase
             onSelectButton(false);
             onGetDataCount(dataCount);
         }
+    }
+
+    //デバイスから睡眠データを取得する
+    IEnumerator GetSleepDataFlow(int dataCount, Action<List<string>> onGetCSVPathList, Action<List<string>> onGetCSVNameList)
+    {
+        List<string> csvPathList = null;
+        List<string> csvNameList = null;
+        //デバイスが保持しているデータ件数が1件以上であれば、睡眠データを取得する
+        if (dataCount > 0)
+        {
+            //デバイスに睡眠データがあれば
+            //睡眠データ取得
+            yield return StartCoroutine(GetSleepData(
+                dataCount,
+                (List<string> _csvPathList) =>
+                {
+                    csvPathList = _csvPathList;
+                },
+                (List<string> _csvNameList) =>
+                {
+                    csvNameList = _csvNameList;
+                }));
+        }
+        onGetCSVPathList(csvPathList);
+        onGetCSVNameList(csvNameList);
+    }
+
+    //デバイスから睡眠データを取得する
+    IEnumerator GetSleepData(int dataCount, Action<List<string>> onGetCSVPathList, Action<List<string>> onGetCSVNameList)
+    {
+        //スリープしないように設定
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+        //データが存在すれば以下の処理を実行
+        Debug.Log("データ取得コマンド");
+        CsvHeaderSet();	//GET前に必ず実行する
+
+        //データ取得開始
+        UpdateDialog.Show("本体から睡眠データを取得しています。\n" + 0 + "/" + dataCount + "件");
+        bool isSuccess = false;
+        bool isFailed = false;
+        List<string> filePathList = new List<string>();	//CSVの添付パスリスト
+        List<string> fileNameList = new List<string>();	//CSVのファイル名リスト
+        BluetoothManager.Instance.SendCommandId(
+            3,
+            (string data) =>
+            {
+                //エラー時
+                Debug.Log("GetData:failed:" + data);
+                isFailed = true;
+            },
+            (bool success) =>
+            {
+                Debug.Log("GetData:commandWrite:" + success);
+                if (!success)
+                    isFailed = true;
+            },
+            (string data) =>
+            {
+                Debug.Log("GetData:commandResponse:" + data);
+                var j = Json.Deserialize(data) as Dictionary<string, object>;
+                bool success = Convert.ToBoolean(j["KEY2"]);
+                if (!success)
+                    isFailed = true;
+            },
+            (string data) =>
+            {
+                //データ取得情報
+                var json = Json.Deserialize(data) as Dictionary<string, object>;
+                int currentDataCount = Convert.ToInt32(json["KEY1"]);		//現在の取得カウント（例：1件取得完了したら1で返される）
+                bool isExistNextData = Convert.ToBoolean(json["KEY2"]);	//TRUEなら次のデータがある
+                bool isEndData = Convert.ToBoolean(json["KEY3"]);			//TRUEなら次のデータはな（Unity側でアプリ処理を行ってから、5秒以内にデータ取得完了応答を返す）
+                string csvFilePath = (string)json["KEY4"];				//CSVのパスの添付パス。dataフォルダ以下のパスが返される（例：/1122334455:66/yyyyMMdd/tmp01.csv）
+                csvFilePath = csvFilePath.Substring(1);					//先頭のスラッシュを取り除く
+                string csvFileName = (string)json["KEY5"];				//CSVのファイル名。最終的にUnity側でDB登録時にリネームしてもらうファイル名（例：20180624182431.csv）
+                filePathList.Add(csvFilePath);
+                fileNameList.Add(csvFileName);
+                UpdateDialog.ChangeMessage("本体から睡眠データを取得しています。\n" + currentDataCount + "/" + dataCount + "件");
+                if (isEndData)
+                {
+                    //最後のデータを取得完了すれば
+                    isSuccess = true;
+                }
+            });
+        yield return new WaitUntil(() =>
+        {
+            return isSuccess || isFailed;
+        });
+        //スリープ設置解除
+        Screen.sleepTimeout = SleepTimeout.SystemSetting;
+        UpdateDialog.Dismiss();
+        onGetCSVPathList(filePathList.Count > 0 ? filePathList : null);
+        onGetCSVNameList(fileNameList.Count > 0 ? fileNameList : null);
+        Debug.Log("Return Get Data");
+    }
+
+    //CSVファイル作成時のヘッダ情報をセットする
+    //GETコマンド送信前に必須
+    void CsvHeaderSet()
+    {
+        //GETコマンド実行の前準備としてCsvHeaderSetコマンド実行
+        string deviceId = UserDataManager.Device.GetPareringDeviceAdress();
+        string nickName = UserDataManager.Setting.Profile.GetNickName();
+        string sex = UserDataManager.Setting.Profile.GetSex() == UserDataManager.Setting.Profile.Sex.Female
+            ? "女性"
+            : "男性";	//Unkownの場合は男性になる
+        var birthDay = UserDataManager.Setting.Profile.GetBirthDay();
+        string birthDayString = birthDay.Year.ToString("0000") + "/" + birthDay.Month.ToString() + "/" + birthDay.Day.ToString();
+        string tall = UserDataManager.Setting.Profile.GetBodyLength().ToString("0.0");
+        string weight = UserDataManager.Setting.Profile.GetWeight().ToString("0.0");
+        string sleepStartTime = UserDataManager.Setting.Profile.GetIdealSleepStartTime().ToString("HH:mm");
+        string sleepEndTime = UserDataManager.Setting.Profile.GetIdealSleepEndTime().ToString("HH:mm");
+        string g1dVersion = UserDataManager.Device.GetG1DAppVersion();
+        BluetoothManager.Instance.CsvHeaderSet(deviceId, nickName, sex, birthDayString, tall, weight, sleepStartTime, sleepEndTime, g1dVersion);
     }
 
     //デバイスのファームウェアが最新のものかどうか確認する処理の流れ

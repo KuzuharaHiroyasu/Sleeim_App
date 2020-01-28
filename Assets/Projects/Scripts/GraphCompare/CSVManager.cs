@@ -38,7 +38,7 @@ public class CSVManager
             }
             else if (page > 1)
             {
-                int end = (fileNum % 7 == 0) ? page * 7 : ((page - 1) * 7 + fileNum / 7);
+                int end = (fileNum % 7 == 0) ? page * 7 : ((page - 1) * 7 + fileNum % 7);
                 for (int i = end - 7; i < end; i++)
                 {
                     pageFileList.Add(fileList[i]);

@@ -89,21 +89,26 @@ public class GraphCompareViewController : ViewControllerBase
     {
         string[] unreadFileList = CSVManager.getUnreadCsvFileList(this.fileList, this.chartPref.savedLastFileName);
 
+        
         foreach (var filePath in unreadFileList)
         {
-            List<SleepData> sleepData = CSVManager.readSleepDataFromCsvFile(filePath);
-            ChartInfo chartInfo = CSVManager.convertSleepDataToChartInfo(sleepData);
-            if (chartInfo != null)
+            try
             {
-                CSVManager.convertSleepHeaderToChartInfo(chartInfo, filePath);
+                List<SleepData> sleepData = CSVManager.readSleepDataFromCsvFile(filePath);
+                ChartInfo chartInfo = CSVManager.convertSleepDataToChartInfo(sleepData);
+                if (chartInfo != null)
+                {
+                    CSVManager.convertSleepHeaderToChartInfo(chartInfo, filePath);
 
-                if (chartInfo.sleepMode == (int)SleepMode.Monitor)
-                {
-                    this.chartsOfMonitor.Add(chartInfo);
-                } else 
-                {
-                    this.chartsOfSuppress.Add(chartInfo);
+                    if (chartInfo.sleepMode == (int)SleepMode.Monitor)
+                    {
+                        this.chartsOfMonitor.Add(chartInfo);
+                    } else
+                    {
+                        this.chartsOfSuppress.Add(chartInfo);
+                    }
                 }
+            } catch (System.Exception e) {
             }
         }
 
@@ -238,14 +243,19 @@ public class GraphCompareViewController : ViewControllerBase
             string[] pageFileList = CSVManager.getCsvFileListByPage(this.fileList, page);
             foreach (var filePath in pageFileList)
             {
-                List<SleepData> sleepData = CSVManager.readSleepDataFromCsvFile(filePath);
-                ChartInfo chartInfo = CSVManager.convertSleepDataToChartInfo(sleepData);
-                if (chartInfo != null)
+                try
                 {
-                    chartInfo.endSleepTime = sleepData.Select(data => data.GetDateTime()).Last();
-                    CSVManager.convertSleepHeaderToChartInfo(chartInfo, filePath);
+                    List<SleepData> sleepData = CSVManager.readSleepDataFromCsvFile(filePath);
+                    ChartInfo chartInfo = CSVManager.convertSleepDataToChartInfo(sleepData);
+                    if (chartInfo != null)
+                    {
+                        chartInfo.endSleepTime = sleepData.Select(data => data.GetDateTime()).Last();
+                        CSVManager.convertSleepHeaderToChartInfo(chartInfo, filePath);
 
-                    this.chartsOfWeek.Add(chartInfo);
+                        this.chartsOfWeek.Add(chartInfo);
+                    }
+                } catch (System.Exception e) {
+
                 }
             }
         }

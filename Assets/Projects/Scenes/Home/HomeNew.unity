@@ -1023,12 +1023,12 @@ Prefab:
     - target: {fileID: 224653040014213616, guid: 05cd52f6ba474504e9950733017c5ad6,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 388
+      value: 389
       objectReference: {fileID: 0}
     - target: {fileID: 224653040014213616, guid: 05cd52f6ba474504e9950733017c5ad6,
         type: 2}
       propertyPath: m_SizeDelta.y
-      value: 388
+      value: 389
       objectReference: {fileID: 0}
     - target: {fileID: 224653040014213616, guid: 05cd52f6ba474504e9950733017c5ad6,
         type: 2}
