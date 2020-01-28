@@ -918,7 +918,7 @@ public class HomeNewViewController : ViewControllerBase
     }
 
     //デバイスからデータを取得完了した事をユーザに伝えるダイアログを表示させる
-    IEnumerator TellGetDataComplete(int getDataCount)
+    public IEnumerator TellGetDataComplete(int getDataCount)
     {
         bool isOk = false;
         MessageDialog.Show("<size=30>" + getDataCount + "件の睡眠データを取得しました。</size>", true, false, () => isOk = true);
@@ -926,7 +926,7 @@ public class HomeNewViewController : ViewControllerBase
     }
 
     //デバイスから取得したデータをリネームしてDBに登録する
-    IEnumerator RegistDataToDB(List<string> dataPathList, List<string> dataNameList)
+    public IEnumerator RegistDataToDB(List<string> dataPathList, List<string> dataNameList)
     {
         //DB登録
         for (int i = 0; i < dataPathList.Count; i++)
@@ -1030,7 +1030,7 @@ public class HomeNewViewController : ViewControllerBase
     }
 
     //デバイスから睡眠データを取得する
-    IEnumerator GetSleepDataFlow(int dataCount, Action<List<string>> onGetCSVPathList, Action<List<string>> onGetCSVNameList)
+    public IEnumerator GetSleepDataFlow(int dataCount, Action<List<string>> onGetCSVPathList, Action<List<string>> onGetCSVNameList)
     {
         List<string> csvPathList = null;
         List<string> csvNameList = null;
@@ -1142,7 +1142,7 @@ public class HomeNewViewController : ViewControllerBase
     }
 
     //デバイスからの睡眠データ取得処理を終了した事をデバイスに伝える
-    IEnumerator FinishGetData()
+    public IEnumerator FinishGetData()
     {
         Debug.Log("データ取得完了応答");
         bool isSuccess = false;
@@ -1274,7 +1274,7 @@ public class HomeNewViewController : ViewControllerBase
     }
 
     //電池残量を取得する
-    IEnumerator GetBatteryState(Action<bool> onResponse)
+    public IEnumerator GetBatteryState(Action<bool> onResponse)
     {
         bool isSuccess = false;
         bool isFailed = false;

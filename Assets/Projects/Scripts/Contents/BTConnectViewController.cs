@@ -437,7 +437,10 @@ public class BTConnectViewController : ViewControllerBase
         UserDataManager.Device.SavePareringBLEAdress(deviceAdress);
         UserDataManager.Device.SavePareringDeviceName(deviceName);
         //完了ダイアログ表示
-        yield return StartCoroutine(ShowPareringCompleteDialog(deviceName));
+        //yield return StartCoroutine(ShowPareringCompleteDialog(deviceName));
+        //同期(データ取得)
+        yield return StartCoroutine(SyncDeviceBleFlow());
+
         //データの復元が必要であればデータを復元する
         if (UserDataManager.State.isNessesaryRestore())
         {
@@ -457,8 +460,165 @@ public class BTConnectViewController : ViewControllerBase
                 yield return new WaitUntil(() => isCompleteRestore);
             }
         }
+
         //ホーム画面に遷移
         SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.Home);
+    }
+
+    //デバイスとの同期のBLE通信関連部分
+    //実行途中にエラーが起こった際に以降のBle通信処理を全て行わないようにするためにBle処理をまとめてる
+    IEnumerator SyncDeviceBleFlow()
+    {
+        HomeNewViewController homeController = new HomeNewViewController();
+
+        UpdateDialog.Show("同期中");
+        Debug.Log("/同期(データ取得)");
+
+        //デバイス時刻補正
+        bool isCorrectTimeSuccess = false;
+        DateTime correctDeviceTime = DateTime.MinValue;
+
+        yield return StartCoroutine(CorrectDeviceTime((bool isSuccess) => isCorrectTimeSuccess = isSuccess, correctDeviceTime));
+        if (!isCorrectTimeSuccess)
+        {
+            UpdateDialog.Dismiss();
+            yield return StartCoroutine(TellFailedSync());
+            yield break;	//エラーが発生した場合は以降のBle処理を飛ばす
+        }
+
+        //電池残量を取得
+        bool isGetBatteryStateSuccess = false;
+        yield return StartCoroutine(homeController.GetBatteryState((bool isSuccess) => isGetBatteryStateSuccess = isSuccess));
+        if (!isGetBatteryStateSuccess)
+        {
+            UpdateDialog.Dismiss();
+            yield return StartCoroutine(TellFailedSync());
+            yield break;	//エラーが発生した場合は以降のBle処理を飛ばす
+        }
+
+        UpdateDialog.Dismiss();
+        //デバイスに睡眠データがある場合、取得するかどうかユーザに尋ねる
+        bool isOk = false;
+        int getDataCount = -1;
+        List<string> csvPathList = null;
+        List<string> csvNameList = null;
+        yield return StartCoroutine(AskGetData(
+            (bool _isOk) => isOk = _isOk,
+            (int _getDataCount) => getDataCount = _getDataCount));
+
+        if (getDataCount == -1)
+        {	//エラー発生時
+            yield return StartCoroutine(TellFailedSync());
+            yield break;	//以降のBle処理を飛ばす
+        }
+
+        if (getDataCount == 0)
+        {	//データが0件の時
+            //同期時刻を保存
+            UserDataManager.State.SaveDataReceptionTime(DateTime.Now);
+            yield break;
+        }
+
+        if (!isOk)
+        {		//睡眠データを取得しないなら
+            yield break;	//以降のBle処理を飛ばす
+        }
+
+        //睡眠データを取得
+        yield return StartCoroutine(homeController.GetSleepDataFlow(
+            getDataCount,
+            (List<string> _csvPathList) =>
+            {
+                csvPathList = _csvPathList;
+            },
+            (List<string> _csvNameList) =>
+            {
+                csvNameList = _csvNameList;
+            }));
+        if (csvPathList != null && csvPathList.Count > 0)
+        {
+            UpdateDialog.Show("同期中");
+            //データが1件以上取得できれば
+            //データをリネームしてDBに登録
+            yield return StartCoroutine(homeController.RegistDataToDB(csvPathList, csvNameList));
+            //DBに取得したデータの登録が完了。送信完了コマンドを送信する
+            yield return StartCoroutine(homeController.FinishGetData());
+
+            //同期時刻を保存(端末の現在時刻を保存して表示させる)
+            UserDataManager.State.SaveDataReceptionTime(DateTime.Now);
+
+            UpdateDialog.Dismiss();
+            //データ取得完了のダイアログ表示
+            if (csvPathList.Count > 0)
+                yield return StartCoroutine(homeController.TellGetDataComplete(csvPathList.Count));
+        } else {
+            //睡眠データの取得に失敗すれば
+            yield return StartCoroutine(TellFailedSync());
+        }
+    }
+
+    IEnumerator AskGetData(Action<bool> onSelectButton, Action<int> onGetDataCount)
+    {
+        //デバイスのデータ件数を取得する
+        int dataCount = -1;
+        bool isSuccess = false;
+        bool isFailed = false;
+        string receiveData = "";
+
+        Debug.Log("状態取得コマンド");
+        BluetoothManager.Instance.SendCommandId(
+            18,
+            (string data) =>
+            {
+                //エラー時
+                Debug.Log("failed:" + data);
+                isFailed = true;
+            },
+            (bool success) =>
+            {
+                Debug.Log("commandWrite:" + success);
+                if (!success)
+                    isFailed = true;
+            },
+            (string data) =>
+            {
+                Debug.Log("commandResponse:" + data);
+                isFailed = true;
+            },
+            (string data) =>
+            {
+                //デバイス状況取得
+                Debug.Log("success:" + data);
+                receiveData = data;
+                isSuccess = true;
+            });
+        yield return new WaitUntil(() => isSuccess || isFailed);
+        if (isSuccess)
+        {
+            //デバイス状況取得成功
+            var json = Json.Deserialize(receiveData) as Dictionary<string, object>;
+            dataCount = Convert.ToInt32(json["KEY2"]);	//デバイスにたまってる睡眠データの個数
+        }
+
+        if (dataCount > 0)
+        {
+            bool isOk = false;
+            bool isCancel = false;
+            MessageDialog.Show(
+                dataCount + "件の睡眠データがあります。\n取得しますか？",
+                true,
+                true,
+                () => isOk = true,
+                () => isCancel = true,
+                "はい",
+                "いいえ");
+            yield return new WaitUntil(() => isOk || isCancel);
+            onSelectButton(isOk);
+            onGetDataCount(dataCount);
+        } else {
+            onSelectButton(false);
+            onGetDataCount(dataCount);
+        }
     }
 
     //デバイスのファームウェアが最新のものかどうか確認する処理の流れ
