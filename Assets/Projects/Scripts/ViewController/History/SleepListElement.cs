@@ -4,19 +4,45 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Linq;
+using naichilab.InputEvents;
 
 public class SleepListElement : MonoBehaviour {
 
 	Data myData;
 	public Text Date;
 	public Text SleepTime;
-	public Text ApneaTime;
-	public Text ApneaCount;
+    public Image SleepLevelIcon;
+    public Image ActionModeIcon;
 
-	/// <summary>
-	/// 表示に必要なデータをまとめたクラス
-	/// </summary>
-	public class Data {
+    void OnEnable()
+    {
+//        TouchManager.Instance.FlickComplete += OnFlickComplete;
+    }
+    void OnDisable()
+    {
+//        TouchManager.Instance.FlickComplete -= OnFlickComplete;
+    }
+    void OnFlickComplete(object sender, FlickEventArgs e)
+    {
+        //指定の日付のグラフを開くために日付保存
+        if (myData == null)
+            return;
+
+        myData.GetDeleteAction()();
+        string text = string.Format("OnFlickComplete [{0}] Speed[{1}] Accel[{2}] ElapseTime[{3}]", new object[] {
+                e.Direction.ToString (),
+                e.Speed.ToString ("0.000"),
+                e.Acceleration.ToString ("0.000"),
+                e.ElapsedTime.ToString ("0.000")
+        });
+        Debug.Log(text);
+
+    }
+
+    /// <summary>
+    /// 表示に必要なデータをまとめたクラス
+    /// </summary>
+    public class Data {
 		DateTime myDate;			//いつのデータか
 		List<DateTime> timeList;	//睡眠データリスト
 		int longestApneaTime;		//無呼吸最長時間
@@ -25,8 +51,18 @@ public class SleepListElement : MonoBehaviour {
 		int crossSunCount;			//日付またぎデータが何件あったか
 		int sameDateNum;			//同一日の全てのデータ個数
 		int crossSunNum;			//同一日の日マタギのみのデータ個数
+        Sprite sleepLevelIcon;      // 睡眠レベル
+        Sprite actionModeIcon;      // 行動モード
+        Action deleteAct;
+        
 
-		public Data (DateTime myDate, List<DateTime> dateList, int longestApneaTime, int apneaCount, int dateIndex, int crossSunCount, int sameDateNum, int crossSunNum) {
+		public Data (
+            DateTime myDate, List<DateTime> dateList,
+            int longestApneaTime, int apneaCount,
+            int dateIndex, int crossSunCount,
+            int sameDateNum, int crossSunNum,
+            Sprite sleepLevelIcon, Sprite actionModeIcon,
+            Action deleteAct) {
 			this.myDate = myDate;
 			this.timeList = dateList;
 			this.longestApneaTime = longestApneaTime;
@@ -35,6 +71,9 @@ public class SleepListElement : MonoBehaviour {
 			this.crossSunCount = crossSunCount;
 			this.sameDateNum = sameDateNum;
 			this.crossSunNum = crossSunNum;
+            this.sleepLevelIcon = sleepLevelIcon;
+            this.actionModeIcon = actionModeIcon;
+            this.deleteAct = deleteAct;
 		}
 		public DateTime GetDate () {
 			return this.myDate;
@@ -72,6 +111,20 @@ public class SleepListElement : MonoBehaviour {
 		public int GetCrossSunNum () {
 			return this.crossSunNum;
 		}
+
+        public Sprite GetSleepLevelIcon()
+        {
+            return sleepLevelIcon;
+        }
+        public Sprite GetActionModeIcon()
+        {
+            return actionModeIcon;
+        }
+
+        public Action GetDeleteAction()
+        {
+            return this.deleteAct;
+        }
 	}
 
 	//グラフに遷移するボタンをタップした際に呼び出される
@@ -128,7 +181,7 @@ public class SleepListElement : MonoBehaviour {
 		return result.ToUpper ();
 	}
 
-	public void SetInfo (Data data) {
+    public void SetInfo (Data data) {
 		this.myData = data;
 		//日時設定
 		Date.text = DateText (
@@ -140,9 +193,9 @@ public class SleepListElement : MonoBehaviour {
 			data.GetCrossSunNum ());
 		//睡眠時間設定
 		SleepTime.text = GetSleepTime (data);
-		//最長無呼吸時間設定
-		ApneaTime.text = data.GetLongestApneaTime ().ToString () + "秒";
-		//無呼吸検知時間設定
-		ApneaCount.text = data.GetApneaCount ().ToString () + "回";
+        // 睡眠レベル
+        SleepLevelIcon.sprite = data.GetSleepLevelIcon();
+        // 動作モード
+        ActionModeIcon.sprite = data.GetActionModeIcon();
 	}
 }

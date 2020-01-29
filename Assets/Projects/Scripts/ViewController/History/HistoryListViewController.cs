@@ -32,12 +32,12 @@ public class HistoryListViewController : ViewControllerBase {
 
 	void OnEnable () {
 		//タッチマネージャーのイベントリスナーを設定
-		TouchManager.Instance.FlickComplete += OnFlickComplete;
+//		TouchManager.Instance.FlickComplete += OnFlickComplete;
 	}
 
 	void OnDisable () {
 		//後処理
-		TouchManager.Instance.FlickComplete -= OnFlickComplete;
+//		TouchManager.Instance.FlickComplete -= OnFlickComplete;
 	}
 
 	void InitView () {
@@ -70,7 +70,8 @@ public class HistoryListViewController : ViewControllerBase {
 			() => {
 				//データ取得完了時
 				GetSleepListElementData = null;
-			});
+			},
+            UpdateListView);
 		StartCoroutine (GetSleepListElementData);
 	}
 
