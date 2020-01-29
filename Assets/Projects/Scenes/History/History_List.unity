@@ -1293,30 +1293,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 1333056359}
---- !u!1 &1172991077 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1449402343735956, guid: b15e7da2495b61844bd78975161719c5,
-    type: 2}
-  m_PrefabInternal: {fileID: 950179982}
---- !u!114 &1172991078 stripped
-MonoBehaviour:
-  m_PrefabParentObject: {fileID: 114363203531231758, guid: b15e7da2495b61844bd78975161719c5,
-    type: 2}
-  m_PrefabInternal: {fileID: 950179982}
-  m_Script: {fileID: 11500000, guid: 1d06f7f79602545d79364bbb241c102d, type: 3}
---- !u!114 &1172991079
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1172991077}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 755faf88b4db14e57a89b1ad319fc02c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _EventTrigger: {fileID: 0}
-  SwipeHundler: {fileID: 1172991078}
 --- !u!1 &1287185186
 GameObject:
   m_ObjectHideFlags: 0

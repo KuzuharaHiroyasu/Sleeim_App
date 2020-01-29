@@ -4179,7 +4179,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Button
+  m_Text: 
 --- !u!222 &389105842
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -6009,7 +6009,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Button
+  m_Text: 
 --- !u!222 &612759996
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12884,7 +12884,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 741661790}
   m_HandleRect: {fileID: 741661789}
   m_Direction: 0
-  m_Value: 0.00000043910185
+  m_Value: 0.0000005122855
   m_Size: 0.583
   m_NumberOfSteps: 0
   m_OnValueChanged:
