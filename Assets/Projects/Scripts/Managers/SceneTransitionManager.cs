@@ -24,8 +24,8 @@ public class SceneTransitionManager : MonoBehaviour {
 		DeviceSetting,		// デバイス設定
 		ActionMode,		// 動作モード
 		SnoreSensitivity,		// いびき感度
-		SuppressionStrength,		// 抑制強度
-		SuppressionOperationMaxTime,		// 抑制動作最大継続時間
+		SuppressionStrength,		// 低減強度
+		SuppressionOperationMaxTime,		// 低減動作最大継続時間
 		AlermSetting,		//アラーム設定
 		IbikiAlerm,			//いびきアラーム設定
 		Profile,			//プロフィール

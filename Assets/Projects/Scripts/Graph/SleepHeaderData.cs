@@ -44,7 +44,7 @@ public class SleepHeaderData {
     public int LongestApneaTime { get; }
 
     /// <summary>
-    /// 動作モード  0～3 整数(0：抑制モード(いびき)、1：抑制モード(いびき+無呼吸)、2：モニタリングモード、3：抑制モード（無呼吸）)	
+    /// 動作モード  0～3 整数(0：低減モード(いびき)、1：低減モード(いびき+無呼吸)、2：モニタリングモード、3：低減モード（無呼吸）)	
     /// </summary>
     public int SleepMode;
 

@@ -121,7 +121,7 @@ public class SettingViewController : ViewControllerBase
         SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
     }
 
-    //「本体機器とのデータ通信方法」ボタンが押されると呼び出される
+    //「デバイス接続」ボタンが押されると呼び出される
     public void OnDataCommunicateSettingButtonTap()
     {
         //Bluetooth接続画面へ遷移

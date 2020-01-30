@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 抑制強度画面管理クラス
+/// 低減強度画面管理クラス
 /// </summary>
 public class SuppressionStrengthViewController : DeviceSettingViewController
 {
@@ -32,7 +32,7 @@ public class SuppressionStrengthViewController : DeviceSettingViewController
     /// <summary>
     /// シーンタグ
     /// </summary>
-    /// <value>抑制強度タグ</value>
+    /// <value>低減強度タグ</value>
     public override SceneTransitionManager.LoadScene SceneTag {
         get {
             return SceneTransitionManager.LoadScene.SuppressionStrength;
@@ -48,7 +48,7 @@ public class SuppressionStrengthViewController : DeviceSettingViewController
     }
 
     /// <summary>
-    /// 抑制強度設定を読み込む
+    /// 低減強度設定を読み込む
     /// </summary>
     private void LoadSuppressionStrengthSetting() {
         switch (DeviceSettingViewController.TempDeviceSetting.SuppressionStrength) {

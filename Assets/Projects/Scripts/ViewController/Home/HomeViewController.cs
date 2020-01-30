@@ -46,7 +46,7 @@ public class HomeViewController : ViewControllerBase
     [SerializeField] Text SuppressionStrengthValue = null;
 
     /// <summary>
-    /// いびき抑制の連続時間の値
+    /// いびき低減の連続時間の値
     ///
     /// NOTE: 旧「抑制動作最大継続時間」
     /// </summary>
@@ -338,16 +338,16 @@ public class HomeViewController : ViewControllerBase
         switch (deviceSetting.ActionMode)
         {
             case ActionMode.SuppressModeIbiki:
-                ActionModeValue.text = "抑制モード(いびき)";
+                ActionModeValue.text = "低減モード(いびき)";
                 break;
             case ActionMode.SuppressMode:
-                ActionModeValue.text = "抑制モード(いびき+無呼吸)";
+                ActionModeValue.text = "低減モード(いびき+無呼吸)";
                 break;
             case ActionMode.MonitoringMode:
                 ActionModeValue.text = "モニタリング";
                 break;
             case ActionMode.SuppressModeMukokyu:
-                ActionModeValue.text = "抑制モード（無呼吸）";
+                ActionModeValue.text = "低減モード（無呼吸）";
                 break;
             default:
                 // 何もしない

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 抑制動作最大継続時間画面管理クラス
+/// 低減動作最大継続時間画面管理クラス
 /// </summary>
 public class SuppressionOperationMaxTimeViewController : ViewControllerBase {
 
@@ -26,7 +26,7 @@ public class SuppressionOperationMaxTimeViewController : ViewControllerBase {
     /// <summary>
     /// シーンタグ
     /// </summary>
-    /// <value>抑制動作最大継続時間タグ</value>
+    /// <value>低減動作最大継続時間タグ</value>
     public override SceneTransitionManager.LoadScene SceneTag {
         get {
             return SceneTransitionManager.LoadScene.SuppressionOperationMaxTime;
@@ -42,7 +42,7 @@ public class SuppressionOperationMaxTimeViewController : ViewControllerBase {
     }
 
     /// <summary>
-    /// 抑制動作最大継続時間設定を読み込む
+    /// 低減動作最大継続時間設定を読み込む
     /// </summary>
     private void LoadSuppressionOperationMaxTimeSetting() {
         switch (DeviceSettingViewController.TempDeviceSetting.SuppressionOperationMaxTime) {
