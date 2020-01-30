@@ -5329,6 +5329,7 @@ GameObject:
   - component: {fileID: 820434874}
   - component: {fileID: 820434873}
   - component: {fileID: 820434872}
+  - component: {fileID: 820434875}
   m_Layer: 5
   m_Name: Scroll View
   m_TagString: Untagged
@@ -5419,6 +5420,21 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.ScrollRect+ScrollRectEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &820434875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 820434870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 594bc4782c7c4eb4d85cbc9679ec0dc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isAutoScale: 1
+  simulateOnPlay: 1
+  simulateType: 2
+  isPortrait: 1
 --- !u!1 &836120645
 GameObject:
   m_ObjectHideFlags: 0
@@ -9076,7 +9092,7 @@ Prefab:
     - target: {fileID: 224815688230378376, guid: 4e5ad64342b305a4eb91bbaeaa4d88f3,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: -20
+      value: -20.000061
       objectReference: {fileID: 0}
     - target: {fileID: 224815688230378376, guid: 4e5ad64342b305a4eb91bbaeaa4d88f3,
         type: 2}
@@ -10299,7 +10315,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -11.666666}
+  m_AnchoredPosition: {x: 0, y: -11.666664}
   m_SizeDelta: {x: 0, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1783425330
