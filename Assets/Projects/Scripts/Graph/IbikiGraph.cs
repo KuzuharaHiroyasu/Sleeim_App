@@ -50,6 +50,10 @@ namespace Graph
 		public ScrollRect ScrollRect;
 		public GameObject LinkParent;
 
+		public GameObject linee250;
+		public GameObject linee500;
+		public GameObject linee750;
+
 		bool onceDisplayFlag = false;
 		List<System.DateTime> ibikiTimeList;
 
@@ -249,6 +253,11 @@ namespace Graph
 
 				//目盛を調整
 				Output_TimeLabel.SetIbikiScroll(hour);
+
+				//線を調整
+				linee250.transform.localScale = new Vector3(1.0f,hour);
+				linee500.transform.localScale = new Vector3(1.0f,hour);
+				linee750.transform.localScale = new Vector3(1.0f,hour);
 
 				StartCoroutine ("UpdateGraphPosition");
 				SeriesObject.SetActive (false);
