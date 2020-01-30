@@ -875,86 +875,6 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 224990485359568954, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224990485359568954, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224990485359568954, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224990485359568954, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224249777874878426, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224249777874878426, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224249777874878426, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224249777874878426, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224690060161544410, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224690060161544410, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224690060161544410, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224690060161544410, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224128821599823260, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224128821599823260, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224128821599823260, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224128821599823260, guid: b15e7da2495b61844bd78975161719c5,
-        type: 2}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: b15e7da2495b61844bd78975161719c5, type: 2}
   m_IsPrefabParent: 0
@@ -1907,7 +1827,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionModeIcon_monitor: {fileID: 21300000, guid: a471fbee41e09e341a36f3ec169d80d7,
     type: 3}
-  actionModeIcon_suppress: {fileID: 21300000, guid: 578bcb1311257594e8656865762fb3c2,
+  actionModeIcon_suppress: {fileID: 21300000, guid: 5694b42d9b9d44f47870da6b2196dd96,
+    type: 3}
+  actionModeIcon_suppress_weak: {fileID: 21300000, guid: 2428a25648dbc8d43aa3dc49e97f4e2c,
+    type: 3}
+  actionModeIcon_suppress_strong: {fileID: 21300000, guid: a60258e1cd836b64aa636fe8a632bc35,
+    type: 3}
+  actionModeIcon_suppress_multi: {fileID: 21300000, guid: 578bcb1311257594e8656865762fb3c2,
     type: 3}
   sleepLevelIcon_1: {fileID: 21300000, guid: a471fbee41e09e341a36f3ec169d80d7, type: 3}
   sleepLevelIcon_2: {fileID: 21300000, guid: 2428a25648dbc8d43aa3dc49e97f4e2c, type: 3}

@@ -15,7 +15,10 @@ public class SleepListDataSource : MonoBehaviour
     string[] filePath = null;
 
     [SerializeField] Sprite actionModeIcon_monitor = null;
-    [SerializeField] Sprite actionModeIcon_suppress = null;
+	[SerializeField] Sprite actionModeIcon_suppress = null;
+	[SerializeField] Sprite actionModeIcon_suppress_weak = null;
+	[SerializeField] Sprite actionModeIcon_suppress_strong = null;
+	[SerializeField] Sprite actionModeIcon_suppress_multi = null;
 
     [SerializeField] Sprite sleepLevelIcon_1 = null;
     [SerializeField] Sprite sleepLevelIcon_2 = null;
@@ -47,7 +50,7 @@ public class SleepListDataSource : MonoBehaviour
         scrollRect.verticalNormalizedPosition = 1f;
         //CSVから取得した睡眠データをSleepListElement.Dataに変換して返す
         //fromからtoまでの期間の睡眠データを取得する
-        //取得したファイル一覧から指定した期間のファイルのみのリストを作成する
+		//取得したファイル一覧から指定した期間のファイルのみのリストを作成する
         for (int i = 0; i < PickFilePathInPeriod(FilePath, from, to).Count; i++)
         {
             string filePath = PickFilePathInPeriod(FilePath, from, to)[i];
@@ -75,11 +78,24 @@ public class SleepListDataSource : MonoBehaviour
                 .Where(path => isCrossTheSun(bedTime, ReadSleepDataFromCSV(path).Last().GetDateTime()))
                 .Count();                               //同一日の日マタギのみのデータ個数
 
+
+
+
+			List<SleepData> sleepData = CSVManager.readSleepDataFromCsvFile(filePath);
+			ChartInfo chartInfo = CSVManager.convertSleepDataToChartInfo(sleepData);
+			if (chartInfo != null)
+			{
+				chartInfo.endSleepTime = sleepData.Select(data => data.GetDateTime()).Last();
+				CSVManager.convertSleepHeaderToChartInfo(chartInfo, filePath);
+
+			}
+
+
             // 削除処理
             Action deleteAct = () => DeleteFile(filePath, deleteAft);
             onGetData(new SleepListElement.Data(bedTime, dateList, longestApneaTime, apneaCount, dateIndex, crossSunCount, sameDataNum, crossSunNum,
                 GetSleepLevel(bedTime,getUpTime, apneaCount, sleepDataList),
-                GetActionModeIcon(sleepHeaderData.SleepMode), deleteAct));
+				GetActionModeIcon(chartInfo), deleteAct));
             if (i + 1 < initLoadNum)
             {
                 //初期アイテムロード
@@ -126,15 +142,29 @@ public class SleepListDataSource : MonoBehaviour
         return sleepLevelIcon_5;
     }
 
-    private Sprite GetActionModeIcon(int actionMode)
-    {
-        if (actionMode == (int)ActionMode.MonitoringMode)
-        {
-            return actionModeIcon_monitor;
+	private Sprite GetActionModeIcon(ChartInfo info) {
 
-        }
-        return actionModeIcon_suppress;
-    }
+		if (info.sleepMode == (int)SleepMode.Monitor) {
+
+			string icName = "ic_mode_monitor"; //Default
+			return actionModeIcon_monitor;
+		}
+
+		if (info.vibrationStrength == (int)VibrationStrength.Weak)
+		{
+			return actionModeIcon_suppress_weak;
+		}
+		else if (info.vibrationStrength == (int)VibrationStrength.Strong)
+		{
+			return actionModeIcon_suppress_strong;
+		}
+		else if (info.vibrationStrength == (int)VibrationStrength.Multi)
+		{
+			Debug.Log ("multi");
+			return actionModeIcon_suppress_multi;
+		}
+		return actionModeIcon_suppress;
+	}
 
     //日付をまたいでいるかどうか
     bool isCrossTheSun(DateTime start, DateTime end)
@@ -211,6 +241,7 @@ public class SleepListDataSource : MonoBehaviour
     /// <param name="deleteAft"></param>
     private void DeleteFile(string filepath, Action deleteAft)
     {
+
         if (!System.IO.File.Exists(filepath))
         {
             // ファイルが存在しない場合は何もしない
