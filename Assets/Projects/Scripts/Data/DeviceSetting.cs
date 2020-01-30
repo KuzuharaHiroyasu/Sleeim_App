@@ -40,16 +40,16 @@ public class DeviceSetting {
 			switch (ActionMode)
 			{
 			case ActionMode.SuppressModeIbiki:
-				ret = "抑制モード(いびき)";
+				ret = "低減モード(いびき)";
 				break;
 			case ActionMode.SuppressMode:
-				ret = "抑制モード(いびき+無呼吸)";
+				ret = "低減モード(いびき+無呼吸)";
 				break;
 			case ActionMode.MonitoringMode:
 				ret = "モニタリング";
 				break;
 			case ActionMode.SuppressModeMukokyu:
-				ret = "抑制モード（無呼吸）";
+				ret = "低減モード（無呼吸）";
 				break;
 			default:
 				// 何もしない
@@ -67,19 +67,19 @@ public class DeviceSetting {
         = SnoreSensitivity.Mid;
 
     /// <summary>
-    /// 抑制強度
+    /// 低減強度
     /// </summary>
     public SuppressionStrength SuppressionStrength { get; set; }
         = SuppressionStrength.Mid;
 
     /// <summary>
-    /// 抑制動作最大継続時間
+    /// 低減動作最大継続時間
     /// </summary>
     public SuppressionOperationMaxTime SuppressionOperationMaxTime { get; set; }
         = SuppressionOperationMaxTime.TenMin;
 
     /// <summary>
-    /// 抑制開始時間(～分)
+    /// 低減開始時間(～分)
     /// </summary>
     public SuppressionStartTime SuppressionStartTime { get; set; }
         = SuppressionStartTime.Default;
@@ -148,7 +148,7 @@ public enum SnoreSensitivity : byte {
 }
 
 /// <summary>
-/// 抑制強度
+/// 低減強度
 /// </summary>
 public enum SuppressionStrength : byte {
     Low = 0,
@@ -158,7 +158,7 @@ public enum SuppressionStrength : byte {
 }
 
 /// <summary>
-/// 抑制動作最大継続時間
+/// 低減動作最大継続時間
 /// </summary>
 public enum SuppressionOperationMaxTime : byte {
     FiveMin = 0,
@@ -167,7 +167,7 @@ public enum SuppressionOperationMaxTime : byte {
 }
 
 /// <summary>
-/// 抑制開始時間(～分)
+/// 低減開始時間(～分)
 /// </summar
 public enum SuppressionStartTime : byte
 {

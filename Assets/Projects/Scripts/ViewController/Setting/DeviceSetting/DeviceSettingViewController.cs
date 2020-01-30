@@ -123,26 +123,26 @@ public class DeviceSettingViewController : ViewControllerBase {
     }
 
     /// <summary>
-    /// 抑制強度ボタン押下イベントハンドラ
+    /// 低減強度ボタン押下イベントハンドラ
     /// </summary>
     public void OnSuppressionStrengthButtonTap() {
         SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.SuppressionStrength);
     }
 
     /// <summary>
-    /// 抑制動作最大継続時間ボタン押下イベントハンドラ
+    /// 低減動作最大継続時間ボタン押下イベントハンドラ
     /// </summary>
     public void OnSuppressionOperationMaxTimeButtonTap() {
         SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.SuppressionOperationMaxTime);
     }
 
     /// <summary>
-    /// 抑制開始時間ボタン押下イベントハンドラ
+    /// 低減開始時間ボタン押下イベントハンドラ
     /// </summary>
     public void OnSuppressionStartTimeButtonTap()
     {
-        //ピッカーを表示して抑制開始時間を設定させる
-        string title = "抑制開始時間設定";
+        //ピッカーを表示して低減開始時間を設定させる
+        string title = "低減開始時間設定";
         string unit = "分";
         float maxValue = (float)SuppressionStartTime.Max;
         float minValue = (float)SuppressionStartTime.Min;
@@ -426,16 +426,16 @@ public class DeviceSettingViewController : ViewControllerBase {
             if (actionModeText != null) {
                 switch (TempDeviceSetting.ActionMode) {
                     case ActionMode.SuppressModeIbiki:
-                        actionModeText.text = "抑制(いびき)";
+                        actionModeText.text = "低減(いびき)";
                         break;
                     case ActionMode.SuppressMode:
-                        actionModeText.text = "抑制(いびき+無呼吸)";
+                        actionModeText.text = "低減(いびき+無呼吸)";
                         break;
                     case ActionMode.MonitoringMode:
                         actionModeText.text = "モニタリング";
                         break;
                     case ActionMode.SuppressModeMukokyu:
-                        actionModeText.text = "抑制(無呼吸)";
+                        actionModeText.text = "低減(無呼吸)";
                         break;
                 }
             }

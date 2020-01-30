@@ -1150,7 +1150,7 @@ Prefab:
     - target: {fileID: 114612272978030562, guid: 88ae881add0a13642aac18ebb7e850a6,
         type: 2}
       propertyPath: m_Text
-      value: "\u3044\u3073\u304D\u6291\u5236\u306E\u9023\u7D9A\u6642\u9593"
+      value: "\u3044\u3073\u304D\u4F4E\u6E1B\u306E\u9023\u7D9A\u6642\u9593"
       objectReference: {fileID: 0}
     - target: {fileID: 114320567265664664, guid: 88ae881add0a13642aac18ebb7e850a6,
         type: 2}

@@ -804,27 +804,27 @@ public static class UserDataManager {
             }
 
             /// <summary>
-            /// 抑制強度設定を保存・読込するクラス
+            /// 低減強度設定を保存・読込するクラス
             /// </summary>
             public static class SuppressionStrengthData {
 
                 /// <summary>
-                /// 抑制強度保存先を示すキー
+                /// 低減強度保存先を示すキー
                 /// </summary>
                 private readonly static string Key = "SuppressionStrength";
 
                 /// <summary>
-                /// 抑制強度設定を保存する
+                /// 低減強度設定を保存する
                 /// </summary>
-                /// <param name="suppressionStrength">抑制強度</param>
+                /// <param name="suppressionStrength">低減強度</param>
                 public static void Save(SuppressionStrength suppressionStrength) {
                     PlayerPrefs.SetInt(Key, (int)suppressionStrength);
                 }
 
                 /// <summary>
-                /// 抑制強度を読み込む
+                /// 低減強度を読み込む
                 /// </summary>
-                /// <returns>抑制強度</returns>
+                /// <returns>低減強度</returns>
                 public static SuppressionStrength Load() {
                     const int defaultValue = (int)SuppressionStrength.Mid;
                     return (SuppressionStrength)PlayerPrefs.GetInt(
@@ -834,7 +834,7 @@ public static class UserDataManager {
             }
 
             /// <summary>
-            /// 抑制動作最大継続時間を保存・読込するクラス
+            /// 低減動作最大継続時間を保存・読込するクラス
             /// </summary>
             public static class SuppressionOperationMaxTimeData {
 
@@ -844,17 +844,17 @@ public static class UserDataManager {
                 private readonly static string Key = "SuppressionOperationMaxTime";
 
                 /// <summary>
-                /// 抑制動作最大継続時間設定を保存する
+                /// 低減動作最大継続時間設定を保存する
                 /// </summary>
-                /// <param name="suppressionOperationMaxTime">抑制動作最大継続時間</param>
+                /// <param name="suppressionOperationMaxTime">低減動作最大継続時間</param>
                 public static void Save(SuppressionOperationMaxTime suppressionOperationMaxTime) {
                     PlayerPrefs.SetInt(Key, (int)suppressionOperationMaxTime);
                 }
 
                 /// <summary>
-                /// 抑制動作最大継続時間を読み込む
+                /// 低減動作最大継続時間を読み込む
                 /// </summary>
-                /// <returns>抑制動作最大継続時間</returns>
+                /// <returns>低減動作最大継続時間</returns>
                 public static SuppressionOperationMaxTime Load() {
                     const int defaultValue = (int)SuppressionOperationMaxTime.TenMin;
                     return (SuppressionOperationMaxTime)PlayerPrefs.GetInt(
@@ -864,7 +864,7 @@ public static class UserDataManager {
             }
 
             /// <summary>
-            /// 抑制開始時間を保存・読込するクラス
+            /// 低減開始時間を保存・読込するクラス
             /// </summary>
             public static class SuppressionStartTimeData
             {
@@ -875,18 +875,18 @@ public static class UserDataManager {
                 private readonly static string Key = "SuppressionStartTime";
 
                 /// <summary>
-                /// 抑制開始時間設定を保存する
+                /// 低減開始時間設定を保存する
                 /// </summary>
-                /// <param name="suppressionStartTime">抑制開始時間</param>
+                /// <param name="suppressionStartTime">低減開始時間</param>
                 public static void Save(SuppressionStartTime suppressionStartTime)
                 {
                     PlayerPrefs.SetInt(Key, (int)suppressionStartTime);
                 }
 
                 /// <summary>
-                /// 抑制開始時間を読み込む
+                /// 低減開始時間を読み込む
                 /// </summary>
-                /// <returns>抑制開始時間</returns>
+                /// <returns>低減開始時間</returns>
                 public static SuppressionStartTime Load()
                 {
                     return (SuppressionStartTime)PlayerPrefs.GetInt(Key, (int)SuppressionStartTime.Default);
