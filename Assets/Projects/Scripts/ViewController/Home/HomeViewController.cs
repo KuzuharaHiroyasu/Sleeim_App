@@ -41,19 +41,19 @@ public class HomeViewController : ViewControllerBase
     [SerializeField] Text SnoreSensitivityValue = null;
 
     /// <summary>
-    /// 抑制強度の値
+    /// 低減強度の値
     /// </summary>
     [SerializeField] Text SuppressionStrengthValue = null;
 
     /// <summary>
     /// いびき低減の連続時間の値
     ///
-    /// NOTE: 旧「抑制動作最大継続時間」
+    /// NOTE: 旧「低減動作最大継続時間」
     /// </summary>
     [SerializeField] Text SuppressionOperationMaxTimeValue = null;
 
     /// <summary>
-    /// 抑制開始時間の値
+    /// 低減開始時間の値
     /// </summary>
     //[SerializeField] Text SuppressionStartTimeValue = null;
 

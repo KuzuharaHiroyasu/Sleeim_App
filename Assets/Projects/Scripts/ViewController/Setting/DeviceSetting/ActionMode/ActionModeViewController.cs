@@ -9,12 +9,12 @@ using UnityEngine.UI;
 public class ActionModeViewController : ViewControllerBase {
 
     /// <summary>
-    /// 抑制モード(いびき)トグル
+    /// 低減モード(いびき)トグル
     /// </summary>
     public Toggle SuppressModeIbikiToggle;
 
     /// <summary>
-    /// 抑制モード(いびき+無呼吸)トグル
+    /// 低減モード(いびき+無呼吸)トグル
     /// </summary>
     public Toggle SuppressModeToggle;
 
@@ -24,7 +24,7 @@ public class ActionModeViewController : ViewControllerBase {
     public Toggle MonitoringModeToggle;
 
     /// <summary>
-    /// 抑制モード（無呼吸）トグル
+    /// 低減モード（無呼吸）トグル
     /// </summary>
     public Toggle SuppressModeMukokyuToggle;
 
@@ -76,7 +76,7 @@ public class ActionModeViewController : ViewControllerBase {
     }
 
     /// <summary>
-    /// 抑制モード(いびき)値変化イベントハンドラ
+    /// 低減モード(いびき)値変化イベントハンドラ
     /// </summary>
     /// <param name="isOn"></param>
     public void OnSuppressModeIbikiToggleValueChanged(bool isOn)
@@ -89,7 +89,7 @@ public class ActionModeViewController : ViewControllerBase {
     }
 
     /// <summary>
-    /// 抑制モード(いびき+無呼吸)値変化イベントハンドラ
+    /// 低減モード(いびき+無呼吸)値変化イベントハンドラ
     /// </summary>
     /// <param name="isOn"></param>
     public void OnSuppressModeToggleValueChanged(bool isOn)
@@ -113,7 +113,7 @@ public class ActionModeViewController : ViewControllerBase {
     }
 
     /// <summary>
-    /// 抑制モード（無呼吸）値変化イベントハンドラ
+    /// 低減モード（無呼吸）値変化イベントハンドラ
     /// </summary>
     /// <param name="isOn"></param>
     public void OnSuppressModeMukokyuToggleValueChanged(bool isOn)
