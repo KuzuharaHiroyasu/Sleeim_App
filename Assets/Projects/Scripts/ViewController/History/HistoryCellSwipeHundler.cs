@@ -48,21 +48,21 @@ public class HistoryCellSwipeHundler : SwipeHandler {
 		}
 	}
 
-
+	bool pointerDownFlag = false;
 	override public void OnPointerDown (PointerEventData eventData)
 	{     
-
+		pointerDownFlag = true;
 		StartCoroutine ("DelayLongPress");
 	}
 
 	override public void OnPointerUp (PointerEventData eventData)
 	{
-//		// 長押し判定開始前に離したorスクロールした場合
+		pointerDownFlag = false;
+		// 長押し判定開始前に離したorスクロールした場合
 		if (!isLongPressed) {
 			StopCoroutine ("DelayLongPress");       //コルーチン停止
 			return;
 		}
-		ChangeDisplayVanishState ();
 	}
 
 	public float intervalInit = 1.0f;
@@ -70,8 +70,12 @@ public class HistoryCellSwipeHundler : SwipeHandler {
 
 	// intervalInit秒後に長押し判定開始
 	IEnumerator DelayLongPress(){
+		isLongPressed = false;
 		yield return new WaitForSeconds (intervalInit);
 		isLongPressed = true;
+		if (pointerDownFlag) {
+			ChangeDisplayVanishState ();
+		}
 	}
 
 

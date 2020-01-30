@@ -22,6 +22,8 @@ public class SleepListElement : MonoBehaviour {
     {
 //        TouchManager.Instance.FlickComplete -= OnFlickComplete;
     }
+
+	// ここで削除を行なっている
     void OnFlickComplete(object sender, FlickEventArgs e)
     {
         //指定の日付のグラフを開くために日付保存
@@ -38,6 +40,22 @@ public class SleepListElement : MonoBehaviour {
         Debug.Log(text);
 
     }
+
+	public void DeleteAction() {
+
+		if (myData == null)
+			return;
+
+		myData.GetDeleteAction()();
+
+
+
+		//ファイルが存在してなければ、DBから削除する
+//		var sleepTable = MyDatabase.Instance.GetSleepTable();
+//		sleepTable.DeleteFromPrimaryKey(long.Parse(myData.GetDate()));
+
+		Debug.Log("Delete Action");
+	}
 
     /// <summary>
     /// 表示に必要なデータをまとめたクラス
