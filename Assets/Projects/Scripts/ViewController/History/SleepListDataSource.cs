@@ -26,6 +26,8 @@ public class SleepListDataSource : MonoBehaviour
     [SerializeField] Sprite sleepLevelIcon_4 = null;
     [SerializeField] Sprite sleepLevelIcon_5 = null;
 
+    Dictionary<string, List<SleepData>> sleepDataDict = new Dictionary<string, List<SleepData>>();
+
     string[] FilePath
     {
         get
@@ -50,20 +52,28 @@ public class SleepListDataSource : MonoBehaviour
         scrollRect.verticalNormalizedPosition = 1f;
         //CSVから取得した睡眠データをSleepListElement.Dataに変換して返す
         //fromからtoまでの期間の睡眠データを取得する
-		//取得したファイル一覧から指定した期間のファイルのみのリストを作成する
-        for (int i = 0; i < PickFilePathInPeriod(FilePath, from, to).Count; i++)
+        //取得したファイル一覧から指定した期間のファイルのみのリストを作成する
+        List<string> filePaths = PickFilePathInPeriod(FilePath, from, to);
+        for (int i = 0; i < filePaths.Count; i++)
         {
-            string filePath = PickFilePathInPeriod(FilePath, from, to)[i];
+            string filePath = filePaths[i];
             //一日ごとのデータを取得する
             List<SleepData> sleepDataList = ReadSleepDataFromCSV(filePath);         //睡眠データをCSVから取得する
             SleepHeaderData sleepHeaderData = ReadSleepHeaderDataFromCSV(filePath); //睡眠のヘッダーデータをCSVから取得する
                                                                                     //データを設定する
+            ChartInfo chartInfo = CSVManager.convertSleepDataToChartInfo(sleepDataList);
+            if (chartInfo != null)
+            {
+                chartInfo.endSleepTime = sleepDataList.Select(data => data.GetDateTime()).Last();
+                CSVManager.convertSleepHeaderToChartInfo(chartInfo, filePath);
+            }
+
             DateTime bedTime = sleepHeaderData.DateTime;
             DateTime getUpTime = sleepDataList.Last().GetDateTime();
             List<DateTime> dateList = sleepDataList.Select(data => data.GetDateTime()).ToList();
             int longestApneaTime = sleepHeaderData.LongestApneaTime;
             int apneaCount = CulcApneaCount(sleepDataList);
-            List<string> todayDataPathList = PickFilePathInPeriod(FilePath, from, to).Where(path => IsSameDay(bedTime, Utility.TransFilePathToDate(path))).ToList();
+            List<string> todayDataPathList = filePaths.Where(path => IsSameDay(bedTime, Utility.TransFilePathToDate(path))).ToList();
             int dateIndex = todayDataPathList
                 .Select((path, index) => new { Path = path, Index = index })
                 .Where(data => data.Path == filePath)
@@ -77,18 +87,6 @@ public class SleepListDataSource : MonoBehaviour
             int crossSunNum = todayDataPathList
                 .Where(path => isCrossTheSun(bedTime, ReadSleepDataFromCSV(path).Last().GetDateTime()))
                 .Count();                               //同一日の日マタギのみのデータ個数
-
-
-
-
-			List<SleepData> sleepData = CSVManager.readSleepDataFromCsvFile(filePath);
-			ChartInfo chartInfo = CSVManager.convertSleepDataToChartInfo(sleepData);
-			if (chartInfo != null)
-			{
-				chartInfo.endSleepTime = sleepData.Select(data => data.GetDateTime()).Last();
-				CSVManager.convertSleepHeaderToChartInfo(chartInfo, filePath);
-
-			}
 
 
             // 削除処理
@@ -220,12 +218,15 @@ public class SleepListDataSource : MonoBehaviour
         return sleepFilePathList.Where(path => (from == DateTime.MinValue || Utility.TransFilePathToDate(path).CompareTo(from) >= 0) && (to == DateTime.MaxValue || Utility.TransFilePathToDate(path).CompareTo(to) <= 0)).ToList();
     }
 
-
-
     //睡眠データをリソースのCSVファイルから取得します
     List<SleepData> ReadSleepDataFromCSV(string filepath)
     {
-        return CSVSleepDataReader.GetSleepDatas(filepath);
+        if(!sleepDataDict.ContainsKey(filepath))
+        {
+            sleepDataDict[filepath] = CSVSleepDataReader.GetSleepDatas(filepath);
+        }
+
+        return sleepDataDict[filepath];
     }
 
     //睡眠のヘッダーデータをCSVファイルから取得します
