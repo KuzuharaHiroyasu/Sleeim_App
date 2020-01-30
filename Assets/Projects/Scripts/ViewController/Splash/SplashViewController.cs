@@ -105,7 +105,8 @@ public class SplashViewController : ViewControllerBase
             //利用規約に同意していなければ、利用規約表示
             if (!IsAcceptPrivacyPolicy())
             {
-                SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.InitialLunch);
+                //SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.InitialLunch);
+                SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.TermsOfUse);
                 yield break;
             }
             //プロフィール設定をしていなければ、プロフィール表示
