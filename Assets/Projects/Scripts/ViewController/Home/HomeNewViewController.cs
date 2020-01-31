@@ -230,11 +230,11 @@ public class HomeNewViewController : ViewControllerBase
                     }
 
                     //Step 3: Change color of CircleOuter by sleepLevel (睡眠レベルによって色を変える)
-                    //レベル１ 無呼吸平均回数(時)が５回以上 (Dark Gray: 716D6D)
-                    //レベル２ いびき割合が50％以上 (Light Gray: 888D8D)
-                    //レベル３ いびき割合が25％以上 (Red: F20C37)
-                    //レベル４ 睡眠時間が７時間未満 (Yellow: EADB58)
-                    //レベル５ 上記すべての項目を満たしていない (Blue: 3659E5)
+                    //レベル１ 無呼吸平均回数(時)が５回以上
+                    //レベル２ いびき割合が50％以上
+                    //レベル３ いびき割合が25％以上
+                    //レベル４ 睡眠時間が７時間未満
+                    //レベル５ 上記すべての項目を満たしていない
                     int sleepLevel = 5; //Default
                     int apneaCount = latestSleepHeaderData.ApneaDetectionCount;
                     double sleepTimeTotal = endTime.Subtract(startTime).TotalSeconds;
@@ -253,7 +253,7 @@ public class HomeNewViewController : ViewControllerBase
 
                     //System.Random random = new System.Random();
                     //sleepLevel = random.Next(0, 5);
-                    String[] levelColors = new String[5] { "#716D6D", "#888D8D", "#F20C37", "#EADB58", "#3659E5" };
+                    String[] levelColors = new String[5] { "#ff0000", "#ff6600", "#ffff4d", "#72ef36", "#0063dc" };
                     circleOuter.GetComponent<Image>().color = convertHexToColor(levelColors[sleepLevel]);
                 }
             }
@@ -263,7 +263,7 @@ public class HomeNewViewController : ViewControllerBase
         if (chartInfo == null) //No data 
         {
             //circleOuter.SetActive(false);
-            circleOuter.GetComponent<Image>().color = convertHexToColor("#3659E5"); //Blue
+            circleOuter.GetComponent<Image>().color = convertHexToColor("#0063dc"); //Default is level 5
             pieInfo.hidePieInfo();
             piePrefab.fillAmount = 0;
             sleepTimeText.text = "-";

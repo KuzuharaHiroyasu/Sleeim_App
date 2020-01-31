@@ -115,7 +115,7 @@ public class SleepListDataSource : MonoBehaviour
 
     private Sprite GetSleepLevel(DateTime startTime, DateTime endTime, int apneaCount, List<SleepData> sleepDataList)
     {
-        double sleepTimeTotal = startTime.Subtract(endTime).TotalSeconds;
+        double sleepTimeTotal = endTime.Subtract(startTime).TotalSeconds;
         //無呼吸平均回数(時)
         double apneaAverageCount = sleepTimeTotal == 0 ? 0 : (double)(apneaCount * 3600) / sleepTimeTotal;  // 0除算を回避
         apneaAverageCount = Math.Truncate(apneaAverageCount * 10) / 10.0;   // 小数点第2位以下を切り捨て
@@ -143,10 +143,8 @@ public class SleepListDataSource : MonoBehaviour
 	private Sprite GetActionModeIcon(ChartInfo info) {
 
 		if (info.sleepMode == (int)SleepMode.Monitor) {
-
-			string icName = "ic_mode_monitor"; //Default
-			return actionModeIcon_monitor;
-		}
+			return actionModeIcon_monitor; //Default
+        }
 
 		if (info.vibrationStrength == (int)VibrationStrength.Weak)
 		{
@@ -158,9 +156,9 @@ public class SleepListDataSource : MonoBehaviour
 		}
 		else if (info.vibrationStrength == (int)VibrationStrength.Multi)
 		{
-			Debug.Log ("multi");
 			return actionModeIcon_suppress_multi;
 		}
+
 		return actionModeIcon_suppress;
 	}
 
