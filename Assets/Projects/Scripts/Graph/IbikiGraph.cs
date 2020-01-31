@@ -54,6 +54,13 @@ namespace Graph
 		public GameObject linee500;
 		public GameObject linee750;
 
+
+
+		public RectTransform line250ImageRect;
+		public RectTransform line500ImageRect;
+		public RectTransform line750ImageRect;
+		public RectTransform line1000ImageRect;
+
 		public GameObject scrollView;
 
 		public GameObject PlusButton;
@@ -199,7 +206,7 @@ namespace Graph
             }
             Output_AnalyzeTable.SetActive(true);
             //背景のいびきレベルを表示
-            IbikiLebelBack.SetActive(true);
+//            IbikiLebelBack.SetActive(true);
 
 			try
 			{
@@ -273,6 +280,11 @@ namespace Graph
 					linee250.transform.localScale = new Vector3(1.0f,hour);
 					linee500.transform.localScale = new Vector3(1.0f,hour);
 					linee750.transform.localScale = new Vector3(1.0f,hour);
+
+					line250ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
+					line500ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
+					line750ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
+					line1000ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
 
 					StartCoroutine ("UpdateGraphPosition");
 					SeriesObject.SetActive (false);
