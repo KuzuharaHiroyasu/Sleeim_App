@@ -139,6 +139,16 @@ public class SleepInfoDescriptor : MonoBehaviour {
         string start_month = startTime.Month.ToString () + "月";
         string start_day = startTime.Day.ToString () + "日";
         string start_dayOfWeek = startTime.ToString ("ddd", new System.Globalization.CultureInfo ("ja-JP"));	//曜日
+
+        string tmpTime = startTime.ToString("HH:mm:ss");
+        if (string.Compare(tmpTime, "00:00:00") >= 0 && string.Compare(tmpTime, "09:00:00") <= 0)
+        {
+            //データ開始時刻がAM00:00～09:00までのデータに前日の日付として表示
+            DateTime newStartTime = startTime.AddDays(-1);
+            start_day = newStartTime.Day.ToString();
+            start_dayOfWeek = newStartTime.ToString("ddd", new System.Globalization.CultureInfo("ja-JP"));	//曜日
+        }
+
         //起床時
         string end_month = endTime.Month.ToString () + "月";
         string end_day = endTime.Day.ToString () + "日";
