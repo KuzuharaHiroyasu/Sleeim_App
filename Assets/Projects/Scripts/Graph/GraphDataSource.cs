@@ -15,7 +15,8 @@ namespace Graph
     /// </summary>
     public class GraphDataSource : MonoBehaviour, IIbikiData, IBreathData, IHeadDirData, ISleepInfo
     {
-        [SerializeField] Image noDataImage = null;	//データがない場合に表示する画像
+		[SerializeField] Image noDataImage = null;	//データがない場合に表示する画像
+		[SerializeField] GameObject scrollView;
         /// <summary>
         /// グラフに表示するデータが変更された際に通知する
         /// </summary>
@@ -61,9 +62,8 @@ namespace Graph
             Debug.Log("EndCheckGraphData----------------------------");
             _selectMax = _filepath.Length - 1;//最新のファイルを取得
 
-            //表示するデータがなければ、NODATAを表示する
-            noDataImage.enabled = _filepath.Length == 0;
 
+			scrollView.SetActive (false);
             if (_filepath.Length != 0)
             { //エラーが出ないように
                 DateTime targetDate = UserDataManager.Scene.GetGraphDate();
@@ -87,7 +87,10 @@ namespace Graph
                 sleepDataList = ReadSleepDataFromCSV(_filepath[_selectIndex]);         //睡眠データをCSVから取得する
                 sleepHeaderData = ReadSleepHeaderDataFromCSV(_filepath[_selectIndex]); //睡眠のヘッダーデータをCSVから取得する
                 AttachData();
-            }
+			}
+			//表示するデータがなければ、NODATAを表示する
+			noDataImage.enabled = _filepath.Length == 0;
+			scrollView.SetActive (!noDataImage.enabled);
             NextCheckRange(); //暫定：次のインデックスが存在有無で有効/無効を切り替え
         }
 

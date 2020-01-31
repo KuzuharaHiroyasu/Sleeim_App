@@ -54,6 +54,11 @@ namespace Graph
 		public GameObject linee500;
 		public GameObject linee750;
 
+		public GameObject scrollView;
+
+		public GameObject PlusButton;
+		public GameObject MinusButton;
+
 		bool onceDisplayFlag = false;
 		List<System.DateTime> ibikiTimeList;
 
@@ -179,6 +184,10 @@ namespace Graph
         /// </summary>
         public void SetActive()
         {
+
+			PlusButton.SetActive (true);
+			MinusButton.SetActive (true);
+
             //ラベル・凡例を表示
             foreach (GameObject label in Label)
             {
@@ -192,78 +201,92 @@ namespace Graph
             //背景のいびきレベルを表示
             IbikiLebelBack.SetActive(true);
 
-			if (dataList != null)
-            {
-                //グラフに表示するためにラベルデータを作成
-                List<LabelData> labelDataList = TransSensingDataToLabelData(dataList);
+			try
+			{
+				if (dataList != null)
+				{
+					//グラフに表示するためにラベルデータを作成
+					List<LabelData> labelDataList = TransSensingDataToLabelData(dataList);
 
-				float hour = sleepingTime (dataList);
-				if (hour < 1.0f) {
-					hour = 0.95f;
-				} else if (!scrollFlag){
-					hour = 0.95f;
+					float hour = sleepingTime (dataList);
+					PlusButton.SetActive(true);
+					MinusButton.SetActive(true);
+					if (hour <= 1.0f) {
+						hour = 0.95f;
+						PlusButton.SetActive(false);
+						MinusButton.SetActive(false);
+					}
+					else if (!scrollFlag){
+						hour = 0.95f;
+					}
+
+					// スクロールビュー
+					RectTransform sRect = ScrollObject.GetComponent<RectTransform>();
+					var y2 = sRect.transform.position.y;
+					sRect.sizeDelta=new Vector2(600*hour,186.3f); //サイズが変更できる
+
+					// スクロール位置を初期化
+					if (onceDisplayFlag) {
+						ScrollRect.horizontalNormalizedPosition = 0.0f;
+					}
+						
+
+					RectTransform rect0 = IbikiMainGraph.GetComponent<RectTransform>();
+					var x = rect0.transform.position.x;
+					var y = rect0.transform.position.y;
+
+
+					rect0.sizeDelta=new Vector2(600*hour,227);
+					if (onceDisplayFlag) {
+						rect0.localPosition=new Vector3(600*hour/2,200-321);
+					} else {
+						rect0.localPosition=new Vector3(600*hour/2,200);
+					}
+
+					RectTransform rectStart = StartTimeObject.GetComponent<RectTransform>();
+
+					rectStart.localPosition=new Vector3(-600*hour/2+55,rectStart.transform.localPosition.y,0);
+
+					RectTransform rectEnd = EndTimeObject.GetComponent<RectTransform>();
+					rectEnd.localPosition=new Vector3(600*hour/2-55,rectStart.transform.localPosition.y,0);
+
+					StartTimeObject.SetActive (false);
+					EndTimeObject.SetActive (false);
+
+					// 頭位置グラフの幅変更
+					HeadDirGraphObject.GetComponent<HeadDirGraph> ().ResizeHeadDirDataBar (600*hour);
+
+					//グラフの上限を1fに設定
+					Output_Line.theGraph.yAxis.AxisMaxValue = 1f;
+					//折れ線グラフにいびきデータを設定
+					SetIbikiDataToLineGraph(dataList);
+
+					//集計の詳細欄にデータを設定
+					SetIbikiDataToAnalyzeTable();
+					//集計のグラフにデータを設定
+					SetBreathDataToPercentageBarChart(dataList);
+
+					//目盛を調整
+					Output_TimeLabel.SetIbikiScroll(hour);
+
+					//線を調整
+					linee250.transform.localScale = new Vector3(1.0f,hour);
+					linee500.transform.localScale = new Vector3(1.0f,hour);
+					linee750.transform.localScale = new Vector3(1.0f,hour);
+
+					StartCoroutine ("UpdateGraphPosition");
+					SeriesObject.SetActive (false);
+
+					onceDisplayFlag = true;
 				}
+			}
+			catch
+			{
 
-				// スクロールビュー
-				RectTransform sRect = ScrollObject.GetComponent<RectTransform>();
-				var y2 = sRect.transform.position.y;
-				sRect.sizeDelta=new Vector2(600*hour,186.3f); //サイズが変更できる
-
-				// スクロール位置を初期化
-				if (onceDisplayFlag) {
-					ScrollRect.horizontalNormalizedPosition = 0.0f;
-				}
+				scrollView.SetActive (false);
+			}
 
 
-
-				RectTransform rect0 = IbikiMainGraph.GetComponent<RectTransform>();
-				var x = rect0.transform.position.x;
-				var y = rect0.transform.position.y;
-
-
-				rect0.sizeDelta=new Vector2(600*hour,227);
-				if (onceDisplayFlag) {
-					rect0.localPosition=new Vector3(600*hour/2,200-321);
-				} else {
-					rect0.localPosition=new Vector3(600*hour/2,200);
-				}
-
-				RectTransform rectStart = StartTimeObject.GetComponent<RectTransform>();
-
-				rectStart.localPosition=new Vector3(-600*hour/2+55,rectStart.transform.localPosition.y,0);
-
-				RectTransform rectEnd = EndTimeObject.GetComponent<RectTransform>();
-				rectEnd.localPosition=new Vector3(600*hour/2-55,rectStart.transform.localPosition.y,0);
-
-				StartTimeObject.SetActive (false);
-				EndTimeObject.SetActive (false);
-
-				// 頭位置グラフの幅変更
-				HeadDirGraphObject.GetComponent<HeadDirGraph> ().ResizeHeadDirDataBar (600*hour);
-
-                //グラフの上限を1fに設定
-                Output_Line.theGraph.yAxis.AxisMaxValue = 1f;
-				//折れ線グラフにいびきデータを設定
-				SetIbikiDataToLineGraph(dataList);
-                
-                //集計の詳細欄にデータを設定
-                SetIbikiDataToAnalyzeTable();
-                //集計のグラフにデータを設定
-                SetBreathDataToPercentageBarChart(dataList);
-
-				//目盛を調整
-				Output_TimeLabel.SetIbikiScroll(hour);
-
-				//線を調整
-				linee250.transform.localScale = new Vector3(1.0f,hour);
-				linee500.transform.localScale = new Vector3(1.0f,hour);
-				linee750.transform.localScale = new Vector3(1.0f,hour);
-
-				StartCoroutine ("UpdateGraphPosition");
-				SeriesObject.SetActive (false);
-
-				onceDisplayFlag = true;
-            }
         }
 
         /// <summary>
