@@ -400,8 +400,6 @@ namespace Graph
 			//目盛を調整
 			Output_TimeLabel.SetIbikiScroll(hour);
 
-//			SeriesObject.transform
-
 			StartCoroutine ("UpdateGraphPosition2");
 			SeriesObject.SetActive (false);
 		}
@@ -522,11 +520,14 @@ namespace Graph
 
 			SeriesObject.SetActive (true);
 			RectTransform rect0 = SeriesObject.GetComponent<RectTransform>();
-			if (scrollFlag) {
-				rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150,0);
-			} else {
-				rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y,0);
-			}
+			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,-263.5f);
+//			if (scrollFlag) {
+//				rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150,0);
+//			} else {
+//				rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y,0);
+//			}
+			float y = IbikiMainGraph.transform.position.y;
+			Debug.Log ("bb2 " + rect0.localPosition.y + " " + rect0.transform.position.y + " " + y);
 
 		}
 
@@ -537,6 +538,8 @@ namespace Graph
 			SeriesObject.SetActive (true);
 			RectTransform rect0 = SeriesObject.GetComponent<RectTransform>();
 			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150,0);
+			float y = IbikiMainGraph.transform.position.y;
+			Debug.Log ("bb " + rect0.localPosition.y + " " + rect0.transform.position.y + " " + y);
 		}
 
         //取得した、いびきの大きさのデータをグラフに表示しやすいようにラベルデータへ変換する
