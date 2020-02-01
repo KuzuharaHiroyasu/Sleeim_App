@@ -4431,6 +4431,7 @@ GameObject:
   - component: {fileID: 1692617427}
   - component: {fileID: 1692617426}
   - component: {fileID: 1692617428}
+  - component: {fileID: 1692617429}
   m_Layer: 5
   m_Name: BackGround
   m_TagString: Untagged
@@ -4454,8 +4455,8 @@ RectTransform:
   m_Father: {fileID: 2069935187}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.04187192}
-  m_AnchorMax: {x: 1, y: 0.9458128}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4503,6 +4504,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b89640b496220478b88a0313df93bf32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1692617429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1692617424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 594bc4782c7c4eb4d85cbc9679ec0dc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isAutoScale: 0
+  simulateOnPlay: 1
+  simulateType: 1
+  isPortrait: 1
 --- !u!1 &1737469012
 GameObject:
   m_ObjectHideFlags: 0
