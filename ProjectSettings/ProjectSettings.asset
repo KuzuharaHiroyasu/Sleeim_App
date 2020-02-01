@@ -160,7 +160,7 @@ PlayerSettings:
   applicationIdentifier:
     Android: jp.co.onea.sleeim
     Standalone: jp.co.onea.sleeim
-    iOS: jp.co.onea.sleeim
+    iOS: jp.co.one-a.sleeim
   buildNumber:
     iOS: 1.0.14
   AndroidBundleVersionCode: 1
