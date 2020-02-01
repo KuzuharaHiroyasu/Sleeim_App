@@ -70,7 +70,7 @@ public class DeviceSettingViewController : ViewControllerBase {
                     onOK: () => { isSaveSetting = true;  },
                     onCancel: () => { isSaveSetting = false; },
                     positiveItemName: "はい",
-                    negativeItemName: "保存せずもどる");
+                    negativeItemName: "保存せず戻る");
                     yield return new WaitUntil(() => isSaveSetting != null);
             }
         }

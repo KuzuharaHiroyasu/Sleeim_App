@@ -12,7 +12,7 @@ using UnityEngine.UI;
 public class SleepListDataSource : MonoBehaviour
 {
 
-    string[] filePath = null;
+    public string[] displayFilePaths = null;
 
     [SerializeField] Sprite actionModeIcon_monitor = null;
 	[SerializeField] Sprite actionModeIcon_suppress = null;
@@ -32,9 +32,9 @@ public class SleepListDataSource : MonoBehaviour
     {
         get
         {
-            if (filePath == null)
-                filePath = Kaimin.Common.Utility.GetAllFiles(Kaimin.Common.Utility.GsDataPath(), "*.csv");
-            return filePath;
+            if (displayFilePaths == null || displayFilePaths.Length == 0)
+                displayFilePaths = Kaimin.Common.Utility.GetAllFiles(Kaimin.Common.Utility.GsDataPath(), "*.csv");
+            return displayFilePaths;
         }
     }
 
@@ -57,9 +57,21 @@ public class SleepListDataSource : MonoBehaviour
         for (int i = 0; i < filePaths.Count; i++)
         {
             string filePath = filePaths[i];
-            //一日ごとのデータを取得する
-            List<SleepData> sleepDataList = ReadSleepDataFromCSV(filePath);         //睡眠データをCSVから取得する
-            SleepHeaderData sleepHeaderData = ReadSleepHeaderDataFromCSV(filePath); //睡眠のヘッダーデータをCSVから取得する
+            List<SleepData> sleepDataList = null;
+            SleepHeaderData sleepHeaderData = null;
+            try
+            {
+                //一日ごとのデータを取得する
+                sleepDataList = ReadSleepDataFromCSV(filePath);         //睡眠データをCSVから取得する
+                sleepHeaderData = ReadSleepHeaderDataFromCSV(filePath); //睡眠のヘッダーデータをCSVから取得する
+            } catch (System.Exception e) 
+            {
+            }
+
+            if (sleepDataList == null || sleepHeaderData == null)
+            {
+                continue;
+            }
                                                                                     //データを設定する
             ChartInfo chartInfo = CSVManager.convertSleepDataToChartInfo(sleepDataList);
             if (chartInfo != null)
@@ -88,12 +100,9 @@ public class SleepListDataSource : MonoBehaviour
                 .Where(path => isCrossTheSun(bedTime, ReadSleepDataFromCSV(path).Last().GetDateTime()))
                 .Count();                               //同一日の日マタギのみのデータ個数
 
-
-            // 削除処理
-            Action deleteAct = () => DeleteFile(filePath, deleteAft);
             onGetData(new SleepListElement.Data(bedTime, dateList, longestApneaTime, apneaCount, dateIndex, crossSunCount, sameDataNum, crossSunNum,
                 GetSleepLevel(bedTime,getUpTime, apneaCount, sleepDataList),
-				GetActionModeIcon(chartInfo), deleteAct));
+				GetActionModeIcon(chartInfo), filePath, deleteAft, chartInfo));
             if (i + 1 < initLoadNum)
             {
                 //初期アイテムロード
@@ -137,6 +146,7 @@ public class SleepListDataSource : MonoBehaviour
         {
             return sleepLevelIcon_4;
         }
+
         return sleepLevelIcon_5;
     }
 
@@ -231,27 +241,5 @@ public class SleepListDataSource : MonoBehaviour
     SleepHeaderData ReadSleepHeaderDataFromCSV(string filepath)
     {
         return CSVSleepDataReader.GetSleepHeaderData(filepath);
-    }
-
-    /// <summary>
-    /// ファイル削除
-    /// </summary>
-    /// <param name="filepath"></param>
-    /// <param name="deleteAft"></param>
-    private void DeleteFile(string filepath, Action deleteAft)
-    {
-
-        if (!System.IO.File.Exists(filepath))
-        {
-            // ファイルが存在しない場合は何もしない
-            return;
-        }
-
-        System.IO.File.Delete(filepath);
-        if (deleteAft == null)
-        {
-            return;
-        }
-        deleteAft();
     }
 }

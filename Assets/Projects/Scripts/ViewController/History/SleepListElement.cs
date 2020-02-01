@@ -13,14 +13,15 @@ public class SleepListElement : MonoBehaviour {
 	public Text SleepTime;
     public Image SleepLevelIcon;
     public Image ActionModeIcon;
+    public Button DeleteButton;
 
     void OnEnable()
     {
-//        TouchManager.Instance.FlickComplete += OnFlickComplete;
+        TouchManager.Instance.FlickComplete += OnFlickComplete;
     }
     void OnDisable()
     {
-//        TouchManager.Instance.FlickComplete -= OnFlickComplete;
+       TouchManager.Instance.FlickComplete -= OnFlickComplete;
     }
 
 	// ここで削除を行なっている
@@ -30,7 +31,6 @@ public class SleepListElement : MonoBehaviour {
         if (myData == null)
             return;
 
-        myData.GetDeleteAction()();
         string text = string.Format("OnFlickComplete [{0}] Speed[{1}] Accel[{2}] ElapseTime[{3}]", new object[] {
                 e.Direction.ToString (),
                 e.Speed.ToString ("0.000"),
@@ -38,24 +38,7 @@ public class SleepListElement : MonoBehaviour {
                 e.ElapsedTime.ToString ("0.000")
         });
         Debug.Log(text);
-
     }
-
-	public void DeleteAction() {
-
-		if (myData == null)
-			return;
-
-		myData.GetDeleteAction()();
-
-
-
-		//ファイルが存在してなければ、DBから削除する
-//		var sleepTable = MyDatabase.Instance.GetSleepTable();
-//		sleepTable.DeleteFromPrimaryKey(long.Parse(myData.GetDate()));
-
-		Debug.Log("Delete Action");
-	}
 
     /// <summary>
     /// 表示に必要なデータをまとめたクラス
@@ -71,8 +54,11 @@ public class SleepListElement : MonoBehaviour {
 		int crossSunNum;			//同一日の日マタギのみのデータ個数
         Sprite sleepLevelIcon;      // 睡眠レベル
         Sprite actionModeIcon;      // 行動モード
-        Action deleteAct;
-        
+
+        //データ削除の際に使う
+        public String filePath;
+        public Action deleteAfterAction;
+        public ChartInfo chartInfo;
 
 		public Data (
             DateTime myDate, List<DateTime> dateList,
@@ -80,7 +66,7 @@ public class SleepListElement : MonoBehaviour {
             int dateIndex, int crossSunCount,
             int sameDateNum, int crossSunNum,
             Sprite sleepLevelIcon, Sprite actionModeIcon,
-            Action deleteAct) {
+            String filePath, Action deleteAfterAction, ChartInfo chartInfo) {
 			this.myDate = myDate;
 			this.timeList = dateList;
 			this.longestApneaTime = longestApneaTime;
@@ -91,7 +77,9 @@ public class SleepListElement : MonoBehaviour {
 			this.crossSunNum = crossSunNum;
             this.sleepLevelIcon = sleepLevelIcon;
             this.actionModeIcon = actionModeIcon;
-            this.deleteAct = deleteAct;
+            this.filePath = filePath;
+            this.deleteAfterAction = deleteAfterAction;
+            this.chartInfo = chartInfo;
 		}
 		public DateTime GetDate () {
 			return this.myDate;
@@ -138,15 +126,38 @@ public class SleepListElement : MonoBehaviour {
         {
             return actionModeIcon;
         }
-
-        public Action GetDeleteAction()
-        {
-            return this.deleteAct;
-        }
 	}
 
-	//グラフに遷移するボタンをタップした際に呼び出される
-	public void OnToGraphButtonTap () {
+    //ファイルを削除
+    public void OnDeleteButtonTap()
+    {
+        if (myData == null || !System.IO.File.Exists(myData.filePath))
+        {
+            // myDataがEmpty、または、ファイルが存在しない場合は何もしない
+            return;
+        }
+        
+        System.IO.File.Delete(myData.filePath);
+
+        //DBから削除する
+        var sleepTable = MyDatabase.Instance.GetSleepTable();
+        var fileName = System.IO.Path.GetFileNameWithoutExtension(myData.filePath);
+        sleepTable.DeleteFromPrimaryKey(long.Parse(fileName));
+
+        if(myData.chartInfo != null)
+        {
+            //Update chart everage info 
+            ChartPref.updateEverageDataAfterDelete(myData.chartInfo);
+        }
+
+        if (myData.deleteAfterAction != null)
+        {
+            myData.deleteAfterAction();
+        }
+    }
+
+    //グラフに遷移するボタンをタップした際に呼び出される
+    public void OnToGraphButtonTap () {
 		//指定の日付のグラフを開くために日付保存
 		if (myData == null)
 			return;

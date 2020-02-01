@@ -71,9 +71,17 @@ public class HistoryListViewController : ViewControllerBase {
 				//データ取得完了時
 				GetSleepListElementData = null;
 			},
-            UpdateListView);
+            UpdateListViewAfterDelete);
 		StartCoroutine (GetSleepListElementData);
 	}
+
+    void UpdateListViewAfterDelete()
+    {
+        //Reset
+        GetSleepListElementData = null;
+        DataSource.displayFilePaths = null;
+        InitView();
+    }
 
 	//画面表示を更新する
 	void UpdateView () {

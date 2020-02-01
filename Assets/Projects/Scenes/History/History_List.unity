@@ -1561,6 +1561,7 @@ GameObject:
   - component: {fileID: 1156209694}
   - component: {fileID: 1156209693}
   - component: {fileID: 1156209692}
+  - component: {fileID: 1156209695}
   - component: {fileID: 1156209691}
   - component: {fileID: 1156209690}
   - component: {fileID: 1156209689}
@@ -1618,6 +1619,7 @@ MonoBehaviour:
   SleepTime: {fileID: 1662150720}
   SleepLevelIcon: {fileID: 1135011221}
   ActionModeIcon: {fileID: 402882409}
+  DeleteButton: {fileID: 0}
 --- !u!114 &1156209691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1697,6 +1699,23 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
+--- !u!114 &1156209695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 114526351351151394, guid: b15e7da2495b61844bd78975161719c5,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1156209687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5e11ec48215b61448a9b3ebc4d51916, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  longtaphold: 20
+  threshold: 100
+  mainObject: {fileID: 1156209687}
+  vanishObject: {fileID: 1696028367}
+  intervalInit: 1
 --- !u!1 &1218752557
 GameObject:
   m_ObjectHideFlags: 0
@@ -2234,7 +2253,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0000033668475}
+  m_AnchoredPosition: {x: 0, y: -0.00005766831}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1373740627
@@ -2446,6 +2465,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2024967a1f7840447a2d5b21eb327480, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  displayFilePaths: []
   actionModeIcon_monitor: {fileID: 21300000, guid: a471fbee41e09e341a36f3ec169d80d7,
     type: 3}
   actionModeIcon_suppress: {fileID: 21300000, guid: 5694b42d9b9d44f47870da6b2196dd96,
@@ -2848,12 +2868,12 @@ GameObject:
   - component: {fileID: 1696028370}
   - component: {fileID: 1696028369}
   m_Layer: 5
-  m_Name: Button
+  m_Name: DeleteButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1696028368
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2871,8 +2891,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 90, y: 0}
-  m_SizeDelta: {x: 180, y: 180}
+  m_AnchoredPosition: {x: 240, y: 0}
+  m_SizeDelta: {x: 165, y: 165}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1696028369
 MonoBehaviour:
@@ -2915,7 +2935,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1156209690}
-        m_MethodName: DeleteAction
+        m_MethodName: OnDeleteButtonTap
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3412,8 +3432,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1007689803}
   m_HandleRect: {fileID: 1007689802}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 0.99999994
+  m_Value: 1
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

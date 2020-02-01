@@ -28,4 +28,33 @@ public class ChartPref
         savedEverageSuppress = PlayerPrefs.GetString("savedEverageSuppress", "");
         savedLastFileName = PlayerPrefs.GetString("savedLastFileName", "");
     }
+
+    public static void updateEverageDataAfterDelete(ChartInfo chartInfo)
+    {
+        bool isMonitor = (chartInfo.sleepMode == (int)SleepMode.Monitor);
+        string key = isMonitor ? "Monitor" : "Suppress";
+
+        int leftChartNum = PlayerPrefs.GetInt("savedNum" + key, 0) - 1;
+        if(leftChartNum <= 0)
+        {
+            PlayerPrefs.SetInt("savedNum" + key, 0);
+            PlayerPrefs.SetString("savedEverage" + key, "");
+        } else {
+            string savedEverage = PlayerPrefs.GetString("savedEverage" + key, "");
+            string[] tmpEverages = savedEverage.Split('_');
+            if (tmpEverages.Length == 3) {
+                PlayerPrefs.SetInt("savedNum" + key, leftChartNum);
+
+                var new_pKaiMin  = (float.Parse(tmpEverages[0]) * (leftChartNum + 1) - chartInfo.pKaiMin)/leftChartNum;
+                var new_pIbiki = (float.Parse(tmpEverages[1]) * (leftChartNum + 1) - chartInfo.pIbiki) /leftChartNum;
+                var new_pMukokyu = (float.Parse(tmpEverages[2]) * (leftChartNum + 1) - chartInfo.pMukokyu)/leftChartNum;
+
+                PlayerPrefs.SetString("savedEverage" + key, new_pKaiMin + "_" + new_pIbiki + "_" + new_pMukokyu);
+            } else {   
+                //Reset
+                PlayerPrefs.SetInt("savedNum" + key, 0);
+                PlayerPrefs.SetString("savedEverage" + key, "");
+            }
+        }
+    }
 }
