@@ -218,7 +218,7 @@ namespace Graph
 				firstPositionFlag = true;
 				rect0.localPosition=new Vector3(width/2,-242,0);
 			} else {
-				rect0.localPosition=new Vector3(width/2,-536-27,0);
+				rect0.localPosition=new Vector3(width/2,-536-27+20,0);
 			}
 
 		}

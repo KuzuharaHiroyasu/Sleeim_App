@@ -195,6 +195,8 @@ namespace Graph
 			PlusButton.SetActive (true);
 			MinusButton.SetActive (true);
 
+			DeviceSetting deviceSetting = UserDataManager.Setting.DeviceSettingData.Load();
+			Debug.Log("いびき感度" + deviceSetting.SnoreSensitivity);
             //ラベル・凡例を表示
             foreach (GameObject label in Label)
             {
@@ -366,6 +368,12 @@ namespace Graph
 
 			StartCoroutine ("UpdateGraphPosition2");
 			SeriesObject.SetActive (false);
+
+
+            line250ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
+            line500ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
+            line750ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
+            line1000ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
 		}
 
 
@@ -414,6 +422,11 @@ namespace Graph
 
 			StartCoroutine ("UpdateGraphPosition2");
 			SeriesObject.SetActive (false);
+            
+            line250ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
+            line500ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
+            line750ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
+            line1000ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
 		}
 
         //いびきのデータを分析して表に表示する
@@ -541,6 +554,9 @@ namespace Graph
 			float y = IbikiMainGraph.transform.position.y;
 			Debug.Log ("bb2 " + rect0.localPosition.y + " " + rect0.transform.position.y + " " + y);
 
+            Vector3 headLocalPosition = HeadDirGraphObject.transform.localPosition;
+            HeadDirGraphObject.transform.localPosition = new Vector3(headLocalPosition.x,-563.5f+20.0f);
+
 		}
 
 		IEnumerator UpdateGraphPosition2()
@@ -552,7 +568,28 @@ namespace Graph
 			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150,0);
 			float y = IbikiMainGraph.transform.localPosition.y;
 			Debug.Log ("bb " + rect0.localPosition.y + " " + rect0.transform.position.y + " " + y);
+
+            Vector3 ibikiMainPosition = IbikiMainGraph.transform.localPosition;
+            IbikiMainGraph.transform.localPosition = new Vector3(ibikiMainPosition.x,-121.5f);
+
+            Vector3 headLocalPosition = HeadDirGraphObject.transform.localPosition;
+            HeadDirGraphObject.transform.localPosition = new Vector3(headLocalPosition.x,-563.5f+20.0f);
+
+            line250ImageRect.transform.localPosition = new Vector3(line250ImageRect.transform.localPosition.x,-299.65f);
+            line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-299.65f+85.0f);
+            line750ImageRect.transform.localPosition = new Vector3(line750ImageRect.transform.localPosition.x,-299.65f+85.0f*2);
+            line1000ImageRect.transform.localPosition = new Vector3(line1000ImageRect.transform.localPosition.x,-299.65f+85.0f*3);
+
 		}
+
+        void LogYPosition(){
+            Debug.Log("scrollObject " + ScrollObject.transform.position.y + " " + ScrollObject.transform.localPosition.y);
+            Debug.Log("graph " + IbikiMainGraph.transform.position.y + " " + IbikiMainGraph.transform.localPosition.y);
+            Debug.Log("headDirGraph " + HeadDirGraphObject.transform.position.y + " " + HeadDirGraphObject.transform.localPosition.y);
+            Debug.Log("line250 " + line250ImageRect.transform.position.y + " " + line250ImageRect.transform.localPosition.y);
+            Debug.Log("line750 " + line750ImageRect.transform.position.y + " " + line750ImageRect.transform.localPosition.y);
+
+        }
 
         //取得した、いびきの大きさのデータをグラフに表示しやすいようにラベルデータへ変換する
         List<LabelData> TransSensingDataToLabelData(List<IbikiGraph.Data> dataList)
