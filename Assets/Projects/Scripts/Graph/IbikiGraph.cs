@@ -344,7 +344,7 @@ namespace Graph
 
 			rect0.sizeDelta=new Vector2(600*hour,227);
 			if (onceDisplayFlag) {
-				rect0.localPosition=new Vector3(600*hour/2,200-321);
+				rect0.localPosition=new Vector3(600*hour/2f,200f-321f-8.55f);
 			} else {
 				rect0.localPosition=new Vector3(600*hour/2,200);
 			}
@@ -550,7 +550,7 @@ namespace Graph
 			SeriesObject.SetActive (true);
 			RectTransform rect0 = SeriesObject.GetComponent<RectTransform>();
 			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150,0);
-			float y = IbikiMainGraph.transform.position.y;
+			float y = IbikiMainGraph.transform.localPosition.y;
 			Debug.Log ("bb " + rect0.localPosition.y + " " + rect0.transform.position.y + " " + y);
 		}
 
