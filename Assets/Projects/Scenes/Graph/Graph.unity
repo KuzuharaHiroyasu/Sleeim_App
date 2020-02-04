@@ -8306,7 +8306,7 @@ MonoBehaviour:
   - state: 0
     label:
       name: "\u5FEB\u7720"
-      color: {r: 0.6666667, g: 0.7921569, b: 0.8392157, a: 1}
+      color: {r: 0.627451, g: 0.8627451, b: 0.8392157, a: 1}
       isUseTexture: 0
       texture: {fileID: 0}
     valueRate: 0.5
@@ -9250,8 +9250,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1728371985}
   m_HandleRect: {fileID: 1728371984}
   m_Direction: 2
-  m_Value: 0.99999285
-  m_Size: 0.97424245
+  m_Value: 0.9999964
+  m_Size: 0.9742423
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -9373,7 +9373,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.6666667, g: 0.7921569, b: 0.8627451, a: 1}
+  m_Color: {r: 0.5595264, g: 0.8627451, b: 0.8392157, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -12577,7 +12577,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 741661790}
   m_HandleRect: {fileID: 741661789}
   m_Direction: 0
-  m_Value: 0.000005385455
+  m_Value: 0.0000071806066
   m_Size: 0.9716667
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -17199,7 +17199,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7ad412482838534ebd3a6e005e69647, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lineColor: {r: 0.8039216, g: 0.84313726, b: 1, a: 1}
+  lineColor: {r: 0.39607844, g: 0.38039216, b: 0.9843137, a: 1}
   headDirGraph: {fileID: 166721805}
   ibikiLebelList:
   - label:
