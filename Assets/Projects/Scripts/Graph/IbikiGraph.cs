@@ -295,7 +295,13 @@ namespace Graph
                     }
 					//線を調整
                     lineTouchiRect.sizeDelta = new Vector2(600*hour,3.0f);
-                    lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,21.85f-85.0f+(float)graphThreshold*85.0f/250.0f);
+
+					if (onceDisplayFlag) {
+						lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,21.85f-85.0f+(float)graphThreshold*85.0f/250.0f-321.0f);
+					} else {
+						lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,21.85f-85.0f+(float)graphThreshold*85.0f/250.0f);
+					}
+                    
                     lineTouchiRect.gameObject.SetActive(true);
 
 					line250ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
