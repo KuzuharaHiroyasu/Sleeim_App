@@ -50,16 +50,14 @@ namespace Graph
 		public ScrollRect ScrollRect;
 		public GameObject LinkParent;
 
-		public GameObject linee250;
-		public GameObject linee500;
-		public GameObject linee750;
-
 
 
 		public RectTransform line250ImageRect;
 		public RectTransform line500ImageRect;
 		public RectTransform line750ImageRect;
 		public RectTransform line1000ImageRect;
+
+        public RectTransform lineTouchiRect;
 
 		public GameObject scrollView;
 
@@ -68,6 +66,8 @@ namespace Graph
 
 		bool onceDisplayFlag = false;
 		List<System.DateTime> ibikiTimeList;
+        // グラフ閾値
+        int graphThreshold = 300;
 
         void Awake()
         {
@@ -195,8 +195,6 @@ namespace Graph
 			PlusButton.SetActive (true);
 			MinusButton.SetActive (true);
 
-			DeviceSetting deviceSetting = UserDataManager.Setting.DeviceSettingData.Load();
-			Debug.Log("いびき感度" + deviceSetting.SnoreSensitivity);
             //ラベル・凡例を表示
             foreach (GameObject label in Label)
             {
@@ -278,10 +276,27 @@ namespace Graph
 					//目盛を調整
 					Output_TimeLabel.SetIbikiScroll(hour);
 
+
+                    // 縦軸閾値を計算
+                    DeviceSetting deviceSetting = UserDataManager.Setting.DeviceSettingData.Load();
+                    switch (deviceSetting.SnoreSensitivity) {
+                        // 1 中
+                        case SnoreSensitivity.Mid:
+                            graphThreshold = 245;
+                            break;
+                        // 2 高
+                        case SnoreSensitivity.High:
+                            graphThreshold = 200;
+                            break;
+                        // 0 低
+                        default:
+                            graphThreshold = 300;
+                            break;
+                    }
 					//線を調整
-					linee250.transform.localScale = new Vector3(1.0f,hour);
-					linee500.transform.localScale = new Vector3(1.0f,hour);
-					linee750.transform.localScale = new Vector3(1.0f,hour);
+                    lineTouchiRect.sizeDelta = new Vector2(600*hour,3.0f);
+                    lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,21.85f-85.0f+(float)graphThreshold*85.0f/250.0f);
+                    lineTouchiRect.gameObject.SetActive(true);
 
 					line250ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
 					line500ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
@@ -369,6 +384,8 @@ namespace Graph
 			StartCoroutine ("UpdateGraphPosition2");
 			SeriesObject.SetActive (false);
 
+            lineTouchiRect.sizeDelta = new Vector2(600*hour,3.0f);
+
 
             line250ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
             line500ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
@@ -415,13 +432,18 @@ namespace Graph
 
 			// 頭の位置
 			HeadDirGraphObject.GetComponent<HeadDirGraph> ().ResizeHeadDirDataBar (600 * hour);
+            HeadDirGraphObject.transform.localPosition = new Vector3(HeadDirGraphObject.transform.localPosition.x,-543.5f+8.5f);
 			//グラフの時間軸も合わせて設定
 			Output_TimeLabel.SetIbikiMinAxis (ibikiTimeList);
 			//目盛を調整
 			Output_TimeLabel.SetIbikiScroll(hour);
 
+            IbikiMainGraph.transform.localPosition = new Vector3(IbikiMainGraph.transform.localPosition.x,-121.5f+8.5f);
 			StartCoroutine ("UpdateGraphPosition2");
 			SeriesObject.SetActive (false);
+
+            //線を調整
+            lineTouchiRect.sizeDelta = new Vector2(600*hour,3.0f);
             
             line250ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
             line500ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
@@ -574,6 +596,11 @@ namespace Graph
 
             Vector3 headLocalPosition = HeadDirGraphObject.transform.localPosition;
             HeadDirGraphObject.transform.localPosition = new Vector3(headLocalPosition.x,-563.5f+20.0f);
+
+
+            //線を調整
+            lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f+(float)graphThreshold*85.0f/250.0f);
+                    
 
             line250ImageRect.transform.localPosition = new Vector3(line250ImageRect.transform.localPosition.x,-299.65f);
             line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-299.65f+85.0f);
