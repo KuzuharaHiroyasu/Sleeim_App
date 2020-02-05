@@ -114,10 +114,10 @@ public class CSVManager
         }
 
         DateTime fileDateTime = Kaimin.Common.Utility.TransFilePathToDate(filePath);
-        DateTime dateTime = CSVManager.getRealDateTime(fileDateTime);
+        chartInfo.realDateTime = CSVManager.getRealDateTime(fileDateTime);
         chartInfo.fileName = fileDateTime.ToString();
         chartInfo.sleepTime = sleepTime;
-        chartInfo.date = dateTime.ToString("M/d");
+        chartInfo.date = chartInfo.realDateTime.ToString("M/d");
 
         if (sleepRecordStartTimeLine.Length > 9) //New format
         {
@@ -129,7 +129,6 @@ public class CSVManager
             chartInfo.sleepMode = (int) SleepMode.Suppress;
             chartInfo.vibrationStrength = (int)VibrationStrength.Medium;
         }
-        
 
         return chartInfo;
     }

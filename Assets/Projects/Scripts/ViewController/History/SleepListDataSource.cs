@@ -53,7 +53,7 @@ public class SleepListDataSource : MonoBehaviour
         //CSVから取得した睡眠データをSleepListElement.Dataに変換して返す
         //fromからtoまでの期間の睡眠データを取得する
         //取得したファイル一覧から指定した期間のファイルのみのリストを作成する
-        List<string> filePaths = PickFilePathInPeriod(FilePath, from, to);
+        List<string> filePaths = PickFilePathInPeriod(FilePath, from, to.AddDays(1));
         for (int i = 0; i < filePaths.Count; i++)
         {
             string filePath = filePaths[i];
@@ -72,12 +72,19 @@ public class SleepListDataSource : MonoBehaviour
             {
                 continue;
             }
-                                                                                    //データを設定する
+
+            //データを設定する
             ChartInfo chartInfo = CSVManager.convertSleepDataToChartInfo(sleepDataList);
-            if (chartInfo != null)
+            if (chartInfo == null)
             {
-                chartInfo.endSleepTime = sleepDataList.Select(data => data.GetDateTime()).Last();
-                CSVManager.convertSleepHeaderToChartInfo(chartInfo, filePath);
+                continue;
+            }
+
+            chartInfo.endSleepTime = sleepDataList.Select(data => data.GetDateTime()).Last();
+            CSVManager.convertSleepHeaderToChartInfo(chartInfo, filePath);
+            if (chartInfo.realDateTime.Month != from.Month)
+            {
+                continue;
             }
 
             DateTime bedTime = sleepHeaderData.DateTime;

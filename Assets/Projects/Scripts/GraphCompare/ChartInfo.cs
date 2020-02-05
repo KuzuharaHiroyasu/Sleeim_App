@@ -2,6 +2,7 @@
 {
     public string fileName;
     public string date;
+    public System.DateTime realDateTime;
     public System.DateTime startSleepTime;
     public System.DateTime endSleepTime;
     public string sleepTime;
