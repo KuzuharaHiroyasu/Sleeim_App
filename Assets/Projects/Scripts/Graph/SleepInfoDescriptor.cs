@@ -132,29 +132,20 @@ public class SleepInfoDescriptor : MonoBehaviour {
 
     //日付
     String GetDateText(int dateIndex, int crossSunCount, int sameDateNum, int crossSunNum) {
-
         DateTime startTime = Data.BedTime;
-        DateTime endTime = Data.GetUpTime;
-        //就寝時
-        string start_month = startTime.Month.ToString () + "月";
-        string start_day = startTime.Day.ToString () + "日";
-        string start_dayOfWeek = startTime.ToString ("ddd", new System.Globalization.CultureInfo ("ja-JP"));	//曜日
-
-        string tmpTime = startTime.ToString("HH:mm:ss");
-        if (string.Compare(tmpTime, "00:00:00") >= 0 && string.Compare(tmpTime, "09:00:00") <= 0)
-        {
-            //データ開始時刻がAM00:00～09:00までのデータに前日の日付として表示
-            DateTime newStartTime = startTime.AddDays(-1);
-            start_day = newStartTime.Day.ToString();
-            start_dayOfWeek = newStartTime.ToString("ddd", new System.Globalization.CultureInfo("ja-JP"));	//曜日
-        }
+        DateTime endTime = CSVManager.getRealDateTime(Data.GetUpTime);
 
         //起床時
         string end_month = endTime.Month.ToString () + "月";
         string end_day = endTime.Day.ToString () + "日";
-        string end_dayOfWeek = endTime.ToString ("ddd", new System.Globalization.CultureInfo ("ja-JP"));	//曜日
+        string end_dayOfWeek = endTime.ToString ("ddd", new System.Globalization.CultureInfo ("ja-JP")); //曜日
 
-        if (isCrossTheSun (startTime, endTime)) {
+        if (CSVManager.isCrossTheSun (startTime, endTime)) {
+            //就寝時
+            string start_month = startTime.Month.ToString() + "月";
+            string start_day = startTime.Day.ToString() + "日";
+            string start_dayOfWeek = startTime.ToString("ddd", new System.Globalization.CultureInfo("ja-JP")); //曜日
+
             //就寝時と起床時の日付が異なっていたら「就寝日～起床日」を返す
             bool isNecessaryIndex = crossSunNum > 1;
             int indexCount = crossSunCount;
@@ -166,7 +157,7 @@ public class SleepInfoDescriptor : MonoBehaviour {
             //就寝時と起床時の日付が同じであれば「就寝日」を返す
             bool isNecessaryIndex = (sameDateNum - crossSunNum) > 1;
             int indexCount = dateIndex + 1;
-            return start_month + start_day + "(" + start_dayOfWeek + ")" + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
+            return end_month + end_day + "(" + end_dayOfWeek + ")" + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
         }
     }
 
@@ -179,12 +170,6 @@ public class SleepInfoDescriptor : MonoBehaviour {
             return false;
         return true;
     }
-
-    //日付をまたいでいるかどうか
-    bool isCrossTheSun (DateTime start, DateTime end) {
-        return start.Month != end.Month || start.Day != end.Day;
-    }
-
 
     //時間を以下の形式の文字列に変換する
     //例：2018/06/20/14:08　→ １４：０８

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -63,7 +64,7 @@ public class CSVManager
         {
             List<string> unreadFileList = new List<string>();
 
-            var lastDateTime = System.DateTime.Parse(savedLastFileName);
+            var lastDateTime = DateTime.Parse(savedLastFileName);
             foreach (var filePath in fileList)
             {
                 var dateTime = Kaimin.Common.Utility.TransFilePathToDate(filePath);
@@ -104,7 +105,7 @@ public class CSVManager
             int hour = int.Parse(timeArr[0]);
             int min = int.Parse(timeArr[1]);
             int sec = int.Parse(timeArr[2]);
-            chartInfo.startSleepTime = new System.DateTime(year, month, day, hour, min, sec);
+            chartInfo.startSleepTime = new DateTime(year, month, day, hour, min, sec);
 
             int sleepTimeSec = Graph.Time.GetDateDifferencePerSecond(chartInfo.startSleepTime, chartInfo.endSleepTime);
             System.TimeSpan ts = new System.TimeSpan(hours: 0, minutes: 0, seconds: sleepTimeSec);
@@ -112,20 +113,12 @@ public class CSVManager
             sleepTime = string.Format("{0:00}:{1:00}", hourWithDay, ts.Minutes);
         }
 
-        System.DateTime fileDateTime = Kaimin.Common.Utility.TransFilePathToDate(filePath);
+        DateTime fileDateTime = Kaimin.Common.Utility.TransFilePathToDate(filePath);
+        DateTime dateTime = CSVManager.getRealDateTime(fileDateTime);
         chartInfo.fileName = fileDateTime.ToString();
         chartInfo.sleepTime = sleepTime;
+        chartInfo.date = dateTime.ToString("M/d");
 
-        string tmpTime = fileDateTime.ToString("HH:mm:ss");
-        if (string.Compare(tmpTime, "00:00:00") >= 0 && string.Compare(tmpTime, "09:00:00") <= 0)
-        {
-            //データ開始時刻がAM00:00～09:00までのデータに前日の日付として表示
-            chartInfo.date = fileDateTime.AddDays(-1).ToString("M/d");
-        } else
-        {
-            chartInfo.date = fileDateTime.ToString("M/d");
-        }
-        
         if (sleepRecordStartTimeLine.Length > 9) //New format
         {
             chartInfo.sleepMode = int.Parse(sleepRecordStartTimeLine[8]);
@@ -257,5 +250,25 @@ public class CSVManager
         }
 
         return "00:00";
+    }
+
+
+
+    public static DateTime getRealDateTime(DateTime dateTime)
+    {
+        string tmpTime = dateTime.ToString("HH:mm:ss");
+        if (string.Compare(tmpTime, "00:00:00") >= 0 && string.Compare(tmpTime, "09:00:00") <= 0)
+        {
+            //データ開始時刻がAM00:00～09:00までのデータに前日の日付として表示
+            dateTime = dateTime.AddDays(-1);
+        }
+
+        return dateTime;
+    }
+
+    //日付をまたいでいるかどうか
+    public static bool isCrossTheSun(DateTime start, DateTime end)
+    {
+        return end.Year >= start.Year && (end.Month > start.Month || (end.Month == start.Month && end.Day > start.Day));
     }
 }

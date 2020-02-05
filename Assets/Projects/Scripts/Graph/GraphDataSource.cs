@@ -200,11 +200,11 @@ namespace Graph
                 .First();									//同一日の何個目のデータか(0はじまり)
             int crossSunCount = todayDataPathList
                 .Take(dateIndex + 1)
-                .Where(path => isCrossTheSun(bedTime, ReadSleepDataFromCSV(path).Last().GetDateTime()))
+                .Where(path => CSVManager.isCrossTheSun(bedTime, ReadSleepDataFromCSV(path).Last().GetDateTime()))
                 .Count();									//現在のデータまでの日またぎデータの個数
             int sameDataNum = todayDataPathList.Count;		//同一日のすべてのデータ個数
             int crossSunNum = todayDataPathList
-                .Where(path => isCrossTheSun(bedTime, ReadSleepDataFromCSV(path).Last().GetDateTime()))
+                .Where(path => CSVManager.isCrossTheSun(bedTime, ReadSleepDataFromCSV(path).Last().GetDateTime()))
                 .Count();									//同一日の日マタギのみのデータ個数
             return new SleepDataDetail(
                 bedTime,
@@ -220,12 +220,6 @@ namespace Graph
                 crossSunCount,
                 sameDataNum,
                 crossSunNum);
-        }
-
-        //日付をまたいでいるかどうか
-        bool isCrossTheSun(DateTime start, DateTime end)
-        {
-            return start.Month != end.Month || start.Day != end.Day;
         }
 
         //睡眠データのファイル一覧から指定した期間のもののみを取得

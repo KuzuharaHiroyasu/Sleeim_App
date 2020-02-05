@@ -212,7 +212,7 @@ public class HomeViewController : ViewControllerBase
         string end_day = endTime.Day.ToString("00");
         string end_dayOfWeek = endTime.ToString("ddd", new System.Globalization.CultureInfo("ja-JP"));	//曜日
 
-        if (isCrossTheSun(startTime, endTime))
+        if (CSVManager.isCrossTheSun(startTime, endTime))
         {
             //就寝時と起床時の日付が異なっていたら「就寝日～起床日」を返す
             bool isNecessaryIndex = crossSunNum > 1;
@@ -229,12 +229,6 @@ public class HomeViewController : ViewControllerBase
             int indexCount = dateIndex + 1;
             return start_year + "/" + start_month + "/" + start_day + "(" + start_dayOfWeek + ")" + (isNecessaryIndex ? " (" + indexCount.ToString() + ")" : "");
         }
-    }
-
-    //日付をまたいでいるかどうか
-    bool isCrossTheSun(DateTime start, DateTime end)
-    {
-        return start.Month != end.Month || start.Day != end.Day;
     }
 
     //無呼吸検知回数の表示のアイコンをデータの有無によって変更
@@ -268,11 +262,11 @@ public class HomeViewController : ViewControllerBase
                 .First();								//同一日の何個目のデータか(0はじまり)
             int crossSunCount = todayDataPathList
                 .Take(dateIndex + 1)
-                .Where(path => isCrossTheSun(startTime, ReadSleepDataFromCSV(path).Last().GetDateTime()))
+                .Where(path => CSVManager.isCrossTheSun(startTime, ReadSleepDataFromCSV(path).Last().GetDateTime()))
                 .Count();								//現在のデータまでの日マタギデータの個数
             int sameDateNum = todayDataPathList.Count;	//同一日のすべてのデータ個数
             int crossSunNum = todayDataPathList
-                .Where(path => isCrossTheSun(startTime, ReadSleepDataFromCSV(path).Last().GetDateTime()))
+                .Where(path => CSVManager.isCrossTheSun(startTime, ReadSleepDataFromCSV(path).Last().GetDateTime()))
                 .Count();
             dateText = GetSleepDateForText(startTime, endTime, dateIndex, crossSunCount, sameDateNum, crossSunNum);
 
