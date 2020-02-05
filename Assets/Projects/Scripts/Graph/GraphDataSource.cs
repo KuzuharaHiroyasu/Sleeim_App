@@ -182,10 +182,17 @@ namespace Graph
             int snoreTime = sleepHeaderData.SnoreTime;
             int apneaTime = sleepHeaderData.ApneaTime;
             int longestApneaTime = sleepHeaderData.LongestApneaTime;
-            double snoreRate = (snoreTime / sleepDataList.Count() / 3.0 ) * 100.0;
-            snoreRate = Math.Truncate(snoreRate * 10) / 10.0;   // 小数点第2位以下を切り捨て
             var sleepTimeSpan = getUpTime.Subtract(bedTime);
             double sleepTimeTotal = sleepTimeSpan.TotalSeconds;
+
+            double  snoreRate10 = (snoreTime / sleepTimeTotal ) * 1000.0;
+            int snoreRate10Int = (int)snoreRate10;
+            bool kuriagari = false;
+            if (snoreRate10 - snoreRate10Int >= 0.5) {
+                snoreRate10Int += 1;
+            }
+            double snoreRate = snoreRate10Int / 10.0;
+            
             double apneaAverageCount = sleepTimeTotal == 0 ? 0 : (double) (apneaCount  * 3600) / sleepTimeTotal;  // 0除算を回避
 
             apneaAverageCount = Math.Truncate(apneaAverageCount * 10) / 10.0;   // 小数点第2位以下を切り捨て
