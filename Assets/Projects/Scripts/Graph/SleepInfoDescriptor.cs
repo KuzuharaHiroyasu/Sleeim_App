@@ -118,7 +118,10 @@ public class SleepInfoDescriptor : MonoBehaviour {
     /// </summary>
     private String SnoreRate {
         get {
-            return ((int) Data.SnoreRate).ToString () + "<size=24>％</size>";
+            Debug.Log("snoreRate " + Data.SnoreRate);
+            double rate = Data.SnoreRate;
+            int per = (int)(rate * 10) % 10;
+            return ((int) Data.SnoreRate).ToString () + "." + per.ToString() + "<size=24>％</size>";
         }
     }
 
