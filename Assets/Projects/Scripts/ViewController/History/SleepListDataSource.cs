@@ -101,7 +101,7 @@ public class SleepListDataSource : MonoBehaviour
                 .Count();                               //同一日の日マタギのみのデータ個数
 
             onGetData(new SleepListElement.Data(bedTime, dateList, longestApneaTime, apneaCount, dateIndex, crossSunCount, sameDataNum, crossSunNum,
-                GetSleepLevel(bedTime,getUpTime, apneaCount, sleepDataList),
+                GetSleepLevel(bedTime,getUpTime, sleepHeaderData.ApneaDetectionCount, sleepDataList),
 				GetActionModeIcon(chartInfo), filePath, deleteAft, chartInfo));
             if (i + 1 < initLoadNum)
             {
