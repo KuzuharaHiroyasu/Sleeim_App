@@ -213,6 +213,8 @@ namespace Graph
             int crossSunNum = todayDataPathList
                 .Where(path => CSVManager.isCrossTheSun(bedTime, ReadSleepDataFromCSV(path).Last().GetDateTime()))
                 .Count();									//同一日の日マタギのみのデータ個数
+                
+            int sleepMode =  sleepHeaderData.SleepMode;
             return new SleepDataDetail(
                 bedTime,
                 getUpTime,
@@ -226,7 +228,8 @@ namespace Graph
                 dateIndex,
                 crossSunCount,
                 sameDataNum,
-                crossSunNum);
+                crossSunNum,
+                sleepMode);
         }
 
         //睡眠データのファイル一覧から指定した期間のもののみを取得

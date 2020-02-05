@@ -118,7 +118,6 @@ public class SleepInfoDescriptor : MonoBehaviour {
     /// </summary>
     private String SnoreRate {
         get {
-            Debug.Log("snoreRate " + Data.SnoreRate);
             double rate = Data.SnoreRate;
             int per = (int)(rate * 10) % 10;
             return ((int) Data.SnoreRate).ToString () + "." + per.ToString() + "<size=24>％</size>";
@@ -205,9 +204,21 @@ public class SleepInfoDescriptor : MonoBehaviour {
         SnoreCount.text = Data.SnoreCount.ToString() + "<size=24>回</size>";
         ApneaAverageCount.text = Data.ApneaAverageCount.ToString() + "<size=24>回</size>";
 
-		DeviceSetting deviceSetting = UserDataManager.Setting.DeviceSettingData.Load();
-		ActionModeText.text = deviceSetting.ActionModeText;
-		ActionModeText.rectTransform.sizeDelta = new Vector2(ActionModeText.preferredWidth, ActionModeText.preferredHeight);
+        switch (Data.SleepMode)
+        {
+            case 0:
+            ActionModeText.text = "低減モード(いびき)";
+            break;
+            case 1:
+            ActionModeText.text = "低減モード(いびき+無呼吸)";
+            break;
+            case 2:
+            ActionModeText.text = "モニタリングモード";
+            break;
+            default:
+            ActionModeText.text = "低減モード（無呼吸）";
+            break;
+        }
     }
 
     //睡眠時間をテキストに設定する

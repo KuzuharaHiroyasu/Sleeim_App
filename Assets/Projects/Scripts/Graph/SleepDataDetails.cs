@@ -78,6 +78,11 @@ public class SleepDataDetail {
     public int CrossSunNum { get; }
 
     /// <summary>
+    /// 動作モード
+    /// </summary>
+    public int SleepMode { get; }
+
+    /// <summary>
     /// コンストラクタ
     /// </summary>
     /// <param name="bedTime">就寝時間</param>
@@ -93,6 +98,7 @@ public class SleepDataDetail {
     /// <param name="crossSunCount"></param>
     /// <param name="sameDateNum"></param>
     /// <param name="crossSunNum"></param>
+    /// <param name="sleepMode">動作モード</param>
     public SleepDataDetail (
         DateTime bedTime,
         DateTime getUpTime,
@@ -106,7 +112,8 @@ public class SleepDataDetail {
         int dateIndex,
         int crossSunCount,
         int sameDateNum,
-        int crossSunNum)
+        int crossSunNum,
+        int sleepMode)
     {
         this.BedTime = bedTime;
         this.GetUpTime = getUpTime;
@@ -121,5 +128,6 @@ public class SleepDataDetail {
         this.CrossSunCount = crossSunCount;
         this.SameDateNum = sameDateNum;
         this.CrossSunNum = crossSunNum;
+        this.SleepMode = sleepMode;
     }
 }
