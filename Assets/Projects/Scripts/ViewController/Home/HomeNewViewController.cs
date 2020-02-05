@@ -254,7 +254,7 @@ public class HomeNewViewController : ViewControllerBase
                     //System.Random random = new System.Random();
                     //sleepLevel = random.Next(0, 5);
                     String[] levelColors = new String[5] { "#ff0000", "#ff6600", "#ffff4d", "#72ef36", "#0063dc" };
-                    circleOuter.GetComponent<Image>().color = convertHexToColor(levelColors[sleepLevel]);
+                    circleOuter.GetComponent<Image>().color = convertHexToColor(levelColors[sleepLevel-1]);
                 }
             }
         } catch (System.Exception e) {
