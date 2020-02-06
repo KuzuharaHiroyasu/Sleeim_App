@@ -50,19 +50,23 @@ public class HistoryCellSwipeHundler : SwipeHandler {
 
 	bool pointerDownFlag = false;
 	override public void OnPointerDown (PointerEventData eventData)
-	{     
+	{   
+        /*
 		pointerDownFlag = true;
 		StartCoroutine ("DelayLongPress");
+        */
 	}
 
 	override public void OnPointerUp (PointerEventData eventData)
 	{
+        /*
 		pointerDownFlag = false;
 		// 長押し判定開始前に離したorスクロールした場合
 		if (!isLongPressed) {
 			StopCoroutine ("DelayLongPress");       //コルーチン停止
 			return;
 		}
+        */
 	}
 
 	public float intervalInit = 1.0f;
@@ -94,12 +98,13 @@ public class HistoryCellSwipeHundler : SwipeHandler {
 		}
 
 		Vector3 position = mainObject.transform.localPosition;
-		mainObject.transform.localPosition = new Vector3(position.x-180,position.y);
+		mainObject.transform.localPosition = new Vector3(position.x-30,position.y);
 
 		Vector3 position2 = vanishObject.transform.localPosition;
-		vanishObject.transform.localPosition = new Vector3(position2.x-180,position2.y);
+		vanishObject.transform.localPosition = new Vector3(position2.x-30, position2.y);
 
-		displayVanishButton = true;
+        vanishObject.SetActive(true);
+        displayVanishButton = true;
 	}
 
 	void HideVanishButton() {
@@ -109,11 +114,12 @@ public class HistoryCellSwipeHundler : SwipeHandler {
 		}
 
 		Vector3 position = mainObject.transform.localPosition;
-		mainObject.transform.localPosition = new Vector3(position.x+180,position.y);
+		mainObject.transform.localPosition = new Vector3(position.x+30, position.y);
 
 		Vector3 position2 = vanishObject.transform.localPosition;
-		vanishObject.transform.localPosition = new Vector3(position2.x+180,position2.y);
+		vanishObject.transform.localPosition = new Vector3(position2.x+30, position2.y);
 
-		displayVanishButton = false;
+        vanishObject.SetActive(false);
+        displayVanishButton = false;
 	}
 }
