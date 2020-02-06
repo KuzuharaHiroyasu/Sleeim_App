@@ -488,6 +488,8 @@ namespace Graph
 
 			RemoveIbikiDataFromLineGraph();	//折れ線グラフ初期化
             List<Vector2> valueList = new List<Vector2>();
+            float xValueTotalRate = 0.0f;
+            float yValueTotalRate = 0.0f;
             for (int i = 0; i < ibikiDataList.Count; i++)
             {
                 System.DateTime detectionStartTime = ibikiDataList.First().GetTime().Value;
@@ -509,13 +511,28 @@ namespace Graph
                     detectionStartTime,
                     detectionEndTime);
 
+                // ６つの点の平均値の１点を加える
+                if (i % 2 == 0) {
+                    // ６つの点の内、最初の３点の情報を保持
+                    xValueTotalRate = xValueRate1 + xValueRate2 + xValueRate3;
+                    yValueTotalRate = ibikiDataList[i].SnoreVolume1 + ibikiDataList[i].SnoreVolume2 + ibikiDataList[i].SnoreVolume3;
+                    // 最後が３点だけだった場合は、その３点の平均値を
+                    if ( i == ibikiDataList.Count + 1){
+                        
+                        float aveXValueRate = xValueTotalRate / 3.0f;
+                        float aveYValueRate = yValueTotalRate / 3.0f;
 
-                // ３つの点を加えるのではなく、３つの点の平均値の１点を加える
-                float aveXValueRate = (xValueRate1 + xValueRate2 + xValueRate3) / 3.0f;
-                float aveYValueRate = (ibikiDataList[i].SnoreVolume1 + ibikiDataList[i].SnoreVolume2 + ibikiDataList[i].SnoreVolume3) / 3.0f;
+                        valueList.Add(new Vector2(aveXValueRate, aveYValueRate));
+                    }
+                }
+                else {
+                    // 前に保持した３点と今回取得した３点の合計６点の平均値の１点を加える
+                    float aveXValueRate = (xValueTotalRate + xValueRate1 + xValueRate2 + xValueRate3) / 6.0f;
+                    float aveYValueRate = (yValueTotalRate + ibikiDataList[i].SnoreVolume1 + ibikiDataList[i].SnoreVolume2 + ibikiDataList[i].SnoreVolume3) / 6.0f;
 
-                valueList.Add(new Vector2(
-                    aveXValueRate, aveYValueRate));
+                    valueList.Add(new Vector2(aveXValueRate, aveYValueRate));
+                }
+                
                 // valueList.Add(new Vector2(
                 //     xValueRate2, ibikiDataList[i].SnoreVolume2));
                 // valueList.Add(new Vector2(
