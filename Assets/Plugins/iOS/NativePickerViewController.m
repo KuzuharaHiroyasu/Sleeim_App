@@ -40,6 +40,7 @@
     self.picker.hidden = mode != PickerViewControllerModeCustom;
     
     self.datePicker.hidden = mode == PickerViewControllerModeCustom;
+    self.datePicker.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"ja_JP"];
     self.datePicker.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"GMT"];
     
     if (mode == PickerViewControllerModeDate) {
