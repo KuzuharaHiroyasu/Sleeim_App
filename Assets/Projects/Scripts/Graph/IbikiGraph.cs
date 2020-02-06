@@ -509,12 +509,17 @@ namespace Graph
                     detectionStartTime,
                     detectionEndTime);
 
+
+                // ３つの点を加えるのではなく、３つの点の平均値の１点を加える
+                float aveXValueRate = (xValueRate1 + xValueRate2 + xValueRate3) / 3.0f;
+                float aveYValueRate = (ibikiDataList[i].SnoreVolume1 + ibikiDataList[i].SnoreVolume2 + ibikiDataList[i].SnoreVolume3) / 3.0f;
+
                 valueList.Add(new Vector2(
-                    xValueRate1, ibikiDataList[i].SnoreVolume1));
-                valueList.Add(new Vector2(
-                    xValueRate2, ibikiDataList[i].SnoreVolume2));
-                valueList.Add(new Vector2(
-                    xValueRate3, ibikiDataList[i].SnoreVolume3));
+                    aveXValueRate, aveYValueRate));
+                // valueList.Add(new Vector2(
+                //     xValueRate2, ibikiDataList[i].SnoreVolume2));
+                // valueList.Add(new Vector2(
+                //     xValueRate3, ibikiDataList[i].SnoreVolume3));
             }
 
             Output_Line.lineColor = lineColor;

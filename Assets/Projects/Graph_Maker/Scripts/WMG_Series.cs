@@ -106,7 +106,7 @@ public class WMG_Series : MonoBehaviour {
 
 	//付加を分散させるため、徐々にグラフに値を設定する
 	IEnumerator SetPointValuesGradually (List<Vector2> pointVals) {
-		int count = 10;	//一フレームで処理する頂点の数
+		int count = 20;	//一フレームで処理する頂点の数
 		for (int l = 0; l < (int)(pointVals.Count / count) + ((pointVals.Count % count > 0) ? 1 : 0); l++) {
 			for (int i = 0; i < Mathf.Min((pointVals.Count - l * count), count); i++) {
 				AddPointValue (pointVals [l * count + i]);
