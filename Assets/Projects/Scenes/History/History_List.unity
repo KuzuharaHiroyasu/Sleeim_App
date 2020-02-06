@@ -1847,7 +1847,7 @@ MonoBehaviour:
   m_Content: {fileID: 1373740626}
   m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 2
+  m_MovementType: 1
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
@@ -2973,6 +2973,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1702379130}
   - component: {fileID: 1702379131}
+  - component: {fileID: 1702379132}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -3027,6 +3028,23 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
+--- !u!114 &1702379132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 114995959548569504, guid: b15e7da2495b61844bd78975161719c5,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1702379129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5e11ec48215b61448a9b3ebc4d51916, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  longtaphold: 20
+  threshold: 100
+  mainObject: {fileID: 1702379129}
+  vanishObject: {fileID: 1696028367}
+  intervalInit: 1
 --- !u!1 &1713010955
 GameObject:
   m_ObjectHideFlags: 0
