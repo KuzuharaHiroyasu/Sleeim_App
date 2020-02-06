@@ -31,6 +31,7 @@ public class XcodeSettingsPostProcesser {
         rootDict.SetString("NSBluetoothAlwaysUsageDescription", "別の端末にデータを送信する為にBluetoothを使用します");
         rootDict.SetString("NSBluetoothPeripheralUsageDescription", "睡眠データを取得するために使用します。");
         rootDict.SetString("NSLocationWhenInUseUsageDescription", "睡眠データを取得するために使用します。");
+        rootDict.SetString("UIUserInterfaceStyle", "Light");
         File.WriteAllText(plistPath, plist.WriteToString());
 	}
 }
