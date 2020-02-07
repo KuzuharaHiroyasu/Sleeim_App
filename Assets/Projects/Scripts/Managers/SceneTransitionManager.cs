@@ -91,7 +91,14 @@ public class SceneTransitionManager : MonoBehaviour {
 		bool isQuitApp = false;
 		yield return mono.StartCoroutine (AskQuitApp ((bool isQuit) => isQuitApp = isQuit));
 		if (isQuitApp) {
-			BluetoothManager.Instance.BleDeinitialize ();
+            try
+            {
+                BluetoothManager.Instance.BleDeinitialize();
+            } catch (Exception e)
+            {
+
+            }
+			
 			#if UNITY_ANDROID || UNITY_IOS
 			Application.Quit ();
 			#endif
