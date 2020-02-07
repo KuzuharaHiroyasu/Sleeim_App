@@ -21,6 +21,11 @@ public class TermsOfUse : ViewControllerBase {
 	private Button nextButton;
 
 
+	[SerializeField]
+	// 利用規約同意テキスト
+	private Text termsText;
+
+
 	protected override void Start () {
 		base.Start ();
 		//prehab.GetComponent<PopUpWebView> ().Url = URL;
@@ -39,16 +44,19 @@ public class TermsOfUse : ViewControllerBase {
 
 	#region Components Action (On Value Changed)
 	// スクロール
-    public void OnScrollChange() {
+    private void OnScrollChange() {
         // 一番下付近までスクロールした場合、チェック可能にする
         if (this.scrollRect.verticalNormalizedPosition < 0.05f)
         {
+            // Toggel活性
 			this.toggle.interactable = true;
+            // TextColorを白に
+			this.termsText.color = Color.white;
         }   
     }
 
 	// トグル
-	public void OnToggleChange()
+	private void OnToggleChange()
 	{
 		// チェックありならボタン活性、なしなら非活性
 		this.nextButton.interactable = this.toggle.isOn;
@@ -57,7 +65,7 @@ public class TermsOfUse : ViewControllerBase {
 
 	#region Components Action (On Click)
 	// 次へボタン
-	public void OnTapNextButton()
+	private void OnTapNextButton()
     {
 		//規約に同意した事を記録
 		UserDataManager.State.SaveAcceptTermOfUse();

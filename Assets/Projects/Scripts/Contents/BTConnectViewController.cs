@@ -656,7 +656,8 @@ public class BTConnectViewController : ViewControllerBase
         CsvHeaderSet();	//GET前に必ず実行する
 
         //データ取得開始
-        UpdateDialog.Show("本体から睡眠データを取得しています。\n" + 0 + "/" + dataCount + "件");
+        //UpdateDialog.Show("本体から睡眠データを取得しています。\n" + 0 + "/" + dataCount + "件");
+        ProgressDialog.Show("本体から睡眠データを取得しています。" ,dataCount);
         bool isSuccess = false;
         bool isFailed = false;
         List<string> filePathList = new List<string>();	//CSVの添付パスリスト
@@ -695,7 +696,8 @@ public class BTConnectViewController : ViewControllerBase
                 string csvFileName = (string)json["KEY5"];				//CSVのファイル名。最終的にUnity側でDB登録時にリネームしてもらうファイル名（例：20180624182431.csv）
                 filePathList.Add(csvFilePath);
                 fileNameList.Add(csvFileName);
-                UpdateDialog.ChangeMessage("本体から睡眠データを取得しています。\n" + currentDataCount + "/" + dataCount + "件");
+                //UpdateDialog.ChangeMessage("本体から睡眠データを取得しています。\n" + currentDataCount + "/" + dataCount + "件");
+                ProgressDialog.UpdateProgress(currentDataCount);
                 if (isEndData)
                 {
                     //最後のデータを取得完了すれば
@@ -708,7 +710,8 @@ public class BTConnectViewController : ViewControllerBase
         });
         //スリープ設置解除
         Screen.sleepTimeout = SleepTimeout.SystemSetting;
-        UpdateDialog.Dismiss();
+        //UpdateDialog.Dismiss();
+        ProgressDialog.Dismiss();
         onGetCSVPathList(filePathList.Count > 0 ? filePathList : null);
         onGetCSVNameList(fileNameList.Count > 0 ? fileNameList : null);
         Debug.Log("Return Get Data");
