@@ -62,13 +62,13 @@ namespace Kaimin.Common
         /// <returns></returns>
         public static string[] GetAllFiles(string path, string extension)
         {
-			var db = MyDatabase.Instance;
+            var db = MyDatabase.Instance;
 
 			if (db == null) {
 				return null;
 			} else {
 				var sleepTable = db.GetSleepTable ();
-				return sleepTable.SelectAllOrderByAsc ().Select (data => {
+				return sleepTable.SelectDbSleepData().Select (data => {
 					string dataPath = "";
 					//pathの最後にスラッシュがあれば、取り除く
 					path = ((path.Length - (path.LastIndexOf ('/') + 1)) == 0)
@@ -86,8 +86,45 @@ namespace Kaimin.Common
 			}
         }
 
-		//睡眠データのファイルパスにある日付情報を解析して、DateTimeで返す
-		public static DateTime TransFilePathToDate (string filePath) {
+        /**
+         * Get list of csv files that unread and unsaved to everage chart
+         * Return Dictionary(fileId -> filePath)
+         */
+        public static Dictionary<int, string> getUnreadCsvFileList(int savedLastFileId)
+        {
+            Dictionary<int, string> unreadFileList = new Dictionary<int, string>();
+            
+            var db = MyDatabase.Instance;
+            if (db != null) 
+            { 
+                var path = Kaimin.Common.Utility.GsDataPath();
+                var sleepTable = db.GetSleepTable();
+                var sleepData = sleepTable.SelectDbSleepData("WHERE file_id > " + savedLastFileId);
+
+                foreach(var data in sleepData)
+                {
+                    string dataPath = "";
+                    //pathの最後にスラッシュがあれば、取り除く
+                    path = ((path.Length - (path.LastIndexOf('/') + 1)) == 0)
+                        ? path.Substring(0, path.Length - 1)
+                        : path;
+                    dataPath += path;
+                    dataPath += "/";
+                    //filePathの先頭にスラッシュがあれば、取り除く
+                    string filePath = (data.file_path.IndexOf('/') == 0)
+                        ? data.file_path.Substring(1)
+                        : data.file_path;
+                    dataPath += filePath;
+
+                    unreadFileList.Add(data.file_id, dataPath);
+                }
+            }
+
+            return unreadFileList;
+        }
+
+        //睡眠データのファイルパスにある日付情報を解析して、DateTimeで返す
+        public static DateTime TransFilePathToDate (string filePath) {
 			//ファイル名のみ取り出す
 			//スラッシュとバックスラッシュどちらが使われるか不安なため両方で試す '\\'はバックスラッシュのエスケープシーケンス
 			int slashPos = filePath.LastIndexOf ('/') > filePath.LastIndexOf ('\\')

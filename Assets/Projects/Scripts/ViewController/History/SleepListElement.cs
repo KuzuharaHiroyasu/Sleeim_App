@@ -177,22 +177,17 @@ public class SleepListElement : MonoBehaviour {
 
         //起床時
         endTime = CSVManager.getRealDateTime(endTime);
-        string end_day = endTime.Day.ToString ();
-		string end_dayOfWeek = endTime.ToString ("ddd", new System.Globalization.CultureInfo ("ja-JP")); //曜日
 
 		if (CSVManager.isCrossTheSun (startTime, endTime)) {
-            string start_day = startTime.Day.ToString();
-            string start_dayOfWeek = startTime.ToString("ddd", new System.Globalization.CultureInfo("ja-JP")); //曜日
-
             bool isNecessaryIndex = crossSunNum > 1;
 			int indexCount = crossSunCount;
 			//就寝時と起床時の日付が異なっていたら「就寝日～起床日」を返す
-			return start_day + "(" + start_dayOfWeek + ")" + "～" + end_day + "(" + end_dayOfWeek + ")" + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
+			return CSVManager.getJpDateString(startTime, true) + "～" + CSVManager.getJpDateString(endTime, true) + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
 		} else {
 			bool isNecessaryIndex = (sameDateNum - crossSunNum) > 1;
 			int indexCount = dateIndex + 1;
 			//就寝時と起床時の日付が同じであれば「就寝日」を返す
-			return end_day + "(" + end_dayOfWeek + ")" + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
+			return CSVManager.getJpDateString(endTime, true) + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
 		}
 	}
 

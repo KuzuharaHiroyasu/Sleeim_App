@@ -82,7 +82,7 @@ public class SleepListDataSource : MonoBehaviour
 
             chartInfo.endSleepTime = sleepDataList.Select(data => data.GetDateTime()).Last();
             CSVManager.convertSleepHeaderToChartInfo(chartInfo, filePath);
-            if (chartInfo.realDateTime.Month != from.Month)
+            if (!CSVManager.isInvalidDate(chartInfo.realDateTime) && chartInfo.realDateTime.Month != from.Month)
             {
                 continue;
             }
@@ -224,7 +224,64 @@ public class SleepListDataSource : MonoBehaviour
     //睡眠データのファイル一覧から指定した期間のもののみを取得
     List<string> PickFilePathInPeriod(string[] sleepFilePathList, DateTime from, DateTime to)
     {
-        return sleepFilePathList.Where(path => (from == DateTime.MinValue || Utility.TransFilePathToDate(path).CompareTo(from) >= 0) && (to == DateTime.MaxValue || Utility.TransFilePathToDate(path).CompareTo(to) <= 0)).ToList();
+        List<string> filePaths = new List<string>();
+
+        int length = sleepFilePathList.Count();
+        if (length == 0) {
+            return filePaths; //Empty
+        }
+        
+        int fromIndex = 0; //Default
+        if(from != DateTime.MinValue)
+        {
+            for(int i = 0; i < length; i++)
+            {
+                DateTime dt = Utility.TransFilePathToDate(sleepFilePathList[i]);
+                if(!CSVManager.isInvalidDate(dt))
+                {
+                    if (dt.CompareTo(from) >= 0)
+                    {
+                        fromIndex = i;
+                        break;
+                    } else {
+                        fromIndex = i + 1;
+                    }
+                    
+                }
+            }
+        }
+        
+        if (fromIndex >= length)
+        {
+            return filePaths; //Empty
+        }
+
+        int endIndex = length - 1; 
+        if (to != DateTime.MaxValue)
+        {
+            for (int i = fromIndex; i < length; i++)
+            {
+                DateTime dt = Utility.TransFilePathToDate(sleepFilePathList[i]);
+                if (!CSVManager.isInvalidDate(dt))
+                {
+                    if (dt.CompareTo(to) <= 0)
+                    {
+                        endIndex = i;
+                    } else {
+                        break;
+                    }
+                } else {
+                    endIndex = i;
+                }
+            }
+        }
+
+        for(int i = fromIndex; i <= endIndex; i++) {
+            filePaths.Add(sleepFilePathList[i]);
+        }
+
+        return filePaths;
+        //return sleepFilePathList.Where(path => (from == DateTime.MinValue || Utility.TransFilePathToDate(path).CompareTo(from) >= 0) && (to == DateTime.MaxValue || Utility.TransFilePathToDate(path).CompareTo(to) <= 0)).ToList();
     }
 
     //睡眠データをリソースのCSVファイルから取得します

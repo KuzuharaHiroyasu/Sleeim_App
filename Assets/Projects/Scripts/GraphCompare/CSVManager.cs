@@ -50,34 +50,6 @@ public class CSVManager
         return pageFileList.ToArray();
     }
 
-    /**
-     * Get list of csv files that unread and unsaved to everage chart
-     * Return array(index -> filePath)
-     */
-    public static string[] getUnreadCsvFileList(string[] fileList, string savedLastFileName)
-    {
-        if (string.IsNullOrEmpty(savedLastFileName) || fileList.Length == 0)
-        {
-            return fileList;
-        }
-        else
-        {
-            List<string> unreadFileList = new List<string>();
-
-            var lastDateTime = DateTime.Parse(savedLastFileName);
-            foreach (var filePath in fileList)
-            {
-                var dateTime = Kaimin.Common.Utility.TransFilePathToDate(filePath);
-                if (dateTime > lastDateTime)
-                {
-                    unreadFileList.Add(filePath);
-                }
-            }
-
-            return unreadFileList.ToArray();
-        }
-    }
-
     public static List<SleepData> readSleepDataFromCsvFile(string filePath)
     {
         return CSVSleepDataReader.GetSleepDatas(filePath);
@@ -117,7 +89,7 @@ public class CSVManager
         chartInfo.realDateTime = CSVManager.getRealDateTime(fileDateTime);
         chartInfo.fileName = fileDateTime.ToString();
         chartInfo.sleepTime = sleepTime;
-        chartInfo.date = chartInfo.realDateTime.ToString("M/d");
+        chartInfo.date = CSVManager.isInvalidDate(chartInfo.realDateTime) ? "-" : chartInfo.realDateTime.ToString("M/d"); 
 
         if (sleepRecordStartTimeLine.Length > 9) //New format
         {
@@ -263,6 +235,33 @@ public class CSVManager
         }
 
         return dateTime;
+    }
+
+    /**
+     * Return date string to display
+     * isShort = true: 1(水)
+     * isShort = false: 1月1日(水)
+     * if invalid Date: -
+     */
+    public static String getJpDateString(DateTime dateTime, bool isShort = false)
+    {
+        if (CSVManager.isInvalidDate(dateTime)) return "-";
+
+        string day = dateTime.Day.ToString();
+        string dayOfWeek = dateTime.ToString("ddd", new System.Globalization.CultureInfo("ja-JP")); //曜日
+        if (isShort)
+        {
+            return day + "(" + dayOfWeek + ")";
+        } else
+        {
+            string month = dateTime.Month.ToString() + "月";
+            return month + day + "日(" + dayOfWeek + ")";
+        }
+    }
+
+    public static bool isInvalidDate(DateTime dateTime)
+    {
+        return dateTime.Year <= 1900;
     }
 
     //日付をまたいでいるかどうか

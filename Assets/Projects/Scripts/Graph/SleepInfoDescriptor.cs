@@ -137,29 +137,19 @@ public class SleepInfoDescriptor : MonoBehaviour {
         DateTime startTime = Data.BedTime;
         DateTime endTime = CSVManager.getRealDateTime(Data.GetUpTime);
 
-        //起床時
-        string end_month = endTime.Month.ToString () + "月";
-        string end_day = endTime.Day.ToString () + "日";
-        string end_dayOfWeek = endTime.ToString ("ddd", new System.Globalization.CultureInfo ("ja-JP")); //曜日
-
         if (CSVManager.isCrossTheSun (startTime, endTime)) {
-            //就寝時
-            string start_month = startTime.Month.ToString() + "月";
-            string start_day = startTime.Day.ToString() + "日";
-            string start_dayOfWeek = startTime.ToString("ddd", new System.Globalization.CultureInfo("ja-JP")); //曜日
-
             //就寝時と起床時の日付が異なっていたら「就寝日～起床日」を返す
             bool isNecessaryIndex = crossSunNum > 1;
             int indexCount = crossSunCount;
             return
-                start_month + start_day + "(" + start_dayOfWeek + ")" +
+                CSVManager.getJpDateString(startTime) +
                 " ～ " +
-                end_month + end_day + "(" + end_dayOfWeek + ")" + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
+                CSVManager.getJpDateString(endTime) + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
         } else {
             //就寝時と起床時の日付が同じであれば「就寝日」を返す
             bool isNecessaryIndex = (sameDateNum - crossSunNum) > 1;
             int indexCount = dateIndex + 1;
-            return end_month + end_day + "(" + end_dayOfWeek + ")" + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
+            return CSVManager.getJpDateString(endTime) + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
         }
     }
 

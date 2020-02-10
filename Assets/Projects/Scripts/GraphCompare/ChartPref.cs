@@ -6,7 +6,7 @@ public class ChartPref
     public int savedNumSuppress = 0;
     public string savedEverageMonitor = ""; //Ex: 0.25_0.25_0.25 (pKaimin_pIbiki_pMukokyu)
     public string savedEverageSuppress = "";
-    public string savedLastFileName = "";
+    public int savedLastFileId = 0;
 
     public void saveData(bool isMonitor, ChartInfo chartEverage, int chartNum)
     {
@@ -15,9 +15,9 @@ public class ChartPref
         PlayerPrefs.SetString("savedEverage" + key, chartEverage.pKaiMin + "_" + chartEverage.pIbiki + "_" + chartEverage.pMukokyu);
     }
 
-    public void saveLastFileName(string lastFileName)
+    public void saveLastFileId(int lastFileId)
     {
-        PlayerPrefs.SetString("savedLastFileName", lastFileName);
+        PlayerPrefs.SetInt("savedLastFileId", lastFileId);
     }
 
     public void loadData()
@@ -26,7 +26,7 @@ public class ChartPref
         savedNumSuppress = PlayerPrefs.GetInt("savedNumSuppress", 0);
         savedEverageMonitor = PlayerPrefs.GetString("savedEverageMonitor", "");
         savedEverageSuppress = PlayerPrefs.GetString("savedEverageSuppress", "");
-        savedLastFileName = PlayerPrefs.GetString("savedLastFileName", "");
+        savedLastFileId = PlayerPrefs.GetInt("savedLastFileId", 0);
     }
 
     public static void updateEverageDataAfterDelete(ChartInfo chartInfo)

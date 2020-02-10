@@ -7,6 +7,7 @@ public class DbSleepData : AbstractData {
 	public string date = "";
 	public string file_path = "";
 	public bool send_flag = false;
+	public int file_id = 0;
 
 	public DbSleepData (string date, string filePath, bool sendFlag) : base () {
 		this.date = date;
@@ -14,7 +15,15 @@ public class DbSleepData : AbstractData {
 		this.send_flag = sendFlag;
 	}
 
-	public override void DebugPrint () {
+    public DbSleepData(string date, string filePath, bool sendFlag, int fileId) : base()
+    {
+        this.date = date;
+        this.file_path = filePath;
+        this.send_flag = sendFlag;
+        this.file_id = fileId;
+    }
+
+    public override void DebugPrint () {
 		Debug.Log ("date = " + date + ", filePath = " + file_path + ", sendFlag = " + send_flag);
 	}
 }
@@ -24,6 +33,7 @@ public class SleepTable : AbstractDbTable<DbSleepData> {
 	private static readonly string COL_DATE = "date";
 	private static readonly string COL_FILEPATH = "file_path";
 	private static readonly string COL_SENDFLAG = "send_flag";
+	private static readonly string COL_FILE_ID = "file_id";
 
 	public SleepTable (ref SqliteDatabase db) : base (ref db) {
 	}
@@ -118,4 +128,30 @@ public class SleepTable : AbstractDbTable<DbSleepData> {
 		DbSleepData data = new DbSleepData (GetStringValue (row, COL_DATE), GetStringValue (row, COL_FILEPATH), GetBoolValue (row, COL_SENDFLAG));
 		return data;
 	}
+
+    protected DbSleepData PutDataWithFileId(DataRow row)
+    {
+        DbSleepData data = new DbSleepData(GetStringValue(row, COL_DATE), GetStringValue(row, COL_FILEPATH), GetBoolValue(row, COL_SENDFLAG), GetIntValue(row, COL_FILE_ID));
+        return data;
+    }
+
+    public List<DbSleepData> SelectDbSleepData(string whereCondition = "")
+    {
+        List<DbSleepData> dataList = new List<DbSleepData>();
+        StringBuilder query = new StringBuilder();
+        query.Append("SELECT * FROM ");
+        query.Append(TableName);
+        query.Append(" " + whereCondition + " ");
+        query.Append(" ORDER BY file_id ASC, ");
+        query.Append(PrimaryKeyName);
+        query.Append(" ASC");
+        query.Append(";");
+        DataTable dt = mDb.ExecuteQuery(query.ToString());
+        foreach (DataRow row in dt.Rows)
+        {
+            dataList.Add(PutDataWithFileId(row));
+        }
+
+        return dataList;
+    }
 }

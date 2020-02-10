@@ -103,9 +103,18 @@ public class HistoryListViewController : ViewControllerBase {
 			//一か月分のデータを表示する
 			SetDataToList (new DateTime (currentDispDate.Year, currentDispDate.Month, 1, 0, 0, 0), 
 				new DateTime (currentDispDate.Year, currentDispDate.Month, DateTime.DaysInMonth (currentDispDate.Year, currentDispDate.Month), 23, 59, 59));
-			//画面の日付表示も更新
-			YearText.text = currentDispDate.Year.ToString ();
-			MonthText.text = currentDispDate.Month.ToString () + "月";
+
+            //画面の日付表示も更新
+            if (CSVManager.isInvalidDate(currentDispDate))
+            {
+                YearText.text = "-";
+                MonthText.text = "-";
+            } else
+            {
+                YearText.text = currentDispDate.Year.ToString();
+                MonthText.text = currentDispDate.Month.ToString() + "月";
+            }
+           
 			//表示した日付を記録
 			UserDataManager.Scene.SaveHistoryDate (currentDispDate);
 		}

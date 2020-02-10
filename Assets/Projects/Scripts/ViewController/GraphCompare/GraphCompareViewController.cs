@@ -87,13 +87,13 @@ public class GraphCompareViewController : ViewControllerBase
 
     public void initInfoForChartEverage()
     {
-        string[] unreadFileList = CSVManager.getUnreadCsvFileList(this.fileList, this.chartPref.savedLastFileName);
+        Dictionary<int, string> unreadFileList = Kaimin.Common.Utility.getUnreadCsvFileList(this.chartPref.savedLastFileId);
 
-        
-        foreach (var filePath in unreadFileList)
+        foreach (KeyValuePair<int, string> entry in unreadFileList)
         {
             try
             {
+                var filePath = entry.Value;
                 List<SleepData> sleepData = CSVManager.readSleepDataFromCsvFile(filePath);
                 ChartInfo chartInfo = CSVManager.convertSleepDataToChartInfo(sleepData);
                 if (chartInfo != null)
@@ -115,10 +115,10 @@ public class GraphCompareViewController : ViewControllerBase
         this.showChartEverage(chartsOfMonitor, SleepMode.Monitor);
         this.showChartEverage(chartsOfSuppress, SleepMode.Suppress);
 
-        int fileNum = unreadFileList.Length;
+        int fileNum = unreadFileList.Count;
         if (fileNum > 0)
         {
-            this.chartPref.saveLastFileName(Kaimin.Common.Utility.TransFilePathToDate(unreadFileList[fileNum - 1]).ToString());
+            this.chartPref.saveLastFileId(unreadFileList.Keys.Last());
         }
     }
 
@@ -266,7 +266,9 @@ public class GraphCompareViewController : ViewControllerBase
             this.lbChartTitle.text = MSG_RECENT_PART;
             if(chartCount > 1)
             {
-                this.lbChartTitle.text += "(" + this.chartsOfWeek[0].date + "~" + this.chartsOfWeek[chartCount - 1].date + ")";
+                if (this.chartsOfWeek[0].date != "-" || this.chartsOfWeek[chartCount - 1].date != "-") {
+                    this.lbChartTitle.text += "(" + this.chartsOfWeek[0].date + "~" + this.chartsOfWeek[chartCount - 1].date + ")";
+                }
             }
             for (int i = 0; i < chartCount; i++)
             {
