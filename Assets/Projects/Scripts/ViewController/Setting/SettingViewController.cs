@@ -1587,7 +1587,7 @@ public class SettingViewController : ViewControllerBase
             {
                 //ファイルが存在してなければ、DBから削除する
                 var sleepTable = MyDatabase.Instance.GetSleepTable();
-                sleepTable.DeleteFromPrimaryKey(long.Parse(data.date));
+                sleepTable.DeleteFromTable(SleepTable.COL_DATE, data.date);
             }
             bool isStockDataCount = sendDataStock.Count >= mulitipleUploadDataCount;    //送信するデータ個数が一定量(multipleUploadDataCount)に達したかどうか
             bool isLastData = i >= unSentDatas.Count - 1;

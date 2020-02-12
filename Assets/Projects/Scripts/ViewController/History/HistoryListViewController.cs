@@ -41,9 +41,11 @@ public class HistoryListViewController : ViewControllerBase {
 	}
 
 	void InitView () {
-		//前に見た画面を表示する
-		if (UserDataManager.Scene.GetHistoryDate () != DateTime.MinValue) {
-			currentDispDate = UserDataManager.Scene.GetHistoryDate ();
+        //前に見た画面を表示する
+        var historyDate = UserDataManager.Scene.GetHistoryDate();
+
+        if (historyDate != DateTime.MinValue && !CSVManager.isInvalidDate(historyDate)) {
+			currentDispDate = historyDate;
 			UpdateView ();
 		} else {
 			//初回なら
@@ -147,7 +149,7 @@ public class HistoryListViewController : ViewControllerBase {
 	//データが存在する以降の月を取得する
 	//以降にデータが存在しなければDateTime.MinValueを返す
 	DateTime GetNextMonthExistData (DateTime currentDate) {
-		DateTime nextMonthDate = currentDate.AddMonths (1);
+		DateTime nextMonthDate = currentDate == DateTime.MinValue ? DateTime.MinValue : currentDate.AddMonths (1);
 		//来月以降データがなければ
 		if (!DataSource.IsExistData (new DateTime (nextMonthDate.Year, nextMonthDate.Month, 1), DateTime.MaxValue)) {
 			Debug.Log ("これ以降の睡眠データはありません");

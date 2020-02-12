@@ -228,6 +228,11 @@ public class GraphCompareViewController : ViewControllerBase
                 //No show prev button
                 this.btnPrev.interactable = false;
                 this.btnNext.interactable = true;
+            } 
+            else if (currentPage > 1 && currentPage < this.lastPage)
+            {
+                this.btnPrev.interactable = true;
+                this.btnNext.interactable = true;
             }
         }
     }

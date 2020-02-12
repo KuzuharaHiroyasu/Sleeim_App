@@ -136,15 +136,15 @@ public class SleepListElement : MonoBehaviour {
             // myDataがEmpty、または、ファイルが存在しない場合は何もしない
             return;
         }
-        
-        System.IO.File.Delete(myData.filePath);
 
         //DBから削除する
         var sleepTable = MyDatabase.Instance.GetSleepTable();
         var fileName = System.IO.Path.GetFileNameWithoutExtension(myData.filePath);
-        sleepTable.DeleteFromPrimaryKey(long.Parse(fileName));
+        sleepTable.DeleteFromTable(SleepTable.COL_DATE, fileName);
 
-        if(myData.chartInfo != null)
+        System.IO.File.Delete(myData.filePath);
+
+        if (myData.chartInfo != null)
         {
             //Update chart everage info 
             ChartPref.updateEverageDataAfterDelete(myData.chartInfo);

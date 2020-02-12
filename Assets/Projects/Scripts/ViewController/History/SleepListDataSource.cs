@@ -27,6 +27,7 @@ public class SleepListDataSource : MonoBehaviour
     [SerializeField] Sprite sleepLevelIcon_5 = null;
 
     Dictionary<string, List<SleepData>> sleepDataDict = new Dictionary<string, List<SleepData>>();
+    Dictionary<string, DateTime> filePathToDateDict = new Dictionary<string, DateTime>();
 
     string[] FilePath
     {
@@ -92,7 +93,7 @@ public class SleepListDataSource : MonoBehaviour
             List<DateTime> dateList = sleepDataList.Select(data => data.GetDateTime()).ToList();
             int longestApneaTime = sleepHeaderData.LongestApneaTime;
             int apneaCount = CulcApneaCount(sleepDataList);
-            List<string> todayDataPathList = filePaths.Where(path => IsSameDay(bedTime, Utility.TransFilePathToDate(path))).ToList();
+            List<string> todayDataPathList = filePaths.Where(path => IsSameDay(bedTime, TransFilePathToDate(path))).ToList();
             int dateIndex = todayDataPathList
                 .Select((path, index) => new { Path = path, Index = index })
                 .Where(data => data.Path == filePath)
@@ -210,7 +211,16 @@ public class SleepListDataSource : MonoBehaviour
     /// </summary>
     public DateTime GetLatestDate()
     {
-        return FilePath.Length >= 1 ? Utility.TransFilePathToDate(FilePath[FilePath.Length - 1]) : DateTime.MinValue;
+        for(int i = FilePath.Length - 1; i >= 0; i--)
+        {
+            var fileDateTime = Utility.TransFilePathToDate(FilePath[i]);
+            if (!CSVManager.isInvalidDate(fileDateTime))
+            {
+                return fileDateTime;
+            }
+        }
+
+        return FilePath.Length >= 1 ? Utility.TransFilePathToDate(FilePath[0]) : DateTime.MinValue;
     }
 
     /// <summary>
@@ -218,7 +228,7 @@ public class SleepListDataSource : MonoBehaviour
     /// </summary>
     public bool IsExistData(DateTime from, DateTime to)
     {
-        return FilePath.Where(path => (from == DateTime.MinValue || Utility.TransFilePathToDate(path).CompareTo(from) >= 0) && (to == DateTime.MaxValue || Utility.TransFilePathToDate(path).CompareTo(to) <= 0)).Count() != 0;
+        return FilePath.Where(path => (from == DateTime.MinValue || TransFilePathToDate(path).CompareTo(from) >= 0) && (to == DateTime.MaxValue || TransFilePathToDate(path).CompareTo(to) <= 0)).Count() != 0;
     }
 
     //睡眠データのファイル一覧から指定した期間のもののみを取得
@@ -236,7 +246,7 @@ public class SleepListDataSource : MonoBehaviour
         {
             for(int i = 0; i < length; i++)
             {
-                DateTime dt = Utility.TransFilePathToDate(sleepFilePathList[i]);
+                DateTime dt = TransFilePathToDate(sleepFilePathList[i]);
                 if(!CSVManager.isInvalidDate(dt))
                 {
                     if (dt.CompareTo(from) >= 0)
@@ -261,7 +271,7 @@ public class SleepListDataSource : MonoBehaviour
         {
             for (int i = fromIndex; i < length; i++)
             {
-                DateTime dt = Utility.TransFilePathToDate(sleepFilePathList[i]);
+                DateTime dt = TransFilePathToDate(sleepFilePathList[i]);
                 if (!CSVManager.isInvalidDate(dt))
                 {
                     if (dt.CompareTo(to) <= 0)
@@ -281,7 +291,7 @@ public class SleepListDataSource : MonoBehaviour
         }
 
         return filePaths;
-        //return sleepFilePathList.Where(path => (from == DateTime.MinValue || Utility.TransFilePathToDate(path).CompareTo(from) >= 0) && (to == DateTime.MaxValue || Utility.TransFilePathToDate(path).CompareTo(to) <= 0)).ToList();
+        //return sleepFilePathList.Where(path => (from == DateTime.MinValue || TransFilePathToDate(path).CompareTo(from) >= 0) && (to == DateTime.MaxValue || TransFilePathToDate(path).CompareTo(to) <= 0)).ToList();
     }
 
     //睡眠データをリソースのCSVファイルから取得します
@@ -293,6 +303,16 @@ public class SleepListDataSource : MonoBehaviour
         }
 
         return sleepDataDict[filepath];
+    }
+
+    DateTime TransFilePathToDate(string filepath)
+    {
+        if (!filePathToDateDict.ContainsKey(filepath))
+        {
+            filePathToDateDict[filepath] = Utility.TransFilePathToDate(filepath);
+        }
+
+        return filePathToDateDict[filepath];
     }
 
     //睡眠のヘッダーデータをCSVファイルから取得します

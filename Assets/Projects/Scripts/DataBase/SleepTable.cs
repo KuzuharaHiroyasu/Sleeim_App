@@ -30,10 +30,10 @@ public class DbSleepData : AbstractData {
 
 public class SleepTable : AbstractDbTable<DbSleepData> {
 
-	private static readonly string COL_DATE = "date";
-	private static readonly string COL_FILEPATH = "file_path";
-	private static readonly string COL_SENDFLAG = "send_flag";
-	private static readonly string COL_FILE_ID = "file_id";
+	public static readonly string COL_DATE = "date";
+    public static readonly string COL_FILEPATH = "file_path";
+    public static readonly string COL_SENDFLAG = "send_flag";
+    public static readonly string COL_FILE_ID = "file_id";
 
 	public SleepTable (ref SqliteDatabase db) : base (ref db) {
 	}
@@ -62,7 +62,7 @@ public class SleepTable : AbstractDbTable<DbSleepData> {
 		DbSleepData selectData = SelectFromPrimaryKey (long.Parse (data.date));
 		if (selectData == null) {
 			query.Append ("INSERT INTO ");
-			query.Append (TableName);
+			query.Append (TableName + "(" + COL_DATE + ", " + COL_FILEPATH + ", " + COL_SENDFLAG + ")");
 			query.Append (" VALUES(");
 			query.Append ("'");
 			query.Append (data.date);
@@ -112,14 +112,14 @@ public class SleepTable : AbstractDbTable<DbSleepData> {
 	/// 主キーを指定して該当するデータを削除する
 	/// </summary>
 	/// <param name="date">主キー</param>
-	public void DeleteFromPrimaryKey (long date) {
+	public void DeleteFromTable (string colName, string colValue) {
 		StringBuilder query = new StringBuilder ();
 		query.Append ("DELETE FROM ");
 		query.Append (TableName);
 		query.Append (" WHERE ");
-		query.Append (PrimaryKeyName);
+		query.Append (colName);
 		query.Append ("=");
-		query.Append (date.ToString ());
+		query.Append ("'" + colValue + "'");
 		query.Append (";");
 		mDb.ExecuteNonQuery (query.ToString ());
 	}
