@@ -193,7 +193,7 @@ public class SplashViewController : ViewControllerBase
         // long h1dVersionInDevice = FarmwareVersionStringToLong (UserDataManager.Device.GetH1DAppVersion ());
         //Ftpサーバーから最新のファームウェアのファイル名を取得
         string ratestH1dFileName = "";
-        yield return StartCoroutine(GetRatestFarmwareFileNameFromFtp("/Update/H1D", (string fileName) => ratestH1dFileName = fileName));
+        yield return StartCoroutine(GetRatestFarmwareFileNameFromFtp("/RD8001/Update/H1D", (string fileName) => ratestH1dFileName = fileName));
         if (ratestH1dFileName == null)
         {
             //FTPサーバーにファイルが存在しなかった、もしくはエラーが発生したら
@@ -458,7 +458,7 @@ public class SplashViewController : ViewControllerBase
 #endif
             }
         }
-
+        
         yield break;
     }
 
