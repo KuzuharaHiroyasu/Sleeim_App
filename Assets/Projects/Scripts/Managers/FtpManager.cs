@@ -25,7 +25,7 @@ namespace Kaimin.Managers
     {
         private const string FTP_IP = "kir352475.kir.jp";
         private const string FTP_USERNAME = "kir352475..welness";
-        private const string FTP_PASSWORD = "RemEBHkE";
+        private const string FTP_PASSWORD = "4GxiX48F";
 
         private const int FTP_TIMEOUT = 10000; //タイムアウト時間(sec)（共通） ※デフォルトは150000
 

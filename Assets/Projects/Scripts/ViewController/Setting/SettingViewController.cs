@@ -349,7 +349,7 @@ public class SettingViewController : ViewControllerBase
         long g1dVersionInDevice = 0;            //デバイスのファームウェアバージョンを比較しやすいように整数値に変換した値
         long g1dVersionLatest = 0;				//最新のファームウェアバージョンを比較しやすいように整数値に変換した値
         yield return StartCoroutine(GetLatestFirmwareFileNameFromFtp(
-            "/Update/G1D",
+            "/RD8001/Update/G1D",
             (string fileName) => latestG1dFileName = fileName,
             (bool _isError) => isGetFirmwareFileError = _isError));
 
@@ -501,7 +501,7 @@ public class SettingViewController : ViewControllerBase
             {
                 Debug.Log("Run G1DFirmware Update.");
                 // G1Dの最新ファームウェアが存在すればダウンロードを行う
-                yield return StartCoroutine(DownloadFirmware("/Update/G1D/" + latestG1dFileName, (string savedPath) => g1dSavedPathInApp = savedPath));
+                yield return StartCoroutine(DownloadFirmware("/RD8001/Update/G1D/" + latestG1dFileName, (string savedPath) => g1dSavedPathInApp = savedPath));
                 if (g1dSavedPathInApp == null)
                 {
                     // G1Dのファームウェアのダウンロードに失敗したら
