@@ -193,7 +193,7 @@ public class FtpFunction {
 			var untilLastDotCount = date.LastIndexOf ('.');		//最後のドットまでの先頭からの文字数
 			date = date.Substring (0, untilLastDotCount);		//例：20180827092055
 			//DBに同じデータが存在しているか確認する
-			var data = sleepTable.SelectFromPrimaryKey (long.Parse (date));
+			var data = sleepTable.SelectFromColumn("date", date);
 			if (data == null) {
 				result.Add (filePath);
 			} 

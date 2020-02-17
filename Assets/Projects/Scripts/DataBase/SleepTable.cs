@@ -59,7 +59,7 @@ public class SleepTable : AbstractDbTable<DbSleepData> {
 
 	public override void Update(DbSleepData data) {
 		StringBuilder query = new StringBuilder ();
-		DbSleepData selectData = SelectFromPrimaryKey (long.Parse (data.date));
+		DbSleepData selectData = SelectFromColumn("date", data.date);
 		if (selectData == null) {
 			query.Append ("INSERT INTO ");
 			query.Append (TableName + "(" + COL_DATE + ", " + COL_FILEPATH + ", " + COL_SENDFLAG + ")");
@@ -108,11 +108,37 @@ public class SleepTable : AbstractDbTable<DbSleepData> {
 		mDb.ExecuteNonQuery (query.ToString ());
 	}
 
-	/// <summary>
-	/// 主キーを指定して該当するデータを削除する
+    /// <summary>
+	/// 主キーを指定して該当するデータを取得する
 	/// </summary>
-	/// <param name="date">主キー</param>
-	public void DeleteFromTable (string colName, string colValue) {
+	/// <param name="id">主キー</param>
+	/// <returns>データ、ただし存在しない場合はnull</returns>
+	public DbSleepData SelectFromColumn(string columnName, string columnValue)
+    {
+        StringBuilder query = new StringBuilder();
+        query.Append("SELECT * FROM ");
+        query.Append(TableName);
+        query.Append(" WHERE ");
+        query.Append(columnName);
+        query.Append("=");
+        query.Append("'" + columnValue + "'");
+        query.Append(";");
+        DataTable dt = mDb.ExecuteQuery(query.ToString());
+        if (dt.Rows.Count == 0)
+        {
+            return null;
+        }
+        else
+        {
+            return PutData(dt[0]);
+        }
+    }
+
+    /// <summary>
+    /// 主キーを指定して該当するデータを削除する
+    /// </summary>
+    /// <param name="date">主キー</param>
+    public void DeleteFromTable (string colName, string colValue) {
 		StringBuilder query = new StringBuilder ();
 		query.Append ("DELETE FROM ");
 		query.Append (TableName);
@@ -147,9 +173,16 @@ public class SleepTable : AbstractDbTable<DbSleepData> {
         query.Append(" ASC");
         query.Append(";");
         DataTable dt = mDb.ExecuteQuery(query.ToString());
+
+        var dict = new Dictionary<string, int>();
         foreach (DataRow row in dt.Rows)
         {
-            dataList.Add(PutDataWithFileId(row));
+            var sleepData = PutDataWithFileId(row);
+            if (!dict.ContainsKey(sleepData.date)) //Avoid duplicate data
+            {
+                dataList.Add(sleepData);
+                dict.Add(sleepData.date, 1);
+            }
         }
 
         return dataList;
