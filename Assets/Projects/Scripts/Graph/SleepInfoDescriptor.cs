@@ -146,6 +146,8 @@ public class SleepInfoDescriptor : MonoBehaviour {
                 " ～ " +
                 CSVManager.getJpDateString(endTime) + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
         } else {
+            if (CSVManager.isInvalidDate(endTime)) return "ー";
+
             //就寝時と起床時の日付が同じであれば「就寝日」を返す
             bool isNecessaryIndex = (sameDateNum - crossSunNum) > 1;
             int indexCount = dateIndex + 1;
@@ -163,15 +165,6 @@ public class SleepInfoDescriptor : MonoBehaviour {
         return true;
     }
 
-    //時間を以下の形式の文字列に変換する
-    //例：2018/06/20/14:08　→ １４：０８
-    string TransTimeToHHMM (DateTime time) {
-        string hh = time.Hour.ToString ("00");
-        string mm = time.Minute.ToString ("00");
-        string result = hh + ":" + mm;
-        return result.ToUpper ();
-    }
-
     //詳細欄に情報を設定する
     void DescriptInfoToDetails () {
         DateText.text = GetDateText(
@@ -180,10 +173,10 @@ public class SleepInfoDescriptor : MonoBehaviour {
             Data.SameDateNum,
             Data.CrossSunNum);
         foreach (var bedTimeText in BedTimeText) {
-            bedTimeText.text = TransTimeToHHMM(Data.BedTime);
+            bedTimeText.text = CSVManager.TransTimeToHHMM(Data.BedTime);
         }
         foreach (var getUpTimeText in GetUpTimeText) {
-            getUpTimeText.text = TransTimeToHHMM(Data.GetUpTime);
+            getUpTimeText.text = CSVManager.TransTimeToHHMM(Data.GetUpTime);
         }
         SetSleepTimes ();
         ApneaCountText.text = ApneaCount;

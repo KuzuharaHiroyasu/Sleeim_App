@@ -184,7 +184,9 @@ public class SleepListElement : MonoBehaviour {
 			//就寝時と起床時の日付が異なっていたら「就寝日～起床日」を返す
 			return CSVManager.getJpDateString(startTime, true) + "～" + CSVManager.getJpDateString(endTime, true) + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
 		} else {
-			bool isNecessaryIndex = (sameDateNum - crossSunNum) > 1;
+            if (CSVManager.isInvalidDate(endTime)) return "ー";
+
+            bool isNecessaryIndex = (sameDateNum - crossSunNum) > 1;
 			int indexCount = dateIndex + 1;
 			//就寝時と起床時の日付が同じであれば「就寝日」を返す
 			return CSVManager.getJpDateString(endTime, true) + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");

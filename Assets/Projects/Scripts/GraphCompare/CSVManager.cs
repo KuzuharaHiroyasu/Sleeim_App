@@ -86,10 +86,10 @@ public class CSVManager
         }
 
         DateTime fileDateTime = Kaimin.Common.Utility.TransFilePathToDate(filePath);
-        chartInfo.realDateTime = CSVManager.getRealDateTime(fileDateTime);
+        chartInfo.realDateTime = getRealDateTime(fileDateTime);
         chartInfo.fileName = fileDateTime.ToString();
         chartInfo.sleepTime = sleepTime;
-        chartInfo.date = CSVManager.isInvalidDate(chartInfo.realDateTime) ? "-" : chartInfo.realDateTime.ToString("M/d"); 
+        chartInfo.date = isInvalidDate(chartInfo.realDateTime) ? "ー" : chartInfo.realDateTime.ToString("M/d"); 
 
         if (sleepRecordStartTimeLine.Length > 9) //New format
         {
@@ -245,7 +245,7 @@ public class CSVManager
      */
     public static String getJpDateString(DateTime dateTime, bool isShort = false)
     {
-        if (CSVManager.isInvalidDate(dateTime)) return "-";
+        if (isInvalidDate(dateTime)) return "ー";
 
         string day = dateTime.Day.ToString();
         string dayOfWeek = dateTime.ToString("ddd", new System.Globalization.CultureInfo("ja-JP")); //曜日
@@ -262,6 +262,25 @@ public class CSVManager
     public static bool isInvalidDate(DateTime dateTime)
     {
         return dateTime.Year <= 1900;
+    }
+
+    public static string ConvertTimeToHHMM(DateTime dateTime)
+    {
+        if (isInvalidDate(dateTime)) return "ー";
+
+        return String.Format("{0:00}", dateTime.Hour) + ":" + String.Format("{0:00}", dateTime.Minute);
+    }
+
+    //時間を以下の形式の文字列に変換する
+    //例：2018/06/20/14:08　→ １４：０８
+    public static string TransTimeToHHMM(DateTime time)
+    {
+        if (isInvalidDate(time)) return "ー";
+
+        string hh = time.Hour.ToString("00");
+        string mm = time.Minute.ToString("00");
+        string result = hh + ":" + mm;
+        return result.ToUpper();
     }
 
     //日付をまたいでいるかどうか

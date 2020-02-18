@@ -241,8 +241,7 @@ namespace Graph {
 				//始点と終点に開始時刻と終了時刻を表示するなら
 				//開始時刻記載
 				result.Add (timeList.First ());
-				resultLabel.Add (String.Format ("{0:00}", timeList.First ().Hour) + ":" + String.Format ("{0:00" +
-					"}", timeList.First ().Minute));
+				resultLabel.Add (CSVManager.ConvertTimeToHHMM(timeList.First()));
 				//間の時間記載
 				//開始時刻、終了時刻より一定の範囲内の時間(は表示が重複しないようにするため、記載しないようにする
 				TimeSpan wholeTime = timeList.Last () - timeList.First ();
@@ -319,7 +318,10 @@ namespace Graph {
 				result.Add (time);
 
 				//表示する時間間隔によって表記を変更する
-				if (dispTimeSpan.Seconds > 0) {
+                if(CSVManager.isInvalidDate(timeList.First()))
+                {
+                    resultLabel.Add("");
+                } else if (dispTimeSpan.Seconds > 0) {
 					//秒単位で表記が必要なら
 					resultLabel.Add (String.Format ("{0:0}", hour) + ":" + String.Format ("{0:00}", min) + ":" + String.Format ("{0:00}", sec));
 				} else if (dispTimeSpan.Minutes > 0 || displayMinute) {
@@ -336,7 +338,7 @@ namespace Graph {
 			if (isDispStartAndEndTime || isNoneDispTime) {
 				//終了時刻記載
 				result.Add (timeList.Last ());
-				resultLabel.Add (String.Format ("{0:00}", timeList.Last ().Hour) + ":" + String.Format ("{0:00}", timeList.Last ().Minute));
+				resultLabel.Add (CSVManager.ConvertTimeToHHMM(timeList.Last()));
 			}
 
 			resultTimeList = result;
