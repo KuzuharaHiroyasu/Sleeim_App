@@ -5,6 +5,9 @@ using UnityEngine.UI;
 using System;
 using System.Linq;
 using naichilab.InputEvents;
+using Kaimin.Managers;
+using Asyncoroutine;
+using System.IO;
 
 public class SleepListElement : MonoBehaviour {
 
@@ -131,23 +134,56 @@ public class SleepListElement : MonoBehaviour {
     //ファイルを削除
     public void OnDeleteButtonTap()
     {
-        if (myData == null || !System.IO.File.Exists(myData.filePath))
+        StartCoroutine(DeleteSleepData());
+    }
+
+    public IEnumerator DeleteSleepData()
+    {
+        if (myData == null || !File.Exists(myData.filePath))
         {
             // myDataがEmpty、または、ファイルが存在しない場合は何もしない
-            return;
+            yield break;
         }
 
-        //DBから削除する
-        var sleepTable = MyDatabase.Instance.GetSleepTable();
-        var fileName = System.IO.Path.GetFileNameWithoutExtension(myData.filePath);
-        sleepTable.DeleteFromTable(SleepTable.COL_DATE, fileName);
-
-        System.IO.File.Delete(myData.filePath);
-
-        if (myData.chartInfo != null)
+        if (HttpManager.IsInternetAvailable())
         {
-            //Update chart everage info 
-            ChartPref.updateEverageDataAfterDelete(myData.chartInfo);
+            var sleepTable = MyDatabase.Instance.GetSleepTable();
+            string fullFilePath = myData.filePath;
+            string fileName = Path.GetFileNameWithoutExtension(fullFilePath); //例:20191226231111
+
+            var sleepData = sleepTable.SelectFromColumn(SleepTable.COL_DATE, fileName);
+            if(sleepData != null)
+            {
+                string deviceId = HttpManager.getDeviceId(sleepData.file_path);
+                var deleteTask = HttpManager.DeleteFile(deviceId, fileName + "_" + sleepData.file_id + Path.GetExtension(fullFilePath));
+                yield return deleteTask.AsCoroutine();
+
+                if (deleteTask.Result)
+                {
+                    //DBから削除する
+                    sleepTable.DeleteFromTable(SleepTable.COL_DATE, fileName);
+
+                    File.Delete(fullFilePath);
+
+                    if (myData.chartInfo != null)
+                    {
+                        //Update chart everage info 
+                        ChartPref.updateEverageDataAfterDelete(myData.chartInfo);
+                    }
+                }
+                else
+                {
+                    yield return HttpManager.showDialogMessage("データー削除に失敗しました。");
+                }
+            }
+            else
+            {
+                yield return HttpManager.showDialogMessage("データーが見つかりません。");
+            }
+        }
+        else
+        {
+            yield return HttpManager.showDialogMessage("インサート不接続のため、データー削除ができません。");
         }
 
         if (myData.deleteAfterAction != null)

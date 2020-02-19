@@ -59,11 +59,11 @@ namespace Kaimin.Managers
                     form.Add(new StringContent(deviceId), "device_id");
                     form.Add(new StringContent(uploadPath), "uploadPath");
 
-                    Debug.Log("UploadFilesAsync-start(" + fileName + ")");
+                    Debug.Log("UploadFileAsync-start(" + fileName + ")");
                     var response = await client.PostAsync($"{API_UPLOAD_URL}/", form);
                     response.EnsureSuccessStatusCode();
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    Debug.Log("UploadFilesAsync-completet(" + fileName + ")");
+                    Debug.Log("UploadFileAsync-completet(" + fileName + ")");
 
                     var jsonResult = MiniJSON.Json.Deserialize(responseContent) as Dictionary<string, object>;
                     if (jsonResult.ContainsKey("err_code") && int.Parse(jsonResult["err_code"].ToString()) == 0)
@@ -76,9 +76,48 @@ namespace Kaimin.Managers
             }
         }
 
+        //fileNameの例:20191226235856_1.csv (FileName_FileId.csv)
+        public static async Task<bool> DeleteFile(string deviceId, string fileName)
+        {
+            using (var client = new HttpClient())
+            {
+                MultipartFormDataContent form = new MultipartFormDataContent();
+                form.Add(new StringContent(deviceId), "device_id");
+                form.Add(new StringContent(fileName), "file_name");
+
+                Debug.Log("DeleteFileAPI-start(" + fileName + ")");
+                var response = await client.PostAsync($"{API_DELETE_URL}/", form);
+                response.EnsureSuccessStatusCode();
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Debug.Log("DeleteFileAPI-completet(" + fileName + ")");
+
+                var jsonResult = MiniJSON.Json.Deserialize(responseContent) as Dictionary<string, object>;
+                if (jsonResult.ContainsKey("err_code") && int.Parse(jsonResult["err_code"].ToString()) == 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static bool IsInternetAvailable()
         {
             return UnityEngine.Application.internetReachability != UnityEngine.NetworkReachability.NotReachable;
+        }
+
+        public static IEnumerator showDialogMessage(string message)
+        {
+            bool isOK = false;
+            MessageDialog.Show("<size=32>" + message + "</size>", true, false, () => isOK = true);
+            yield return new WaitUntil(() => isOK);
+        }
+
+        //shortFilePath例：112233445566/yyyyMM/20191226231111.csv
+        public static string getDeviceId(string shortFilePath)
+        {
+            string deviceId = shortFilePath.Substring(0, shortFilePath.IndexOf('/'));
+            return deviceId;
         }
 
         public static IEnumerator UploadUnsendDatasByHttp()
@@ -95,7 +134,7 @@ namespace Kaimin.Managers
                 yield break;
             }
 
-            UpdateDialog.Show("ファイルアップロード中");
+            UpdateDialog.Show("同期中");
             Screen.sleepTimeout = SleepTimeout.NeverSleep; //スリープしないように設定
 
             Debug.Log("UploadUnsendDatasByHttp_unsentDataCount:" + unSentDatas.Count);
@@ -154,7 +193,7 @@ namespace Kaimin.Managers
                         string filePath = stockedData.file_path;
                         Debug.Log("stockData_path:" + filePath);
 
-                        string deviceId = filePath.Substring(0, filePath.IndexOf('/'));
+                        string deviceId = getDeviceId(filePath);
                         var uploadTask = HttpManager.UploadFile(deviceId, stockedData.file_id, dataPath + filePath);
 
                         yield return uploadTask.AsCoroutine();
@@ -187,7 +226,7 @@ namespace Kaimin.Managers
             Screen.sleepTimeout = SleepTimeout.SystemSetting;
         }
 
-        //サーバーに未アップロードのCsvファイルをアップロードする
+        //サーバーに未アップロードのCsvファイルをFTPでアップロードする
         public static IEnumerator UploadUnsendDatas()
         {
             var dataPath = Kaimin.Common.Utility.GsDataPath();
