@@ -141,7 +141,7 @@ public class SplashViewController : ViewControllerBase
         if (!IsInitialLunch())
         {
             //未アップロードのCsvファイルが存在すれば、アップロードする
-            yield return StartCoroutine(UploadUnsendDatas());
+            yield return StartCoroutine(HttpManager.UploadUnsendDatasByHttp());
         }
         //FTPサーバーにファームウェアの最新バージョンが存在するか確認する
         if (UserDataManager.State.isDoneDevicePareing())    //ペアリング済みであれば
@@ -307,120 +307,6 @@ public class SplashViewController : ViewControllerBase
         return long.Parse(versionString);
     }
 
-    //サーバーに未アップロードのCsvファイルをアップロードする
-    IEnumerator UploadUnsendDatas()
-    {
-        var sleepDatas = MyDatabase.Instance.GetSleepTable().SelectAllOrderByAsc();         //DBに登録されたすべてのデータ
-        var unSentDatas = sleepDatas.Where(data => data.send_flag == false).ToList();   //サーバーに送信してないすべてのデータ
-                                                                                        //データが0件ならアップロードを行わない
-        if (unSentDatas.Count == 0)
-        {
-            yield break;
-        }
-        UpdateDialog.Show("同期中");
-        //スリープしないように設定
-        Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        Debug.Log("UploadUnsendDatas_unsentDataCount:" + unSentDatas.Count);
-        var mulitipleUploadDataCount = 10;  //一回でまとめてアップロードするデータ件数
-        List<DbSleepData> sendDataStock = new List<DbSleepData>();  //アップロードするデータを貯めておくリスト
-                                                                    //ファイルアップロードのためにサーバーと接続
-        bool isConnectionSuccess = false;
-        bool isConnectionComplete = false;
-        FtpManager.Connection((bool _success) =>
-        {
-            isConnectionSuccess = _success;
-            isConnectionComplete = true;
-        });
-        yield return new WaitUntil(() => isConnectionComplete);
-        if (!isConnectionSuccess)
-        {
-            //サーバーとの接続に失敗すれば
-            UpdateDialog.Dismiss();
-            //スリープ設定解除
-            Screen.sleepTimeout = SleepTimeout.SystemSetting;
-            yield break;
-        }
-        //サーバーに送信してないデータをアップロード
-        for (int i = 0; i < unSentDatas.Count; i++)
-        {
-            var data = unSentDatas[i];
-            var uploadPath = data.file_path;                                                        //例：1122334455566/yyyyMM/20180827092055.csv
-            uploadPath = uploadPath.Substring(0, uploadPath.LastIndexOf('/') + 1);              //例：1122334455566/yyyyMM/
-            uploadPath = "/Data/" + uploadPath;                                                     //例：/Data/1122334455566/yyyyMM/
-                                                                                                    //アップロードするデータが正常か確認する
-            Debug.Log("data.date:" + data.date);
-            Debug.Log("data.file_path:" + data.file_path);
-            Debug.Log("fullPath:" + Kaimin.Common.Utility.GsDataPath() + data.file_path);
-            Debug.Log("isExistFile?:" + System.IO.File.Exists(Kaimin.Common.Utility.GsDataPath() + data.file_path));
-
-            if (System.IO.File.Exists(Kaimin.Common.Utility.GsDataPath() + data.file_path))
-            {
-                sendDataStock.Add(data);
-            }
-            else
-            {
-                //ファイルが存在してなければ、DBから削除する
-                var sleepTable = MyDatabase.Instance.GetSleepTable();
-                sleepTable.DeleteFromTable(SleepTable.COL_DATE, data.date);
-            }
-            bool isStockDataCount = sendDataStock.Count >= mulitipleUploadDataCount;    //送信するデータ個数が一定量(multipleUploadDataCount)に達したかどうか
-            bool isLastData = i >= unSentDatas.Count - 1;                               //最後のデータかどうか
-            bool isSameDirectoryNextData = false;                                       //現在データと次データのアップロード先が同じであるか
-            if (!isLastData)
-            {
-                //最後のデータでなければ、次のデータが同じディレクトリのデータであるか確認する。
-                //現在データと比較できるように次データのパスを同じように変換
-                var nextDataDirectory = unSentDatas[i + 1].file_path;                                   //例：1122334455566/yyyyMM/20180827092055.csv
-                nextDataDirectory = nextDataDirectory.Substring(0, nextDataDirectory.LastIndexOf('/') + 1); //例：1122334455566/yyyyMM/
-                nextDataDirectory = "/Data/" + nextDataDirectory;                                       //例：/Data/1122334455566/yyyyMM/
-                                                                                                        //現在データと次データのアップロード先パスを比較
-                isSameDirectoryNextData = uploadPath == nextDataDirectory;
-            }
-            Debug.Log("isStockDataCount:" + isStockDataCount + ",isLastData:" + isLastData + ",isSameDirectoryNextData:" + isSameDirectoryNextData);
-            if (isStockDataCount || isLastData || !isSameDirectoryNextData)
-            {
-                Debug.Log("UploadData");
-                //まとめて送信するデータ件数に達したか、最後のデータに到達したらアップロードを行う
-                //確認
-                foreach (var stockedData in sendDataStock)
-                {
-                    Debug.Log("stockData_path:" + stockedData.file_path);
-                }
-                var uploadTask = FtpManager.ManualMulitipleUploadFileAsync(sendDataStock.Select(d => (Kaimin.Common.Utility.GsDataPath() + d.file_path)).ToList(), uploadPath);
-                yield return uploadTask.AsCoroutine();
-                Debug.Log(uploadTask.Result);
-                //アップロードに成功すれば、アップロードしたファイルのDB送信フラグをtrueに
-                if (uploadTask.Result)
-                {
-                    var sleepTable = MyDatabase.Instance.GetSleepTable();
-                    for (int j = 0; j < sendDataStock.Count; j++)
-                    {
-                        var dateString = sendDataStock.Select(d => d.date).ToList()[j]; //例：20180827092055.csv
-                        var filePath = sendDataStock.Select(d => d.file_path).ToList()[j];//例：1122334455566/yyyyMMdd/20180827092055.csv
-                        sleepTable.Update(new DbSleepData(dateString, filePath, true));
-                        Debug.Log("Uploaded.");
-                        sleepTable.DebugPrint();
-                    }
-                    //データのアップロードがひとまとまり完了すれば、次のデータのアップロードへ移る
-                    sendDataStock = new List<DbSleepData>();
-                }
-                else
-                {
-                    //アップロードに失敗すれば
-                    UpdateDialog.Dismiss();
-                    //スリープ設定解除
-                    Screen.sleepTimeout = SleepTimeout.SystemSetting;
-                    yield break;
-                }
-            }
-        }
-        //サーバーとの接続を切る
-        FtpManager.DisConnect();
-        UpdateDialog.Dismiss();
-        //スリープ設定解除
-        Screen.sleepTimeout = SleepTimeout.SystemSetting;
-    }
-
     /// <summary>
     /// ストリーミングアセットのファイルコピー
     /// </summary>
@@ -458,7 +344,7 @@ public class SplashViewController : ViewControllerBase
 #endif
             }
         }
-        
+
         yield break;
     }
 

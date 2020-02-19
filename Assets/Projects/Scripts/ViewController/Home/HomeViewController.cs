@@ -436,8 +436,9 @@ public class HomeViewController : ViewControllerBase
         //Ble通信部分実行
         yield return StartCoroutine(SyncDeviceBleFlow());
         //未アップロードのCsvファイルが存在すれば、アップロードする
-        // NOTE:FTPサーバー未使用のためコメントアウト(暫定)
-        // yield return StartCoroutine (UploadUnsendDatas ());
+
+        //取得したデータをFTPにアップロードする
+        yield return StartCoroutine (HttpManager.UploadUnsendDatas());
     }
 
     //デバイスとの同期のBLE通信関連部分
@@ -834,9 +835,9 @@ public class HomeViewController : ViewControllerBase
             //仮のファイル名を指定されたファイル名に変更する
             string fullOriginalFilePath = "";
             string fullRenamedFilePath = "";
-            var renamedFilePath = dataPathList[i];                                                  //例：112233445566/yyyyMMdd/tmp01.csv
-            renamedFilePath = renamedFilePath.Substring(0, renamedFilePath.LastIndexOf('/') + 1);    //例：112233445566/yyyyMMdd/
-            renamedFilePath = renamedFilePath + dataNameList[i];                                     //例：112233445566/yyyyMMdd/20180827092055.csv
+            var renamedFilePath = dataPathList[i];                                                  //例：112233445566/yyyyMM/tmp01.csv
+            renamedFilePath = renamedFilePath.Substring(0, renamedFilePath.LastIndexOf('/') + 1);   //例：112233445566/yyyyMM/
+            renamedFilePath = renamedFilePath + dataNameList[i];                                    //例：112233445566/yyyyMM/20180827092055.csv
             fullOriginalFilePath = Kaimin.Common.Utility.GsDataPath() + dataPathList[i];
             fullRenamedFilePath = Kaimin.Common.Utility.GsDataPath() + renamedFilePath;
 
@@ -870,123 +871,6 @@ public class HomeViewController : ViewControllerBase
             Debug.Log("DB All FilePath:" + path);
         }
         yield return null;
-    }
-
-    //サーバーに未アップロードのCsvファイルをアップロードする
-    IEnumerator UploadUnsendDatas()
-    {
-        var sleepDatas = MyDatabase.Instance.GetSleepTable().SelectAllOrderByAsc();			//DBに登録されたすべてのデータ
-        var unSentDatas = sleepDatas.Where(data => data.send_flag == false).ToList();	//サーバーに送信してないすべてのデータ
-        //データが0件であればアップロードを行わない
-        if (unSentDatas.Count == 0)
-        {
-            yield break;
-        }
-        UpdateDialog.Show("同期中");
-        //スリープしないように設定
-        Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        Debug.Log("UploadUnsendDatas_unsentDataCount:" + unSentDatas.Count);
-        var mulitipleUploadDataCount = 10;	//一回でまとめてアップロードするデータ件数
-        List<DbSleepData> sendDataStock = new List<DbSleepData>();	//アップロードするデータを貯めておくリスト
-        //ファイルアップロードのためにサーバーと接続
-        bool isConnectionSuccess = false;
-        bool isConnectionComplete = false;
-        FtpManager.Connection((bool _success) =>
-        {
-            isConnectionSuccess = _success;
-            isConnectionComplete = true;
-        });
-        yield return new WaitUntil(() => isConnectionComplete);
-        if (!isConnectionSuccess)
-        {
-            //サーバーとの接続に失敗すれば
-            Debug.Log("ConnectSarverFailed...");
-            UpdateDialog.Dismiss();
-            //スリープ設定解除
-            Screen.sleepTimeout = SleepTimeout.SystemSetting;
-            yield break;
-        }
-        //サーバーに送信してないデータをアップロード
-        for (int i = 0; i < unSentDatas.Count; i++)
-        {
-            var data = unSentDatas[i];
-            var uploadPath = data.file_path;														//例：1122334455566/yyyyMM/20180827092055.csv
-            uploadPath = uploadPath.Substring(0, uploadPath.LastIndexOf('/') + 1);				//例：1122334455566/yyyyMM/
-            uploadPath = "/Data/" + uploadPath;														//例：/Data/1122334455566/yyyyMM/
-            //アップロードするデータが正常か確認する
-            Debug.Log("data.date:" + data.date);
-            Debug.Log("data.file_path:" + data.file_path);
-            Debug.Log("fullPath:" + Kaimin.Common.Utility.GsDataPath() + data.file_path);
-            Debug.Log("isExistFile?:" + System.IO.File.Exists(Kaimin.Common.Utility.GsDataPath() + data.file_path));
-
-            if (System.IO.File.Exists(Kaimin.Common.Utility.GsDataPath() + data.file_path))
-            {
-                sendDataStock.Add(data);
-            }
-            else
-            {
-                //ファイルが存在してなければ、DBから削除する
-                var sleepTable = MyDatabase.Instance.GetSleepTable();
-                sleepTable.DeleteFromTable(SleepTable.COL_DATE, data.date);
-            }
-            bool isStockDataCount = sendDataStock.Count >= mulitipleUploadDataCount;	//送信するデータ個数が一定量(multipleUploadDataCount)に達したかどうか
-            bool isLastData = i >= unSentDatas.Count - 1;								//最後のデータかどうか
-            bool isSameDirectoryNextData = false;										//現在データと次データのアップロード先が同じであるか
-            if (!isLastData)
-            {
-                //最後のデータでなければ、次のデータが同じディレクトリのデータであるか確認する。
-                //現在データと比較できるように次データのパスを同じように変換
-                var nextDataDirectory = unSentDatas[i + 1].file_path;									//例：1122334455566/yyyyMM/20180827092055.csv
-                nextDataDirectory = nextDataDirectory.Substring(0, nextDataDirectory.LastIndexOf('/') + 1);	//例：1122334455566/yyyyMM/
-                nextDataDirectory = "/Data/" + nextDataDirectory;										//例：/Data/1122334455566/yyyyMM/
-                //現在データと次データのアップロード先パスを比較
-                isSameDirectoryNextData = uploadPath == nextDataDirectory;
-            }
-            Debug.Log("isStockDataCount:" + isStockDataCount + ",isLastData:" + isLastData + ",isSameDirectoryNextData:" + isSameDirectoryNextData);
-            if (isStockDataCount || isLastData || !isSameDirectoryNextData)
-            {
-                Debug.Log("UploadData");
-                //まとめて送信するデータ件数に達したか、最後のデータに到達したらアップロードを行う
-                //確認
-                foreach (var stockedData in sendDataStock)
-                {
-                    Debug.Log("stockData_path:" + stockedData.file_path);
-                }
-                var uploadTask = FtpManager.ManualMulitipleUploadFileAsync(sendDataStock.Select(d => (Kaimin.Common.Utility.GsDataPath() + d.file_path)).ToList(), uploadPath);
-                yield return uploadTask.AsCoroutine();
-                Debug.Log(uploadTask.Result);
-                //アップロードに成功すれば、アップロードしたファイルのDB送信フラグをtrueに
-                if (uploadTask.Result)
-                {
-                    var sleepTable = MyDatabase.Instance.GetSleepTable();
-                    for (int j = 0; j < sendDataStock.Count; j++)
-                    {
-                        var dateString = sendDataStock.Select(d => d.date).ToList()[j];	//例：20180827092055.csv
-                        var filePath = sendDataStock.Select(d => d.file_path).ToList()[j];//例：1122334455566/yyyyMMdd/20180827092055.csv
-                        sleepTable.Update(new DbSleepData(dateString, filePath, true));
-                        Debug.Log("Uploaded.");
-                        sleepTable.DebugPrint();
-                    }
-                    //データのアップロードがひとまとまり完了すれば、次のデータのアップロードへ移る
-                    sendDataStock = new List<DbSleepData>();
-                }
-                else
-                {
-                    //アップロードに失敗すれば
-                    Debug.Log("UploadFailed...");
-                    UpdateDialog.Dismiss();
-                    //スリープ設定解除
-                    Screen.sleepTimeout = SleepTimeout.SystemSetting;
-                    yield break;
-                }
-            }
-        }
-        Debug.Log("Upload end");
-        //サーバーとの接続を切る
-        FtpManager.DisConnect();
-        UpdateDialog.Dismiss();
-        //スリープ設定解除
-        Screen.sleepTimeout = SleepTimeout.SystemSetting;
     }
 
     //デバイスが保持しているデータ件数を取得する
@@ -1130,9 +1014,9 @@ public class HomeViewController : ViewControllerBase
             {
                 //データ取得情報
                 var json = Json.Deserialize(data) as Dictionary<string, object>;
-                int currentDataCount = Convert.ToInt32(json["KEY1"]);		//現在の取得カウント（例：1件取得完了したら1で返される）
+                int currentDataCount = Convert.ToInt32(json["KEY1"]);	//現在の取得カウント（例：1件取得完了したら1で返される）
                 bool isExistNextData = Convert.ToBoolean(json["KEY2"]);	//TRUEなら次のデータがある
-                bool isEndData = Convert.ToBoolean(json["KEY3"]);			//TRUEなら次のデータはな（Unity側でアプリ処理を行ってから、5秒以内にデータ取得完了応答を返す）
+                bool isEndData = Convert.ToBoolean(json["KEY3"]);		//TRUEなら次のデータはな（Unity側でアプリ処理を行ってから、5秒以内にデータ取得完了応答を返す）
                 string csvFilePath = (string)json["KEY4"];				//CSVのパスの添付パス。dataフォルダ以下のパスが返される（例：/1122334455:66/yyyyMMdd/tmp01.csv）
                 csvFilePath = csvFilePath.Substring(1);					//先頭のスラッシュを取り除く
                 string csvFileName = (string)json["KEY5"];				//CSVのファイル名。最終的にUnity側でDB登録時にリネームしてもらうファイル名（例：20180624182431.csv）

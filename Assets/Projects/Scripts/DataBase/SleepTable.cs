@@ -150,16 +150,10 @@ public class SleepTable : AbstractDbTable<DbSleepData> {
 		mDb.ExecuteNonQuery (query.ToString ());
 	}
 
-	protected override DbSleepData PutData (DataRow row) {
-		DbSleepData data = new DbSleepData (GetStringValue (row, COL_DATE), GetStringValue (row, COL_FILEPATH), GetBoolValue (row, COL_SENDFLAG));
-		return data;
-	}
-
-    protected DbSleepData PutDataWithFileId(DataRow row)
-    {
-        DbSleepData data = new DbSleepData(GetStringValue(row, COL_DATE), GetStringValue(row, COL_FILEPATH), GetBoolValue(row, COL_SENDFLAG), GetIntValue(row, COL_FILE_ID));
+	protected override DbSleepData PutData(DataRow row) {
+		DbSleepData data = new DbSleepData(GetStringValue(row, COL_DATE), GetStringValue(row, COL_FILEPATH), GetBoolValue(row, COL_SENDFLAG), GetIntValue(row, COL_FILE_ID));
         return data;
-    }
+	}
 
     public List<DbSleepData> SelectDbSleepData(string whereCondition = "")
     {
@@ -177,7 +171,7 @@ public class SleepTable : AbstractDbTable<DbSleepData> {
         var dict = new Dictionary<string, int>();
         foreach (DataRow row in dt.Rows)
         {
-            var sleepData = PutDataWithFileId(row);
+            var sleepData = PutData(row);
             if (!dict.ContainsKey(sleepData.date)) //Avoid duplicate data
             {
                 dataList.Add(sleepData);

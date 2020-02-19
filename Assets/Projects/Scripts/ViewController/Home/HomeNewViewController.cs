@@ -537,8 +537,9 @@ public class HomeNewViewController : ViewControllerBase
         //Ble通信部分実行
         yield return StartCoroutine(SyncDeviceBleFlow());
         //未アップロードのCsvファイルが存在すれば、アップロードする
-        // NOTE:FTPサーバー未使用のためコメントアウト(暫定)
-        // yield return StartCoroutine (UploadUnsendDatas ());
+
+        //取得したデータをHttpでアップロードする
+        yield return StartCoroutine (HttpManager.UploadUnsendDatasByHttp());
     }
 
     //デバイスとの同期のBLE通信関連部分
@@ -940,9 +941,9 @@ public class HomeNewViewController : ViewControllerBase
             //仮のファイル名を指定されたファイル名に変更する
             string fullOriginalFilePath = "";
             string fullRenamedFilePath = "";
-            var renamedFilePath = dataPathList[i];                                                  //例：112233445566/yyyyMMdd/tmp01.csv
-            renamedFilePath = renamedFilePath.Substring(0, renamedFilePath.LastIndexOf('/') + 1);    //例：112233445566/yyyyMMdd/
-            renamedFilePath = renamedFilePath + dataNameList[i];                                     //例：112233445566/yyyyMMdd/20180827092055.csv
+            var renamedFilePath = dataPathList[i];                                                  //例：112233445566/yyyyMM/tmp01.csv
+            renamedFilePath = renamedFilePath.Substring(0, renamedFilePath.LastIndexOf('/') + 1);   //例：112233445566/yyyyMM/
+            renamedFilePath = renamedFilePath + dataNameList[i];                                    //例：112233445566/yyyyMM/20180827092055.csv
             fullOriginalFilePath = Kaimin.Common.Utility.GsDataPath() + dataPathList[i];
             fullRenamedFilePath = Kaimin.Common.Utility.GsDataPath() + renamedFilePath;
 
