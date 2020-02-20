@@ -57,8 +57,12 @@ public class GraphCompareViewController : ViewControllerBase
         base.Start();
 
         //Important inits
-        this.chartPref.loadData();
         this.fileList = CSVManager.getCsvFileList();
+        if(this.fileList.Count() == 0)
+        {
+            this.chartPref.resetEverageData();
+        }
+        this.chartPref.loadData();
 
         this.txtNoDataEverage.text = MSG_NO_DATA;
         this.txtNoDataLatest.text = "";

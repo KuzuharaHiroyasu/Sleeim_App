@@ -57,4 +57,13 @@ public class ChartPref
             }
         }
     }
+
+    public void resetEverageData()
+    {
+        PlayerPrefs.SetInt("savedNumMonitor", 0);
+        PlayerPrefs.SetInt("savedNumSuppress", 0);
+        PlayerPrefs.SetString("savedEverageMonitor", "");
+        PlayerPrefs.SetString("savedEverageSuppress", "");
+        PlayerPrefs.SetInt("savedLastFileId", 0);
+    }
 }
