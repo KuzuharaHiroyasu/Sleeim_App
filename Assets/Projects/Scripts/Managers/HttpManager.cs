@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using Asyncoroutine;
+using UnityEngine.Networking;
 
 namespace Kaimin.Managers
 {
@@ -21,10 +22,11 @@ namespace Kaimin.Managers
     /// 
     public class HttpManager
     {
-        public const string HTTP_BASE_URL = "http://down.one-a.co.jp";
-        public const string API_UPLOAD_URL = HTTP_BASE_URL + "/Welness/legal/api/upload.php";   //Params: device_id, file (FileName_FileID.csv)
-        public const string API_DOWNLOAD_URL = HTTP_BASE_URL + "/Welness/legal/api/download.php"; //Params: device_id
-        public const string API_DELETE_URL = HTTP_BASE_URL + "/Welness/legal/api/delete.php";   //Params: device_id, file_name (FileName_FileID.csv)
+        public const string HTTP_BASE_URL    = "http://down.one-a.co.jp";
+        public const string API_UPLOAD_URL   = HTTP_BASE_URL + "/Welness/legal/api/upload.php";   //Params: device_id, file (FileName_FileID.csv)
+        public const string API_DOWNLOAD_URL = HTTP_BASE_URL + "/Welness/legal/api/download.php"; //Params: file_path (Ex: .../../RD8001/Update/G1D/RD8001G1D_Ver000.000.001.016.bin)
+        public const string API_RESTORE_URL  = HTTP_BASE_URL + "/Welness/legal/api/restore.php";  //Params: device_id, restore_flg
+        public const string API_DELETE_URL   = HTTP_BASE_URL + "/Welness/legal/api/delete.php";   //Params: device_id, file_name (FileName_FileID.csv)
 
         public const int HTTP_TIMEOUT = 10000; //タイムアウト時間(sec)（共通） ※デフォルトは150000
 
@@ -72,6 +74,35 @@ namespace Kaimin.Managers
                     }
                 }
 
+                return false;
+            }
+        }
+
+        public static async Task<bool> DownloadFile(string saveFilePath, string downloadUrl)
+        {
+            //saveFilePath = "/storage/emulated/0/Android/data/jp.co.onea.sleeim/files/RD8001G1D_Ver000.000.001.016.bin";
+            try
+            {
+                bool isDownloadComplete = false;
+                WebClient client = new WebClient();
+                client.DownloadDataAsync(new Uri(downloadUrl));
+                //client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressChanged);
+                //client.DownloadDataCompleted += new DownloadDataCompletedEventHandler(DownloadDataCompleted);
+                client.DownloadDataCompleted += new DownloadDataCompletedEventHandler((object sender, DownloadDataCompletedEventArgs e) =>
+                {
+                    string dirPath = saveFilePath.Substring(0, saveFilePath.LastIndexOf('/') + 1);
+                    CreateDirIfMissing(dirPath);
+
+                    File.WriteAllBytes(saveFilePath, e.Result);
+
+                    isDownloadComplete = true;
+                });
+
+                await new WaitUntil(() => isDownloadComplete);
+
+                return true;
+            } catch (Exception e)
+            {
                 return false;
             }
         }
@@ -347,6 +378,14 @@ namespace Kaimin.Managers
             UpdateDialog.Dismiss();
             //スリープ設定解除
             Screen.sleepTimeout = SleepTimeout.SystemSetting;
+        }
+
+        public static void CreateDirIfMissing(string dirPath)
+        {
+            if (!Directory.Exists(dirPath))
+            {
+                Directory.CreateDirectory(dirPath);
+            }
         }
     }
 }

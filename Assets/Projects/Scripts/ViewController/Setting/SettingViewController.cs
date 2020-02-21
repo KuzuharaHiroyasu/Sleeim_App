@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using Asyncoroutine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
 public class SettingViewController : ViewControllerBase
 {
@@ -796,48 +797,43 @@ public class SettingViewController : ViewControllerBase
     /// <summary>
     /// 最新のファームウェアをダウンロードする
     /// </summary>
-    /// <param name="filePath">最新のファームウェアファイルのパス(/Update/G1D/~)</param>
+    /// <param name="filePath">最新のファームウェアファイルのパス(/RD8001/Update/G1D/xxx.mot)</param>
     /// <param name="onComplete">ダウンロード完了時に保存先のフルパスを返すコールバック</param>
     IEnumerator DownloadFirmware(string filePath, Action<string> onComplete)
     {
         Debug.Log("Download Firmware");
-        //保存先のパス(Android端末内)
-        string savePath = Application.temporaryCachePath + "/Firmware/";
-        Debug.Log("SavePath:" + savePath);
-        string fileName = filePath;                                     //例：/Update/G1D/RD8001G1D_Ver000.000.000.007.mot
-        fileName = fileName.Substring(fileName.LastIndexOf('/') + 1);   //例：RD8001G1D_Ver000.000.000.007.mot
-        Debug.Log("FileName:" + fileName);
+        string savePath = Application.temporaryCachePath + "/Firmware/"; //保存先のパス(Android端末内)
+        string fileName = filePath.Substring(filePath.LastIndexOf('/') + 1); //例：RD8001G1D_Ver000.000.000.007.mot
+        string saveFilePath = savePath + fileName;
+        Debug.Log("SavePath:" + savePath + ", FileName:" + fileName);
+
         //既に同じファイルが存在してないか確認する
-        Debug.Log("IsExistFile_" + savePath + fileName + ":" + System.IO.File.Exists(savePath + fileName));
-        if (System.IO.File.Exists(savePath + fileName))
+        if (System.IO.File.Exists(saveFilePath))
         {
             //同じファイルが存在した場合は前のファイルを削除する
             Debug.Log("Same FirmwareFile Exist...Delete This File.");
-            System.IO.File.Delete(savePath + fileName);
+            System.IO.File.Delete(saveFilePath);
             Debug.Log("Delete.");
         }
+
         //ファイルアップロードのためにサーバーと接続
-        bool isConnectionSuccess = false;
-        bool isConnectionComplete = false;
-        FtpManager.Connection((bool _success) =>
-        {
-            isConnectionSuccess = _success;
-            isConnectionComplete = true;
-        });
-        yield return new WaitUntil(() => isConnectionComplete);
+        bool isConnectionSuccess = HttpManager.IsInternetAvailable();
         if (!isConnectionSuccess)
         {
             //サーバーとの接続に失敗すれば
             onComplete(null);
             yield break;
         }
+
         Debug.Log("DownloadData:" + savePath + " from " + filePath);
-        var downloadTask = FtpManager.ManualSingleDownloadFileAsync(savePath + fileName, filePath, null);
+        string downloadUrl = HttpManager.API_DOWNLOAD_URL + "?file_path=../.." + filePath;
+        var downloadTask = HttpManager.DownloadFile(saveFilePath, downloadUrl);
         yield return downloadTask.AsCoroutine();
         Debug.Log(downloadTask.Result ? "Download Success!" : "Download Failed...");
+
         if (downloadTask.Result)
         {
-            onComplete(savePath + fileName);
+            onComplete(saveFilePath);
             Debug.Log("Download Success!");
         }
         else
@@ -845,8 +841,6 @@ public class SettingViewController : ViewControllerBase
             onComplete(null);
             Debug.Log("Download Failed...");
         }
-        //サーバーとの接続を切る
-        FtpManager.DisConnect();
     }
 
     /// <summary>
