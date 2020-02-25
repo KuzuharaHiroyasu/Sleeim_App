@@ -95,10 +95,11 @@ public class FtpFunction {
 			} else {
 				//復元に同意しなかったなら
 				UpdateDialog.Show ("同期中");
-				//バックアップデータの削除をする
-				bool isDeleteSuccess = false;
-				yield return mono.StartCoroutine (RenameBackupData (mono, deviceAdress, (bool isSuccess) => isDeleteSuccess = isSuccess));
-				if (isDeleteSuccess) {
+
+                //バックアップデータの削除をする
+                var isDeleteTask = HttpManager.DeleteBackupDataByRename(deviceAdress);
+                yield return isDeleteTask.AsCoroutine();
+                if (isDeleteTask.Result) {
 					//バックアップデータの削除に成功すれば
 					//以降復元しないように設定
 					UserDataManager.State.SaveNessesaryRestore (false);
@@ -484,20 +485,22 @@ public class FtpFunction {
 	}
 
 	/// <summary>
-	/// サーバーに前回データが存在しているかどうか
+	/// Httpでサーバーに前回データが存在しているかどうか
 	/// </summary>
 	/// <param name="deviceAdress">接続しているデバイスのアドレス(MACアドレス)</param> 
 	/// <param name="onReceivResult">通信結果を返すコールバック 1:有り 0:無し -1:エラー</param>
 	static IEnumerator IsExistPriviousDataInServer (string deviceAdress, Action<int> onReceivResult) {
-		Debug.Log ("IsExistPriviousDataInServer");
-		//サーバー上にデバイスアドレスと一致するディレクトリが存在するかどうか調べる
-		int result = -1;
-		bool isComplete = false;
-		FtpManager.DirectoryExists ("/Data/" + deviceAdress, (int _result) => {
-			result = _result;
-			isComplete = true;
-		});
-		yield return new WaitUntil (() => isComplete);
+        //サーバー上にデバイスアドレスと一致するディレクトリが存在するかどうか調べる
+        int result = -1;
+
+        if(HttpManager.IsInternetAvailable())
+        {
+            var isDirExistTask = HttpManager.IsDirectoryExist("/RD8001/Data/" + deviceAdress);
+            yield return isDirExistTask.AsCoroutine();
+
+            result = isDirExistTask.Result ? 1 : 0;
+        }
+        
 		Debug.Log (result == 1 ? "Privious data is Exist!" : "Privious data is NotExist...");
 		onReceivResult (result);
 	}
@@ -639,12 +642,12 @@ public class FtpFunction {
 			bool isDelete = false;
 			yield return mono.StartCoroutine (AskDeleteBackupData (mono, (bool _isDelete) => isDelete = _isDelete));
 			if (isDelete) {
-				//削除処理実行
-				UpdateDialog.Show ("同期中");
-				//バックアップデータの削除をする
-				bool isDeleteSuccess = false;
-				yield return mono.StartCoroutine (RenameBackupData (mono, deviceAdress, (bool isSuccess) => isDeleteSuccess = isSuccess));
-				if (!isDeleteSuccess) {
+                //バックアップデータの削除をする
+                UpdateDialog.Show ("同期中");
+
+                var isDeleteTask = HttpManager.DeleteBackupDataByRename(deviceAdress);
+                yield return isDeleteTask.AsCoroutine();
+                if (!isDeleteTask.Result) {
 					//バックアップデータの削除に失敗すれば
 					//データの削除に失敗した事を伝えるダイアログを表示する
 					yield return mono.StartCoroutine (TellFailedDeleteBackupData ());

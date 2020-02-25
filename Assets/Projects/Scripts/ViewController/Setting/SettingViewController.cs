@@ -360,7 +360,13 @@ public class SettingViewController : ViewControllerBase
             UpdateDialog.Dismiss();
             if (isGetFirmwareFileError)
             {
-                yield return StartCoroutine(TellFailedFirmwareUpdate());
+                if(HttpManager.IsInternetAvailable())
+                {
+                    yield return StartCoroutine(TellFailedFirmwareUpdate());
+                } else
+                {
+                    yield return StartCoroutine(TellFailedFirmwareUpdateWhenNoInternet());
+                }
             }
             else
             {
@@ -827,7 +833,7 @@ public class SettingViewController : ViewControllerBase
         }
 
         Debug.Log("DownloadData:" + savePath + " from " + filePath);
-        string downloadUrl = HttpManager.API_DOWNLOAD_URL + "?file_path=../.." + filePath;
+        string downloadUrl = HttpManager.API_DOWNLOAD_URL + "?file_path=" + filePath;
         var downloadTask = HttpManager.DownloadFile(saveFilePath, downloadUrl);
         yield return downloadTask.AsCoroutine();
         Debug.Log(downloadTask.Result ? "Download Success!" : "Download Failed...");
@@ -1980,6 +1986,13 @@ public class SettingViewController : ViewControllerBase
     {
         bool isOk = false;
         MessageDialog.Show("同期に失敗しました。", true, false, () => isOk = true);
+        yield return new WaitUntil(() => isOk);
+    }
+
+    IEnumerator TellFailedFirmwareUpdateWhenNoInternet()
+    {
+        bool isOk = false;
+        MessageDialog.Show("ファームウェアのアップデートに失敗しました。\nネットワーク接続を確認の上、再度お試しください。", true, false, () => isOk = true);
         yield return new WaitUntil(() => isOk);
     }
 

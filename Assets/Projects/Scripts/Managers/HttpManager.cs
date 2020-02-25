@@ -24,9 +24,11 @@ namespace Kaimin.Managers
     {
         public const string HTTP_BASE_URL    = "http://down.one-a.co.jp";
         public const string API_UPLOAD_URL   = HTTP_BASE_URL + "/Welness/legal/api/upload.php";   //Params: device_id, file (FileName_FileID.csv)
-        public const string API_DOWNLOAD_URL = HTTP_BASE_URL + "/Welness/legal/api/download.php"; //Params: file_path (Ex: .../../RD8001/Update/G1D/RD8001G1D_Ver000.000.001.016.bin)
-        public const string API_RESTORE_URL  = HTTP_BASE_URL + "/Welness/legal/api/restore.php";  //Params: device_id, restore_flg
+        public const string API_DOWNLOAD_URL = HTTP_BASE_URL + "/Welness/legal/api/download.php"; //Params: file_path (Ex: /RD8001/Update/G1D/RD8001G1D_Ver000.000.001.016.bin)
+        public const string API_RESTORE_URL  = HTTP_BASE_URL + "/Welness/legal/api/restore.php";  //Params: device_id
+        public const string API_BACKUP_URL   = HTTP_BASE_URL + "/Welness/legal/api/backup.php";   //Params: device_id
         public const string API_DELETE_URL   = HTTP_BASE_URL + "/Welness/legal/api/delete.php";   //Params: device_id, file_name (FileName_FileID.csv)
+        public const string API_DIR_EXIST_URL= HTTP_BASE_URL + "/Welness/legal/api/exist.php";    //Params: directory_path (Ex: /RD8001/Update/H1D, /RD8001/Data/xxx)
 
         public const int HTTP_TIMEOUT = 10000; //タイムアウト時間(sec)（共通） ※デフォルトは150000
 
@@ -121,6 +123,52 @@ namespace Kaimin.Managers
                 response.EnsureSuccessStatusCode();
                 var responseContent = await response.Content.ReadAsStringAsync();
                 Debug.Log("DeleteFileAPI-completet(" + fileName + ")");
+
+                var jsonResult = MiniJSON.Json.Deserialize(responseContent) as Dictionary<string, object>;
+                if (jsonResult.ContainsKey("err_code") && int.Parse(jsonResult["err_code"].ToString()) == 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static async Task<bool> DeleteBackupDataByRename(string deviceId)
+        {
+            using (var client = new HttpClient())
+            {
+                MultipartFormDataContent form = new MultipartFormDataContent();
+                form.Add(new StringContent(deviceId), "device_id");
+
+                Debug.Log("BackupDataAPI-start(" + deviceId + ")");
+                var response = await client.PostAsync($"{API_BACKUP_URL}/", form);
+                response.EnsureSuccessStatusCode();
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Debug.Log("BackupDataAPI-completet(" + deviceId + ")");
+
+                var jsonResult = MiniJSON.Json.Deserialize(responseContent) as Dictionary<string, object>;
+                if (jsonResult.ContainsKey("err_code") && int.Parse(jsonResult["err_code"].ToString()) == 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static async Task<bool> IsDirectoryExist(string directoryPath)
+        {
+            using (var client = new HttpClient())
+            {
+                MultipartFormDataContent form = new MultipartFormDataContent();
+                form.Add(new StringContent(directoryPath), "directory_path");
+
+                Debug.Log("IsDirectoryExistAPI-start(" + directoryPath + ")");
+                var response = await client.PostAsync($"{API_DIR_EXIST_URL}/", form);
+                response.EnsureSuccessStatusCode();
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Debug.Log("IsDirectoryExistAPI-completet(" + directoryPath + ")");
 
                 var jsonResult = MiniJSON.Json.Deserialize(responseContent) as Dictionary<string, object>;
                 if (jsonResult.ContainsKey("err_code") && int.Parse(jsonResult["err_code"].ToString()) == 0)
@@ -265,17 +313,18 @@ namespace Kaimin.Managers
         /// <param name="fileExtension">.mot, .bin</param>
         public static IEnumerator GetLatestFirmwareFileNameByHttp(string firmwareDirectoryPath, Action<string> onGetFileName, string fileExtension, Action<bool> onResponseIsError = null)
         {
-            //FTPサーバー上にファームウェアのディレクトリが存在するか確認する
-            int directoryExistResult = -1;
-            bool isComplete = false;
-            FtpManager.DirectoryExists(firmwareDirectoryPath, (int result) =>
+            bool directoryExistResult = false;
+            if (HttpManager.IsInternetAvailable())
             {
-                directoryExistResult = result;
-                isComplete = true;
-            });
-            yield return new WaitUntil(() => isComplete);
-            Debug.Log(directoryExistResult == 1 ? "G1D directory is Exist!" : "G1D directory is NotExist...");
-            if (directoryExistResult == 1)
+                //HTTPでサーバー上にファームウェアのディレクトリが存在するか確認する
+                var isDirExistTask = HttpManager.IsDirectoryExist(firmwareDirectoryPath);
+                yield return isDirExistTask.AsCoroutine();
+
+                directoryExistResult = isDirExistTask.Result;
+                Debug.Log(directoryExistResult ? "G1D directory is Exist!" : "G1D directory is NotExist...");
+            }
+            
+            if (directoryExistResult)
             {
                 //指定したファームウェアディレクトリの名のファイル名をすべて取得する
                 var getAllFirmwareFileNameList = FtpManager.GetAllList(firmwareDirectoryPath);
