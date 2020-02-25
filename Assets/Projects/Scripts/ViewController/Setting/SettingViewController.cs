@@ -349,9 +349,10 @@ public class SettingViewController : ViewControllerBase
         bool isGetFirmwareFileError = false;
         long g1dVersionInDevice = 0;            //デバイスのファームウェアバージョンを比較しやすいように整数値に変換した値
         long g1dVersionLatest = 0;				//最新のファームウェアバージョンを比較しやすいように整数値に変換した値
-        yield return StartCoroutine(GetLatestFirmwareFileNameFromFtp(
+        yield return StartCoroutine(HttpManager.GetLatestFirmwareFileNameByHttp(
             "/RD8001/Update/G1D",
             (string fileName) => latestG1dFileName = fileName,
+            ".bin",
             (bool _isError) => isGetFirmwareFileError = _isError));
 
         if (latestG1dFileName == null)
@@ -372,8 +373,8 @@ public class SettingViewController : ViewControllerBase
         }
         Debug.Log("Latest G1D Firmware is " + latestG1dFileName);
         // デバイスのファームウェアバージョンと、最新のファームウェアバージョンを比較する
-        g1dVersionInDevice = FirmwareVersionStringToLong(g1dAppVersion);
-        g1dVersionLatest = FirmwareFileNameToVersionLong("/Update/G1D/" + latestG1dFileName);
+        g1dVersionInDevice = HttpManager.FirmwareVersionStringToLong(g1dAppVersion);
+        g1dVersionLatest = HttpManager.FirmwareFileNameToVersionLong("/Update/G1D/" + latestG1dFileName);
         isExistG1DLatestFirmware = g1dVersionLatest > g1dVersionInDevice;
         UpdateDialog.Dismiss();
 
@@ -1901,102 +1902,6 @@ public class SettingViewController : ViewControllerBase
             "いいえ");
         yield return new WaitUntil(() => isOk || isCancel);
         onResponse(isOk);
-    }
-
-    /// <summary>
-    /// FTPサーバーから最新のファームウェアのファイル名を取得する
-    /// </summary>
-    /// <param name="firmwareDirectory">G1D・H1Dのディレクトリパス</param>
-    /// <param name="onGetFileName">目的のファイル名を受け取るコールバック</param>
-    IEnumerator GetLatestFirmwareFileNameFromFtp(string firmwareDirectoryPath, Action<string> onGetFileName, Action<bool> onResponse)
-    {
-        //FTPサーバー上にファームウェアのディレクトリが存在するか確認する
-        int directoryExistResult = -1;
-        bool isComplete = false;
-        FtpManager.DirectoryExists(firmwareDirectoryPath, (int result) =>
-        {
-            directoryExistResult = result;
-            isComplete = true;
-        });
-        yield return new WaitUntil(() => isComplete);
-        Debug.Log(directoryExistResult == 1 ? "G1D directory is Exist!" : "G1D directory is NotExist...");
-        if (directoryExistResult == 1)
-        {
-            //指定したファームウェアディレクトリの名のファイル名をすべて取得する
-            var getAllFirmwareFileNameList = FtpManager.GetAllList(firmwareDirectoryPath);
-            yield return getAllFirmwareFileNameList.AsCoroutine();
-            List<string> firmwareFileNameList = new List<string>();
-            if (getAllFirmwareFileNameList.Result != null)
-            {
-                //取得したものには、ファイル、ディレクトリ、Linkが混在してるためファイルのみを取り出す
-                firmwareFileNameList = getAllFirmwareFileNameList.Result
-                    .Where(data => int.Parse(data[0]) == 0) //ファイルのみ通す
-                    .Select(data => data[1])        //ファイル名に変換
-                    .ToList();
-                //ファイルがあるか確認
-                if (firmwareFileNameList.Count == 0)
-                {
-                    onGetFileName(null);
-                    onResponse(false);
-                    Debug.Log("No firmwareFile.");
-                    yield break;
-                }
-                //ファームウェア以外のファイルをはじく
-                firmwareFileNameList = firmwareFileNameList
-                    .Where(fileName => fileName.Contains(".bin"))
-                    .ToList();
-                //ファイルがあるか確認
-                if (firmwareFileNameList.Count == 0)
-                {
-                    onGetFileName(null);
-                    onResponse(false);
-                    Debug.Log("No firmwareFile.");
-                    yield break;
-                }
-                //取得したディレクトリを確認
-                foreach (var fileName in firmwareFileNameList)
-                {
-                    Debug.Log("GetFile:" + fileName);
-                }
-            }
-            else
-            {
-                //エラー時
-                onGetFileName(null);
-                onResponse(true);
-                yield break;
-            }
-            //ファイル名のリストが取得できれば、その中から最新のものを探す
-            var ratestVersionFileIndex = firmwareFileNameList
-                .Select((fileName, index) => new { FileName = fileName, Index = index })
-                .Aggregate((max, current) => (FirmwareFileNameToVersionLong(max.FileName) > FirmwareFileNameToVersionLong(current.FileName) ? max : current))
-                .Index;
-            onResponse(false);
-            onGetFileName(firmwareFileNameList[ratestVersionFileIndex]);
-            yield break;
-        }
-        onResponse(true);
-        onGetFileName(null);
-    }
-
-    //「000.000.000.000」の形式のバージョンの文字列から整数値に変換する
-    long FirmwareVersionStringToLong(string version)
-    {
-        //ドットを取り除く
-        string versionString = version;
-        versionString = versionString.Replace(".", "");
-        return long.Parse(versionString);
-    }
-
-    //ファームウェアのアップデートファイルのフォルダ名からバージョン情報を抜き出して比較しやすいように整数型にして返す。
-    //その値が大きいものほど新しいバージョン
-    long FirmwareFileNameToVersionLong(string filePath)
-    {
-        string versionString = filePath;                                                //例：/Update/G1D/RD8001G1D_Ver000.000.000.004.mot
-        versionString = versionString.Substring(0, versionString.LastIndexOf('.'));     //例：/Update/G1D/RD8001G1D_Ver000.000.000.004
-        versionString = versionString.Substring(versionString.Length - 15);             //例：000.000.000.004
-        versionString = versionString.Replace(".", "");                                 //例：000000000004
-        return long.Parse(versionString);
     }
 
     /// <summary>

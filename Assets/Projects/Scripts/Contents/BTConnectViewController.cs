@@ -747,7 +747,7 @@ public class BTConnectViewController : ViewControllerBase
         // long h1dVersionInDevice = FarmwareVersionStringToLong (UserDataManager.Device.GetH1DAppVersion ());
         //Ftpサーバーから最新のファームウェアのファイル名を取得
         string ratestH1dFileName = "";
-        yield return StartCoroutine(GetRatestFarmwareFileNameFromFtp("/RD8001/Update/H1D", (string fileName) => ratestH1dFileName = fileName));
+        yield return StartCoroutine(HttpManager.GetLatestFirmwareFileNameByHttp("/RD8001/Update/H1D", (string fileName) => ratestH1dFileName = fileName, ".mot"));
         if (ratestH1dFileName == null)
         {
             //FTPサーバーにファイルが存在しなかった、もしくはエラーが発生したら
@@ -755,105 +755,13 @@ public class BTConnectViewController : ViewControllerBase
             yield break;
         }
         Debug.Log("Ratest H1D Farmware is " + ratestH1dFileName);
+
         if (false)
             DeviceStateManager.Instance.OnFirmwareUpdateNecessary();
         else
             DeviceStateManager.Instance.OnFirmwareUpdateNonNecessary();
         UpdateDialog.Dismiss();
     }
-
-    //「000.000.000.000」の形式のバージョンの文字列から整数値に変換する
-    long FarmwareVersionStringToLong(string version)
-    {
-        //形式が違った場合は-1を返す
-        if (version.Length != 15)
-            return -1;
-        //ドットを取り除く
-        string versionString = version;
-        versionString = versionString.Replace(".", "");
-        return long.Parse(versionString);
-    }
-
-    /// <summary>
-    /// FTPサーバーから最新のファームウェアのファイル名を取得する
-    /// </summary>
-    /// <param name="farmwareDirectory">G1D・H1Dのディレクトリパス</param>
-    /// <param name="onGetFileName">目的のファイル名を受け取るコールバック</param>
-    IEnumerator GetRatestFarmwareFileNameFromFtp(string farmwareDirectoryPath, Action<string> onGetFileName)
-    {
-        //FTPサーバー上にファームウェアのディレクトリが存在するか確認する
-        int directoryExistResult = -1;
-        bool isComplete = false;
-        FtpManager.DirectoryExists(farmwareDirectoryPath, (int result) =>
-        {
-            directoryExistResult = result;
-            isComplete = true;
-        });
-        yield return new WaitUntil(() => isComplete);
-        Debug.Log(directoryExistResult == 1 ? "G1D directory is Exist!" : "G1D directory is NotExist...");
-        if (directoryExistResult == 1)
-        {
-            //指定したファームウェアディレクトリの名のファイル名をすべて取得する
-            var getAllFarmwareFileNameList = FtpManager.GetAllList(farmwareDirectoryPath);
-            yield return getAllFarmwareFileNameList.AsCoroutine();
-            List<string> farmwareFileNameList = new List<string>();
-            if (getAllFarmwareFileNameList.Result != null && getAllFarmwareFileNameList.Result.Count > 0)
-            {
-                //取得したものには、ファイル、ディレクトリ、Linkが混在してるためファイルのみを取り出す
-                farmwareFileNameList = getAllFarmwareFileNameList.Result
-                    .Where(data => int.Parse(data[0]) == 0)	//ファイルのみ通す
-                    .Select(data => data[1])		//ファイル名に変換
-                    .ToList();
-                //ファイルがあるか確認
-                if (farmwareFileNameList.Count == 0)
-                {
-                    onGetFileName(null);
-                    yield break;
-                }
-                //ファームウェア以外のファイルをはじく
-                farmwareFileNameList = farmwareFileNameList
-                    .Where(fileName => fileName.Contains(".mot"))
-                    .ToList();
-                //ファイルがあるか確認
-                if (farmwareFileNameList.Count == 0)
-                {
-                    onGetFileName(null);
-                    yield break;
-                }
-                //取得したディレクトリを確認
-                foreach (var fileName in farmwareFileNameList)
-                {
-                    Debug.Log("GetFile:" + fileName);
-                }
-            }
-            else
-            {
-                //なにかしらのエラーが発生した場合
-                onGetFileName(null);
-                yield break;
-            }
-            //ファイル名のリストが取得できれば、その中から最新のものを探す
-            var ratestVersionFileIndex = farmwareFileNameList
-                .Select((fileName, index) => new { FileName = fileName, Index = index })
-                .Aggregate((max, current) => (FarmwareFileNameToVersionLong(max.FileName) > FarmwareFileNameToVersionLong(current.FileName) ? max : current))
-                .Index;
-            onGetFileName(farmwareFileNameList[ratestVersionFileIndex]);
-            yield break;
-        }
-        onGetFileName(null);
-    }
-
-    //ファームウェアのアップデートファイルのフォルダ名からバージョン情報を抜き出して比較しやすいように整数型にして返す。
-    //その値が大きいものほど新しいバージョン
-    long FarmwareFileNameToVersionLong(string filePath)
-    {
-        string versionString = filePath;													//例：/Update/G1D/RD8001G1D_Ver000.000.000.004.mot
-        versionString = versionString.Substring(0, versionString.LastIndexOf('.'));		//例：/Update/G1D/RD8001G1D_Ver000.000.000.004
-        versionString = versionString.Substring(versionString.Length - 15);				//例：000.000.000.004
-        versionString = versionString.Replace(".", "");									//例：000000000004
-        return long.Parse(versionString);
-    }
-
 
     /// <summary>
     /// デバイス接続の流れ
