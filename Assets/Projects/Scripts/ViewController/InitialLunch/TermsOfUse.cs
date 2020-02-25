@@ -12,14 +12,21 @@ public class TermsOfUse : ViewControllerBase {
     // 画面真ん中のスクロールビュー
 	private ScrollRect scrollRect;
 
-	[SerializeField]
+    [SerializeField]
+    private Button backButton;
+
+    [SerializeField]
+    private GameObject footer;
+    [SerializeField]
+    private GameObject footerNone;
+
+    [SerializeField]
 	// Footerのトグル
 	private Toggle toggle;
 
 	[SerializeField]
 	// 次へボタン
 	private Button nextButton;
-
 
 	[SerializeField]
 	// 利用規約同意テキスト
@@ -28,8 +35,21 @@ public class TermsOfUse : ViewControllerBase {
 
 	protected override void Start () {
 		base.Start ();
-		//prehab.GetComponent<PopUpWebView> ().Url = URL;
-	}
+        //prehab.GetComponent<PopUpWebView> ().Url = URL;
+
+        int tapFromSetting = PlayerPrefs.GetInt("tapFromSetting", 0);
+        if (tapFromSetting == 1)
+        {
+            backButton.gameObject.SetActive(true);
+            footer.SetActive(false);
+            footerNone.SetActive(false);
+        } else //First time
+        {
+            backButton.gameObject.SetActive(false);
+            footer.SetActive(true);
+            footerNone.SetActive(false);
+        }
+    }
 
 	public override SceneTransitionManager.LoadScene SceneTag {
 		get {
@@ -37,10 +57,13 @@ public class TermsOfUse : ViewControllerBase {
 		}
 	}
 
-	////戻るボタンを押した際に実行される
-	//public void OnBackButtonTap () {
-	//	SceneTransitionManager.LoadLevel (SceneTransitionManager.LoadScene.InitialLunch);
-	//}
+	//戻るボタンを押した際に実行される
+	public void OnBackButtonTap () {
+        if(isTapFromSetting())
+        {
+            SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.Setting);
+        }
+	}
 
 	#region Components Action (On Value Changed)
 	// スクロール

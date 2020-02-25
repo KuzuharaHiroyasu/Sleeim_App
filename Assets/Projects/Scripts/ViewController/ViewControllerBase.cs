@@ -43,4 +43,16 @@ public class ViewControllerBase : MonoBehaviour {
 
         return false;
     }
+
+    public bool isTapFromSetting()
+    {
+        int tapFromSetting = PlayerPrefs.GetInt("tapFromSetting", 0);
+        if (tapFromSetting == 1)
+        {
+            PlayerPrefs.SetInt("tapFromSetting", 0); //Reset
+            return true;
+        }
+
+        return false;
+    }
 }

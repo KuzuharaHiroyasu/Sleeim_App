@@ -2108,6 +2108,13 @@ public class SettingViewController : ViewControllerBase
         HelpMailLuncher.Lunch();
     }
 
+    //「利用規約」ボタンが押されると呼び出される
+    public void OnTermsOfUseButtonTap()
+    {
+        PlayerPrefs.SetInt("tapFromSetting", 1);
+        SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.TermsOfUse);
+    }
+
     //「ライセンス情報」ボタンが押されると呼び出される
     public void OnLisenceInfoButtonTap()
     {

@@ -167,7 +167,8 @@ public class SceneTransitionManager : MonoBehaviour {
 		case LoadScene.PrivacyPolicy:
 			return LoadScene.InitialLunch;
 		case LoadScene.TermsOfUse:
-			return LoadScene.InitialLunch;
+            int tapFromSetting = PlayerPrefs.GetInt("tapFromSetting", 0);
+			return tapFromSetting == 1 ? LoadScene.Setting : LoadScene.InitialLunch;
 		case LoadScene.Birth:
 			return LoadScene.Profile;
 		default:
