@@ -540,9 +540,15 @@ class BluetoothSwift: NSObject {
         DispatchQueue.global(qos: .default).async {
             switch self.firmwareUpdateCharacteristicUUID {
             case self.VUARE_FWUP_CONTROL_CHAR_UUID:
-                self.peripheral.writeValue(command,
-                                           for: self.FWUPControlCharacteristic,
+                if (self.FWUPControlCharacteristic != nil) {
+                    self.peripheral.writeValue(command,
+                                            for: self.FWUPControlCharacteristic,
+                                            type: .withResponse)
+                } else if (self.writeCharacteristic != nil) {
+                    self.peripheral.writeValue(command,
+                                           for: self.writeCharacteristic,
                                            type: .withResponse)
+                }
             case self.VUARE_FWUP_DATA_CHAR_UUID:
                 self.peripheral.writeValue(command,
                                            for: self.FWUPDataCharacteristic,
