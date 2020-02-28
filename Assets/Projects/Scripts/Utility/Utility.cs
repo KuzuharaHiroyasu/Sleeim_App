@@ -67,8 +67,8 @@ namespace Kaimin.Common
 			if (db == null) {
 				return null;
 			} else {
-				var sleepTable = db.GetSleepTable ();
-				return sleepTable.SelectDbSleepData().Select (data => {
+                var sleepTable = db.GetSleepTable();
+                return sleepTable.SelectDbSleepData().Select (data => {
 					string dataPath = "";
 					//pathの最後にスラッシュがあれば、取り除く
 					path = ((path.Length - (path.LastIndexOf ('/') + 1)) == 0)
@@ -210,6 +210,68 @@ namespace Kaimin.Common
             {
                 return bytes;
             }
+        }
+
+        //デバイスから取得したデータをリネームしてDBに登録する
+        public static IEnumerator RegistDataToDB(List<string> dataPathList, List<string> dataNameList)
+        {
+            //DB登録
+            string dataPath = Kaimin.Common.Utility.GsDataPath();
+            for (int i = 0; i < dataPathList.Count; i++)
+            {
+                var sleepTable = MyDatabase.Instance.GetSleepTable();
+
+                //仮のファイル名を指定されたファイル名に変更する
+                var renamedFilePath = dataPathList[i];                                                  //例：112233445566/yyyyMM/tmp01.csv
+                renamedFilePath = renamedFilePath.Substring(0, renamedFilePath.LastIndexOf('/') + 1);   //例：112233445566/yyyyMM/
+                renamedFilePath = renamedFilePath + dataNameList[i];                                    //例：112233445566/yyyyMM/20180827092055.csv
+                string fullOriginalFilePath = dataPath + dataPathList[i];
+                string fullRenamedFilePath = dataPath + renamedFilePath;
+
+                //ファイルが存在しているか確認する
+                if (System.IO.File.Exists(fullOriginalFilePath))
+                {
+                    //リネーム後に名前が重複するデータがないか確認する
+                    if (System.IO.File.Exists(fullRenamedFilePath))
+                    {
+                        //既に同じ名前のデータが存在した場合、元あったデータを削除する
+                        System.IO.File.Delete(fullRenamedFilePath);
+                    }
+                    //ファイルを正常に処理できる事が確定したら
+                    System.IO.File.Move(fullOriginalFilePath, fullRenamedFilePath); //リネーム処理
+                }
+                else
+                {
+                    Debug.Log(fullRenamedFilePath + " is not Exist...");
+                }
+
+                //データベースに変更後のファイルを登録する
+                var dateString = dataNameList[i].Substring(0, dataNameList[i].LastIndexOf('.')); ////例：20180827092055
+                Debug.Log("date:" + dateString + ", filePath:" + renamedFilePath);
+                sleepTable.Update(new DbSleepData(dateString, renamedFilePath, false));
+                Debug.Log("Insert Data to DB." + "path:" + renamedFilePath);
+            }
+
+            //DBに正しく保存できてるか確認用
+            //var st = MyDatabase.Instance.GetSleepTable();
+            //foreach (string path in st.SelectAllOrderByAsc().Select(data => data.file_path))
+            //{
+            //    Debug.Log("DB All FilePath:" + path);
+            //}
+
+            yield return null;
+        }
+
+        /**
+         * filePath: /RD8001/Data/112233445566/yyyyMMdd/20180827092055_1.csvのようなファイルパス専用
+         */
+        public static String getDateFromDownloadCsvFilePath(string filePath)
+        {
+            string date = filePath.Substring(filePath.LastIndexOf('/') + 1); //例：20180827092055_1.csv
+            date = date.Substring(0, date.LastIndexOf('.'));                 //例：20180827092055_1  
+            date = date.Substring(0, date.LastIndexOf('_'));                 //例：20180827092055
+
+            return date;
         }
     }
 }

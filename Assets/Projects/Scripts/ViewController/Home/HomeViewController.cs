@@ -536,7 +536,7 @@ public class HomeViewController : ViewControllerBase
             UpdateDialog.Show("同期中");
             //データが1件以上取得できれば
             //データをリネームしてDBに登録
-            yield return StartCoroutine(RegistDataToDB(csvPathList, csvNameList));
+            yield return StartCoroutine(Utility.RegistDataToDB(csvPathList, csvNameList));
             //DBに取得したデータの登録が完了。送信完了コマンドを送信する
             yield return StartCoroutine(FinishGetData());
             //同期時刻を保存(端末の現在時刻を保存して表示させる)
@@ -823,54 +823,6 @@ public class HomeViewController : ViewControllerBase
         bool isOk = false;
         MessageDialog.Show("<size=30>" + getDataCount + "件の睡眠データを取得しました。</size>", true, false, () => isOk = true);
         yield return new WaitUntil(() => isOk);
-    }
-
-    //デバイスから取得したデータをリネームしてDBに登録する
-    IEnumerator RegistDataToDB(List<string> dataPathList, List<string> dataNameList)
-    {
-        //DB登録
-        for (int i = 0; i < dataPathList.Count; i++)
-        {
-            var sleepTable = MyDatabase.Instance.GetSleepTable();
-            //仮のファイル名を指定されたファイル名に変更する
-            string fullOriginalFilePath = "";
-            string fullRenamedFilePath = "";
-            var renamedFilePath = dataPathList[i];                                                  //例：112233445566/yyyyMM/tmp01.csv
-            renamedFilePath = renamedFilePath.Substring(0, renamedFilePath.LastIndexOf('/') + 1);   //例：112233445566/yyyyMM/
-            renamedFilePath = renamedFilePath + dataNameList[i];                                    //例：112233445566/yyyyMM/20180827092055.csv
-            fullOriginalFilePath = Kaimin.Common.Utility.GsDataPath() + dataPathList[i];
-            fullRenamedFilePath = Kaimin.Common.Utility.GsDataPath() + renamedFilePath;
-
-            //ファイルが存在しているか確認する
-            if (System.IO.File.Exists(fullOriginalFilePath))
-            {
-                //リネーム後に名前が重複するデータがないか確認する
-                if (System.IO.File.Exists(fullRenamedFilePath))
-                {
-                    //既に同じ名前のデータが存在した場合、元あったデータを削除する
-                    System.IO.File.Delete(fullRenamedFilePath);
-                }
-                //ファイルを正常に処理できる事が確定したら
-                System.IO.File.Move(fullOriginalFilePath, fullRenamedFilePath);	//リネーム処理
-            }
-            else
-            {
-                Debug.Log(fullRenamedFilePath + " is not Exist...");
-            }
-            //データベースに変更後のファイルを登録する
-            var untilLastDotCount = dataNameList[i].LastIndexOf('.');	//はじめから'.'までの文字数。0はじまり
-            var dateString = dataNameList[i].Substring(0, untilLastDotCount);
-            Debug.Log("date:" + dateString + ", filePath:" + renamedFilePath);
-            sleepTable.Update(new DbSleepData(dateString, renamedFilePath, false));
-            Debug.Log("Insert Data to DB." + "path:" + renamedFilePath);
-        }
-        //DBに正しく保存できてるか確認用
-        var st = MyDatabase.Instance.GetSleepTable();
-        foreach (string path in st.SelectAllOrderByAsc().Select(data => data.file_path))
-        {
-            Debug.Log("DB All FilePath:" + path);
-        }
-        yield return null;
     }
 
     //デバイスが保持しているデータ件数を取得する

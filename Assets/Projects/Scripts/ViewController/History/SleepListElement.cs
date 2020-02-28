@@ -158,7 +158,7 @@ public class SleepListElement : MonoBehaviour {
                 var deleteTask = HttpManager.DeleteFile(deviceId, fileName + "_" + sleepData.file_id + Path.GetExtension(fullFilePath));
                 yield return deleteTask.AsCoroutine();
 
-                if (deleteTask.Result)
+                if (true) //deleteTask.Result
                 {
                     //DBから削除する
                     sleepTable.DeleteFromTable(SleepTable.COL_DATE, fileName);

@@ -143,18 +143,18 @@ public class FtpFunction {
 	}
 
 	//前回のデータを取得し、DBに登録する
-	static IEnumerator RestoreData (MonoBehaviour mono, string deviceAdress) {
+	public static IEnumerator RestoreData (MonoBehaviour mono, string deviceAdress) {
 		Debug.Log ("RestoreData");
 		//同期中の表示
 		UpdateDialog.Show ("同期中");
 		//サーバーにある前回データ全てのファイルパスを取得する
 		List<string> filePathList = new List<string> ();
-		yield return mono.StartCoroutine (GetPriviousDataPathList (deviceAdress, (List<string> _filePathList) => filePathList = _filePathList));
+		yield return mono.StartCoroutine (HttpManager.GetPriviousDataPathList (deviceAdress, (List<string> _filePathList) => filePathList = _filePathList));
 		UpdateDialog.Dismiss ();
 		if (filePathList != null) {
 			//前回データのファイルパスが取得できれば
 			int restoreDataCount = UserDataManager.State.GetRestoreDataCount ();	//既に復元済みのデータ件数
-			yield return mono.StartCoroutine (DownloadServerDatasToRegistDB (mono, filePathList, restoreDataCount));
+			yield return mono.StartCoroutine (DownloadServerDatasToRegistDBByHttp(mono, filePathList, restoreDataCount));
 		} else {
 			//何らかのエラーが発生すれば
 			//復元に失敗した事をユーザーに伝える
@@ -179,26 +179,25 @@ public class FtpFunction {
 		yield return null;
 	}
 
-	//指定したリストでDBに未登録のものを返す
-	//注意；/Data/112233445566/yyyyMMdd/20180827092055.csvのようなファイルパス専用
-	static List<string> GetNoDBRegistDataList (List<string> dataList) {
+    //指定したリストでDBに未登録のものを返す
+    //注意: /RD8001/Data/112233445566/yyyyMMdd/20180827092055_1.csvのようなファイルパス専用
+    static List<string> GetNoDBRegistDataList (List<string> dataList) {
 		var sleepTable = MyDatabase.Instance.GetSleepTable ();
 		List<string> result = new List<string> ();
 		for (int i = 0; i < dataList.Count; i++) {
-			Debug.Log ("file:" + dataList [i]);
-			var filePath = dataList [i];
-			//ファイルパスから日付に変換
-			var date = filePath;								//例：/Data/112233445566/yyyyMMdd/20180827092055.csv
-			var untilLastSlashCount = date.LastIndexOf ('/');	//最後のスラッシュまでの先頭からの文字数
-			date = date.Substring (untilLastSlashCount + 1);	//例：20180827092055.csv
-			var untilLastDotCount = date.LastIndexOf ('.');		//最後のドットまでの先頭からの文字数
-			date = date.Substring (0, untilLastDotCount);		//例：20180827092055
-			//DBに同じデータが存在しているか確認する
-			var data = sleepTable.SelectFromColumn("date", date);
+            var filePath = dataList[i]; //例：/RD8001/Data/112233445566/yyyyMMdd/20180827092055_1.csv
+            Debug.Log ("file:" + filePath); 
+
+            //ファイルパスから日付に変換
+            var date = Kaimin.Common.Utility.getDateFromDownloadCsvFilePath(filePath); //例：20180827092055
+
+            //DBに同じデータが存在しているか確認する
+            var data = sleepTable.SelectFromColumn("date", date);
 			if (data == null) {
 				result.Add (filePath);
-			} 
+			}
 		}
+
 		return result;
 	}
 
@@ -245,14 +244,145 @@ public class FtpFunction {
 		return divideDataList;
 	}
 
-	/// <summary>
-	/// サーバーに存在する指定のパスのファイルを取得して、DBに登録する
+    /// <summary>
+	/// Httpでサーバーに存在する指定のパスのファイルを取得して、DBに登録する
 	/// </summary>
 	/// <returns>The server datas to regist D.</returns>
 	/// <param name="mono">Mono.</param>
 	/// <param name="filePathList">File path list.</param>
 	/// <param name="restoreCount">(復元再開時に使用)復元済みのデータ件数</param> 
-	static IEnumerator DownloadServerDatasToRegistDB (MonoBehaviour mono, List<string> filePathList, int restoreCount = 0) {
+	static IEnumerator DownloadServerDatasToRegistDBByHttp(MonoBehaviour mono, List<string> filePathList, int restoreCount = 0)
+    {
+        Debug.Log("DownloadServerDatasToRegistDB");
+        //スリープしないようにする
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
+        //指定されたファイルパスとDBとを照合してDBに未登録のデータを探し出す
+        List<string> noDBRegistDataList = GetNoDBRegistDataList(filePathList);
+
+        var sleepTable = MyDatabase.Instance.GetSleepTable();
+
+        //進捗ダイアログ表示
+        ProgressDialog.Show("データを復元しています。", noDBRegistDataList.Count + restoreCount, restoreCount);
+        int downloadCompleteDataSum = restoreCount; //ダウンロード完了したデータ件数
+        
+        if (!HttpManager.IsInternetAvailable())
+        {
+            //サーバーとの接続に失敗すれば、ダウンロードに失敗したら、スリープ設定解除
+            Screen.sleepTimeout = SleepTimeout.SystemSetting;
+
+            //進捗ダイアログ終了
+            ProgressDialog.Dismiss();
+
+            //復元に失敗した事をユーザーに伝える
+            yield return mono.StartCoroutine(TellFailedRestoreData());
+            AskReDownloadData(mono, filePathList, downloadCompleteDataSum);
+
+            yield break;
+        }
+
+        foreach(var filePath in noDBRegistDataList)
+        {
+            //filePathの例: /RD8001/Data/112233445566/202002/20180827092055_1.csv
+            var date = Kaimin.Common.Utility.getDateFromDownloadCsvFilePath(filePath); //例：20180827092055
+
+            var dataDirectoryPath = filePath.Replace("/RD8001/Data/", "");
+            dataDirectoryPath = dataDirectoryPath.Substring(0, dataDirectoryPath.LastIndexOf('/') + 1); //例：112233445566/yyyyMMdd/
+            //念のためん、先頭にスラッシュがついてれば、削除する
+            if (dataDirectoryPath.IndexOf('/') == 0)
+                dataDirectoryPath = dataDirectoryPath.Substring(1);
+
+            var dataPath = dataDirectoryPath + date + ".csv";               //例：112233445566/yyyyMM/20180827092055.csv
+            string saveFilePath = Kaimin.Common.Utility.GsDataPath() + dataPath;
+
+            string downloadUrl = HttpManager.API_DOWNLOAD_URL + "?file_path=" + filePath;
+            var downloadTask = HttpManager.DownloadFile(saveFilePath, downloadUrl);
+            yield return downloadTask.AsCoroutine();
+            Debug.Log(downloadTask.Result ? "Download Success!" : "Download Failed...");
+
+            //ダウンロードに成功すれば、ダウンロードしたデータをDBに登録する
+            if (downloadTask.Result)
+            {
+                sleepTable.Update(new DbSleepData(date, dataPath, true));
+                Debug.Log("Insert " + dataPath + " to DB.");
+
+                //データが正常に保存されているか確認する
+                Debug.Log("isExistFile:" + System.IO.File.Exists(saveFilePath));
+
+                //進捗ダイアログ更新
+                downloadCompleteDataSum++;
+                //復元した件数を記録
+                UserDataManager.State.SaveRestoreDataCount(downloadCompleteDataSum);
+                ProgressDialog.UpdateProgress(downloadCompleteDataSum);
+            }
+            else
+            {
+                //ダウンロードに失敗したら
+
+                //スリープ設定解除
+                Screen.sleepTimeout = SleepTimeout.SystemSetting;
+                //進捗ダイアログ終了
+                ProgressDialog.Dismiss();
+
+                //復元に失敗した事をユーザーに伝える
+                yield return mono.StartCoroutine(TellFailedRestoreData());
+                AskReDownloadData(mono, filePathList, downloadCompleteDataSum);
+
+                yield break;
+            }
+        }
+
+        //復元が成功した場合のみここまで到達
+        Debug.Log("RestoreCompleted!!!!!");
+
+        //DB確認
+        Debug.Log("StartCheckDBData----------------------------");
+        var dbFilePathList = Kaimin.Common.Utility.GetAllFiles(Kaimin.Common.Utility.GsDataPath(), "*.csv");
+        foreach (var filePath in dbFilePathList)
+        {
+            Debug.Log("FilePath:" + filePath);
+        }
+        Debug.Log("EndCheckDBData----------------------------");
+
+        //スリープ設定解除
+        Screen.sleepTimeout = SleepTimeout.SystemSetting;
+        //これ以降復元しないように設定
+        UserDataManager.State.SaveNessesaryRestore(false);
+        //進捗ダイアログ終了
+        ProgressDialog.Dismiss();
+        //復元完了した事をユーザーに伝える
+        yield return mono.StartCoroutine(TellCompleteDataRestore());
+    }
+
+    static IEnumerator AskReDownloadData(MonoBehaviour mono, List<string> filePathList, int downloadCompleteDataSum)
+    {
+        #if UNITY_ANDROID
+            bool isShutDownApp = false;
+            yield return mono.StartCoroutine(AskShutDownApp((bool _isShutDownApp) => isShutDownApp = _isShutDownApp));
+            if (isShutDownApp)
+            {
+                //アプリを終了
+                Application.Quit();
+            }
+            else
+            {
+                //終了しないなら、復元処理を再度行う
+                yield return mono.StartCoroutine(DownloadServerDatasToRegistDBByHttp(mono, filePathList, downloadCompleteDataSum));
+            }
+        #elif UNITY_IOS
+			//iOSの場合は、アプリの終了が行えないため確認はせずに再接続する
+			yield return mono.StartCoroutine(DownloadServerDatasToRegistDBByHttp(mono, filePathList, downloadCompleteDataSum));
+        #endif
+    }
+
+    /// <summary>
+    /// サーバーに存在する指定のパスのファイルを取得して、DBに登録する
+    /// </summary>
+    /// <returns>The server datas to regist D.</returns>
+    /// <param name="mono">Mono.</param>
+    /// <param name="filePathList">File path list.</param>
+    /// <param name="restoreCount">(復元再開時に使用)復元済みのデータ件数</param> 
+    static IEnumerator DownloadServerDatasToRegistDB (MonoBehaviour mono, List<string> filePathList, int restoreCount = 0) {
 		Debug.Log ("DownloadServerDatasToRegistDB");
 		//スリープしないようにする
 		Screen.sleepTimeout = SleepTimeout.NeverSleep;
@@ -495,7 +625,7 @@ public class FtpFunction {
 
         if(HttpManager.IsInternetAvailable())
         {
-            var isDirExistTask = HttpManager.IsDirectoryExist("/RD8001/Data/" + deviceAdress);
+            var isDirExistTask = HttpManager.IsDirectoryExist("/RD8001/Data/" + deviceAdress, 1);
             yield return isDirExistTask.AsCoroutine();
 
             result = isDirExistTask.Result ? 1 : 0;

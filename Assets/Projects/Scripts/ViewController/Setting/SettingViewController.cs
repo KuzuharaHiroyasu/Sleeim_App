@@ -832,7 +832,6 @@ public class SettingViewController : ViewControllerBase
             yield break;
         }
 
-        Debug.Log("DownloadData:" + savePath + " from " + filePath);
         string downloadUrl = HttpManager.API_DOWNLOAD_URL + "?file_path=" + filePath;
         var downloadTask = HttpManager.DownloadFile(saveFilePath, downloadUrl);
         yield return downloadTask.AsCoroutine();
@@ -1562,9 +1561,9 @@ public class SettingViewController : ViewControllerBase
             UpdateDialog.Show("同期中");
             //データが1件以上取得できれば
             //データをリネームしてDBに登録
-            yield return StartCoroutine(RegistDataToDB(csvPathList, csvNameList));
-            //DBに取得したデータの登録が完了。送信完了コマンドを送信する
-            yield return StartCoroutine(FinishGetData());
+            yield return StartCoroutine(Kaimin.Common.Utility.RegistDataToDB(csvPathList, csvNameList));
+             //DBに取得したデータの登録が完了。送信完了コマンドを送信する
+             yield return StartCoroutine(FinishGetData());
             UpdateDialog.Dismiss();
             //同期時刻を保存する
             UserDataManager.State.SaveDataReceptionTime(DateTime.Now);
@@ -1598,53 +1597,6 @@ public class SettingViewController : ViewControllerBase
             });
         yield return new WaitUntil(() => isSuccess || isFailed);
         Debug.Log("Getting data is Complete.");
-    }
-
-    //デバイスから取得したデータをリネームしてDBに登録する
-    IEnumerator RegistDataToDB(List<string> dataPathList, List<string> dataNameList)
-    {
-        //DB登録
-        for (int i = 0; i < dataPathList.Count; i++)
-        {
-            var sleepTable = MyDatabase.Instance.GetSleepTable();
-            //仮のファイル名を指定されたファイル名に変更する
-            var filePath = dataPathList[i];                                                     //例：112233445566/yyyyMM/tmp01.csv
-            var untilSlashCountFromLast = filePath.LastIndexOf('/');                            //はじめから最後の'/'までの文字数。0はじまり
-            filePath = filePath.Substring(0, untilSlashCountFromLast + 1);                      //例：112233445566/yyyyMM/
-            filePath = filePath + dataNameList[i];                                              //例：112233445566/yyyyMM/20180827092055.csv
-            var fullOriginalFilePath = Kaimin.Common.Utility.GsDataPath() + dataPathList[i];
-            var fullRenamedFilePath = Kaimin.Common.Utility.GsDataPath() + filePath;
-
-            //ファイルが存在しているか確認する
-            if (System.IO.File.Exists(fullOriginalFilePath))
-            {
-                //リネーム後に名前が重複するデータがないか確認する
-                if (System.IO.File.Exists(fullRenamedFilePath))
-                {
-                    //既に同じ名前のデータが存在した場合、元あったデータを削除する
-                    System.IO.File.Delete(fullRenamedFilePath);
-                }
-                //ファイルを正常に処理できる事が確定したら
-                System.IO.File.Move(fullOriginalFilePath, fullRenamedFilePath); //リネーム処理
-            }
-            else
-            {
-                Debug.Log(filePath + " is not Exist...");
-            }
-            //データベースに変更後のファイルを登録する
-            var untilLastDotCount = dataNameList[i].LastIndexOf('.');   //はじめから'.'までの文字数。0はじまり
-            var dateString = dataNameList[i].Substring(0, untilLastDotCount);
-            Debug.Log("date:" + dateString + ", filePath:" + filePath);
-            sleepTable.Update(new DbSleepData(dateString, filePath, false));
-            Debug.Log("Insert Data to DB." + "path:" + filePath);
-        }
-        //DBに正しく保存できてるか確認用
-        var st = MyDatabase.Instance.GetSleepTable();
-        foreach (string path in st.SelectAllOrderByAsc().Select(data => data.file_path))
-        {
-            Debug.Log("DB All FilePath:" + path);
-        }
-        yield return null;
     }
 
     //デバイスから睡眠データを取得する

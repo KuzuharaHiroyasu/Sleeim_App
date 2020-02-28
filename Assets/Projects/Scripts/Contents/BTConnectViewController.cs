@@ -540,7 +540,7 @@ public class BTConnectViewController : ViewControllerBase
             UpdateDialog.Show("同期中");
             //データが1件以上取得できれば
             //データをリネームしてDBに登録
-            yield return StartCoroutine(homeController.RegistDataToDB(csvPathList, csvNameList));
+            yield return StartCoroutine(Kaimin.Common.Utility.RegistDataToDB(csvPathList, csvNameList));
             //DBに取得したデータの登録が完了。送信完了コマンドを送信する
             yield return StartCoroutine(homeController.FinishGetData());
 

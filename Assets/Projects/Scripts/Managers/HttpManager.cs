@@ -25,7 +25,7 @@ namespace Kaimin.Managers
         public const string HTTP_BASE_URL    = "http://down.one-a.co.jp";
         public const string API_UPLOAD_URL   = HTTP_BASE_URL + "/Welness/legal/api/upload.php";   //Params: device_id, file (FileName_FileID.csv)
         public const string API_DOWNLOAD_URL = HTTP_BASE_URL + "/Welness/legal/api/download.php"; //Params: file_path (Ex: /RD8001/Update/G1D/RD8001G1D_Ver000.000.001.016.bin)
-        public const string API_RESTORE_URL  = HTTP_BASE_URL + "/Welness/legal/api/restore.php";  //Params: device_id
+        public const string API_FILE_LIST_URL= HTTP_BASE_URL + "/Welness/legal/api/list.php";     //Params: directory_path (Ex: /RD8001/Update/H1D, /RD8001/Data/xxx), file_type (0: csv, 1: bin/mot)
         public const string API_BACKUP_URL   = HTTP_BASE_URL + "/Welness/legal/api/backup.php";   //Params: device_id
         public const string API_DELETE_URL   = HTTP_BASE_URL + "/Welness/legal/api/delete.php";   //Params: device_id, file_name (FileName_FileID.csv)
         public const string API_DIR_EXIST_URL= HTTP_BASE_URL + "/Welness/legal/api/exist.php";    //Params: directory_path (Ex: /RD8001/Update/H1D, /RD8001/Data/xxx)
@@ -35,6 +35,9 @@ namespace Kaimin.Managers
         public const int OK = 1; //ステータス：OK
         public const int NG = 0; //ステータス：NG
         public const int ERROR = -1; //ステータス：ERROR
+
+        public const int FILE_TYPE_CSV = 0;
+        public const int FILE_TYPE_BIN = 1;
 
         public static async Task<bool> UploadFile(string deviceId, long fileId, string filePath, string uploadPath = "")
         {
@@ -80,9 +83,14 @@ namespace Kaimin.Managers
             }
         }
 
+        /**
+         * Download file from server to app storage
+         * saveFilePath = "/storage/emulated/0/Android/data/jp.co.onea.sleeim/files/cache/Firmware/RD8001G1D_Ver000.000.001.016.bin" Or
+         * saveFilePath = "/storage/emulated/0/Android/data/jp.co.onea.sleeim/files/749050806CA7/020001/02000101000005.csv"
+         */
         public static async Task<bool> DownloadFile(string saveFilePath, string downloadUrl)
         {
-            //saveFilePath = "/storage/emulated/0/Android/data/jp.co.onea.sleeim/files/RD8001G1D_Ver000.000.001.016.bin";
+            Debug.Log("DownloadData:" + saveFilePath + " from " + downloadUrl);
             try
             {
                 bool isDownloadComplete = false;
@@ -157,12 +165,17 @@ namespace Kaimin.Managers
             return false;
         }
 
-        public static async Task<bool> IsDirectoryExist(string directoryPath)
+        /**
+         * Check directory on server exist or not 
+         * requireNotEmpty = 1: Only return true if directory exists and not empty
+         */
+        public static async Task<bool> IsDirectoryExist(string directoryPath, int requireNotEmpty = 0)
         {
             using (var client = new HttpClient())
             {
                 MultipartFormDataContent form = new MultipartFormDataContent();
                 form.Add(new StringContent(directoryPath), "directory_path");
+                form.Add(new StringContent(requireNotEmpty.ToString()), "require_not_empty");
 
                 Debug.Log("IsDirectoryExistAPI-start(" + directoryPath + ")");
                 var response = await client.PostAsync($"{API_DIR_EXIST_URL}/", form);
@@ -178,6 +191,54 @@ namespace Kaimin.Managers
             }
 
             return false;
+        }
+
+        public static async Task<List<string>> GetFileList(string directoryPath, int fileType, bool isFileNameOnly = false)
+        {
+            if(!HttpManager.IsInternetAvailable())
+            {
+                return null;
+            }
+
+            List<string> fileList = new List<string>();
+
+            using (var client = new HttpClient())
+            {
+                MultipartFormDataContent form = new MultipartFormDataContent();
+                form.Add(new StringContent(directoryPath), "directory_path");
+                form.Add(new StringContent(fileType.ToString()), "file_type");
+
+                Debug.Log("FileListAPI-start(" + directoryPath + ")");
+                var response = await client.PostAsync($"{API_FILE_LIST_URL}/", form);
+                response.EnsureSuccessStatusCode();
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Debug.Log("FileListAPI-completet(" + directoryPath + ")");
+
+                var jsonResult = MiniJSON.Json.Deserialize(responseContent) as Dictionary<string, object>;
+                if (jsonResult.ContainsKey("err_code") && int.Parse(jsonResult["err_code"].ToString()) == 0)
+                {
+                    List<object> filePaths = jsonResult["file_paths"] as List<object>;
+                    if (filePaths != null)
+                    {
+                        if(isFileNameOnly)
+                        {
+                            foreach (var filePath in filePaths)
+                            {
+                                string fileName = filePath.ToString().Substring(filePath.ToString().LastIndexOf('/') + 1);
+                                fileList.Add(fileName);
+                            }
+                        } else
+                        {
+                            foreach (var filePath in filePaths)
+                            {
+                                fileList.Add(filePath.ToString());
+                            }
+                        }
+                    }
+                }
+            }
+
+            return fileList;
         }
 
         public static bool IsInternetAvailable()
@@ -197,6 +258,39 @@ namespace Kaimin.Managers
         {
             string deviceId = shortFilePath.Substring(0, shortFilePath.IndexOf('/'));
             return deviceId;
+        }
+
+        /// <summary>
+        /// サーバーからHttpで前回データのファイルパスを全て取得する
+        /// </summary>
+        /// <param name="deviceAdress">接続しているデバイスのアドレス(MACアドレス)</param>
+        /// <param name="onGetDataPathList">データのパスリスト取得完了時に呼び出されるコールバック。取得失敗時はnull</param> 
+        public static IEnumerator GetPriviousDataPathList(string deviceAdress, Action<List<string>> onGetDataPathList)
+        {
+            Debug.Log("GetPriviousDataPathList");
+            //スリープしないように設定
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
+            if (!HttpManager.IsInternetAvailable())
+            {
+                //接続失敗
+                Debug.Log("Connection Failed...");
+                onGetDataPathList(null);
+                //スリープ設定解除
+                Screen.sleepTimeout = SleepTimeout.SystemSetting;
+                yield break;
+            }
+            Debug.Log("Connection Success");
+
+            var devicePath = "/RD8001/Data/" + deviceAdress;
+            var fileListTask = HttpManager.GetFileList(devicePath, HttpManager.FILE_TYPE_CSV, false);
+            yield return fileListTask.AsCoroutine();
+
+            List<string> fileFullPathList = fileListTask.Result;
+
+            onGetDataPathList(fileFullPathList);
+            //スリープ設定解除
+            Screen.sleepTimeout = SleepTimeout.SystemSetting;
         }
 
         public static IEnumerator UploadUnsendDatasByHttp()
@@ -327,74 +421,46 @@ namespace Kaimin.Managers
             if (directoryExistResult)
             {
                 //指定したファームウェアディレクトリの名のファイル名をすべて取得する
-                var getAllFirmwareFileNameList = FtpManager.GetAllList(firmwareDirectoryPath);
-                yield return getAllFirmwareFileNameList.AsCoroutine();
-                List<string> firmwareFileNameList = new List<string>();
-                if (getAllFirmwareFileNameList.Result != null && getAllFirmwareFileNameList.Result.Count > 0)
+                var firmwareFileNameListTask = HttpManager.GetFileList(firmwareDirectoryPath, HttpManager.FILE_TYPE_BIN, true);
+                yield return firmwareFileNameListTask.AsCoroutine();
+              
+                if (firmwareFileNameListTask.Result != null)
                 {
-                    //取得したものには、ファイル、ディレクトリ、Linkが混在してるためファイルのみを取り出す
-                    firmwareFileNameList = getAllFirmwareFileNameList.Result
-                        .Where(data => int.Parse(data[0]) == 0) //ファイルのみ通す
-                        .Select(data => data[1])        //ファイル名に変換
-                        .ToList();
-
-                    //ファイルがあるか確認
-                    if (firmwareFileNameList.Count == 0)
-                    {
-                        onGetFileName(null);
-                        if(onResponseIsError != null)
-                        {
-                            onResponseIsError(false);
-                        }
-                        Debug.Log("No firmwareFile");
-                        yield break;
-                    }
+                    List<string> firmwareFileNameList = firmwareFileNameListTask.Result;
 
                     //ファームウェア以外のファイルをはじく
                     firmwareFileNameList = firmwareFileNameList
-                        .Where(fileName => fileName.Contains(fileExtension))
-                        .ToList();
+                                            .Where(fileName => fileName.Contains(fileExtension))
+                                            .ToList();
 
                     //ファイルがあるか確認
                     if (firmwareFileNameList.Count == 0)
                     {
                         onGetFileName(null);
-                        if (onResponseIsError != null)
-                        {
-                            onResponseIsError(false);
-                        }
                         Debug.Log("No firmwareFile");
-                        yield break;
+                    } else
+                    {
+                        //取得したディレクトリを確認
+                        //foreach (var fileName in firmwareFileNameList)
+                        //{
+                        //    Debug.Log("GetFile:" + fileName);
+                        //}
+
+                        //ファイル名のリストが取得できれば、その中から最新のものを探す
+                        var ratestVersionFileIndex = firmwareFileNameList
+                            .Select((fileName, index) => new { FileName = fileName, Index = index })
+                            .Aggregate((max, current) => (FirmwareFileNameToVersionLong(max.FileName) > FirmwareFileNameToVersionLong(current.FileName) ? max : current))
+                            .Index;
+
+                        onGetFileName(firmwareFileNameList[ratestVersionFileIndex]);
                     }
 
-                    //取得したディレクトリを確認
-                    foreach (var fileName in firmwareFileNameList)
-                    {
-                        Debug.Log("GetFile:" + fileName);
-                    }
-                }
-                else
-                {
-                    //なにかしらのエラーが発生した場合
-                    onGetFileName(null);
                     if (onResponseIsError != null)
                     {
-                        onResponseIsError(true);
+                        onResponseIsError(false);
                     }
                     yield break;
                 }
-
-                //ファイル名のリストが取得できれば、その中から最新のものを探す
-                var ratestVersionFileIndex = firmwareFileNameList
-                    .Select((fileName, index) => new { FileName = fileName, Index = index })
-                    .Aggregate((max, current) => (FirmwareFileNameToVersionLong(max.FileName) > FirmwareFileNameToVersionLong(current.FileName) ? max : current))
-                    .Index;
-                if (onResponseIsError != null)
-                {
-                    onResponseIsError(false);
-                }
-                onGetFileName(firmwareFileNameList[ratestVersionFileIndex]);
-                yield break;
             }
 
             if (onResponseIsError != null)
