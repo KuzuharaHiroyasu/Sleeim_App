@@ -32,6 +32,11 @@ class DataManager: NSObject {
         var snoreTime: Int
         var apneaTime: Int
         var maxApneaTime: Int
+        var sleepMode: Int
+        var vibrationStrength: Int
+        var snoreSensitivity: Int
+        var apneaSensitivity: Int
+        var suppressionStartTime: Int
     }
 
     /**
@@ -178,7 +183,9 @@ class DataManager: NSObject {
     private let DATA_APNEA_TIME_2: NSInteger = 15
     private let DATA_FRAME_MAX_APHEA_TIME1: NSInteger = 16
     private let DATA_FRAME_MAX_APHEA_TIME2: NSInteger = 17
-    private let DATA_FRAME_LENGTH: NSInteger = 18
+    private let DATA_FRAME_DEVICE_SETTING: NSInteger = 18
+    private let DATA_FRAME_SUPPRESSION_START_TIME: NSInteger = 19
+    private let DATA_FRAME_LENGTH: NSInteger = 20
     // 機器データ解析用
     private let DATA_SLEEP_SNORE_VOLUME1: NSInteger = 1
     private let DATA_SLEEP_SNORE_VOLUME2: NSInteger = 2
@@ -526,6 +533,12 @@ class DataManager: NSObject {
             data1: data[DATA_FRAME_MAX_APHEA_TIME1],
             data2: data[DATA_FRAME_MAX_APHEA_TIME2])
 
+        let sleepMode = Int(data[DATA_FRAME_DEVICE_SETTING] & 0b00000011); //0x03
+        let vibrationStrength = Int((data[DATA_FRAME_DEVICE_SETTING] & 0b00001100) >> 2); //0x0C
+        let snoreSensitivity = Int((data[DATA_FRAME_DEVICE_SETTING] & 0b00110000) >> 4);  //0x30
+        let apneaSensitivity = Int((data[DATA_FRAME_DEVICE_SETTING] & 0b11000000) >> 6);  //0xC0
+        let suppressionStartTime = Int(data[DATA_FRAME_SUPPRESSION_START_TIME] & 0b11111111); //0xff
+
         return FrameData(year: year,
                          month: month,
                          weekDay: weekDay,
@@ -537,7 +550,13 @@ class DataManager: NSObject {
                          apneaDetectionCount: apneaDetectionCount,
                          snoreTime: snoreTime,
                          apneaTime: apneaTime,
-                         maxApneaTime: maxApneaTime)
+                         maxApneaTime: maxApneaTime,
+                         sleepMode: sleepMode,
+                         vibrationStrength: vibrationStrength,
+                         snoreSensitivity: snoreSensitivity,
+                         apneaSensitivity: apneaSensitivity,
+                         suppressionStartTime: suppressionStartTime
+                         )
     }
 
     /**

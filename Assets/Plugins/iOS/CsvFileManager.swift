@@ -36,6 +36,11 @@ class CsvFileManager: NSObject {
         var snoreTime: String
         var apneaTime: String
         var maxApneaTime: String
+        var sleepMode: String
+        var vibrationStrength: String
+        var snoreSensitivity: String
+        var apneaSensitivity: String
+        var suppressionStartTime: String
         var dataLength: String
     }
 
@@ -117,6 +122,11 @@ class CsvFileManager: NSObject {
                                  recordingTimeData.snoreTime,
                                  recordingTimeData.apneaTime,
                                  recordingTimeData.maxApneaTime,
+                                 recordingTimeData.sleepMode,
+                                 recordingTimeData.vibrationStrength,
+                                 recordingTimeData.snoreSensitivity,
+                                 recordingTimeData.apneaSensitivity,
+                                 recordingTimeData.suppressionStartTime,
                                  String(format: "%d", sleepData.count)]
 
         var sleepDataStr = ""
