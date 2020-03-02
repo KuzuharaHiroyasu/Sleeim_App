@@ -824,7 +824,7 @@ class BluetoothSwift: NSObject {
                 let snoreSensitivity = String(format: "%d", ret.snoreSensitivity)
                 let apneaSensitivity = String(format: "%d", ret.apneaSensitivity)
                 let suppressionStartTime = String(format: "%d", ret.suppressionStartTime)
-                
+
                 self.recordingTimeData
                     = CsvFileManager.RecordingTimeData(directoryName: directoryName,
                                                        fileName: fileName,
@@ -836,6 +836,11 @@ class BluetoothSwift: NSObject {
                                                        snoreTime: snoreTime,
                                                        apneaTime: apneaTime,
                                                        maxApneaTime: maxApneaTime,
+                                                       sleepMode: sleepMode,
+                                                       vibrationStrength: vibrationStrength,
+                                                       snoreSensitivity: snoreSensitivity,
+                                                       apneaSensitivity: apneaSensitivity,
+                                                       suppressionStartTime: suppressionStartTime,
                                                        dataLength: "0")
             }
 
