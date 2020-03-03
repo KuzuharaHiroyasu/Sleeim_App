@@ -240,7 +240,25 @@ public class SleepListDataSource : MonoBehaviour
         if (length == 0) {
             return filePaths; //Empty
         }
-        
+
+        if(CSVManager.isInvalidDate(from) && CSVManager.isInvalidDate(to))
+        {
+            for (int i = 0; i < length; i++)
+            {
+                DateTime dt = TransFilePathToDate(sleepFilePathList[i]);
+                if (CSVManager.isInvalidDate(dt))
+                {
+                    filePaths.Add(sleepFilePathList[i]);
+                } else
+                {
+                    break;
+                }
+            }
+
+            return filePaths;
+        }
+
+
         int fromIndex = 0; //Default
         if(from != DateTime.MinValue)
         {
@@ -278,6 +296,7 @@ public class SleepListDataSource : MonoBehaviour
                     {
                         endIndex = i;
                     } else {
+                        endIndex = i - 1;
                         break;
                     }
                 } else {

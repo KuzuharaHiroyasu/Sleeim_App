@@ -1,6 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" package="${applicationId}">
-  <application android:name="jp.co.onea.sleeim.unityandroidplugin.main.MyApplication" android:icon="@drawable/app_icon" android:label="@string/app_name" android:theme="@style/UnityThemeSelector" tools:node="replace" tools:replace="android:theme">
+  <application android:name="jp.co.onea.sleeim.unityandroidplugin.main.MyApplication" android:icon="@drawable/app_icon" android:label="@string/app_name" 
+	android:allowBackup="false" android:fullBackupContent="false" android:fullBackupOnly="false"
+	android:theme="@style/UnityThemeSelector" tools:node="replace" tools:replace="android:theme">
     <!-- Android : Native -->
     <!-- MainActivity : for Permission Check -->
     <activity android:name="jp.co.onea.sleeim.unityandroidplugin.main.MainActivity" android:label="@string/app_name" android:hardwareAccelerated="true">

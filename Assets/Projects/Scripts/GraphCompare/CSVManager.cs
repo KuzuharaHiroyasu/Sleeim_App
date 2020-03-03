@@ -261,7 +261,7 @@ public class CSVManager
 
     public static bool isInvalidDate(DateTime dateTime)
     {
-        return dateTime.Year <= 1900;
+        return dateTime.Year <= 2016;
     }
 
     public static string ConvertTimeToHHMM(DateTime dateTime)
