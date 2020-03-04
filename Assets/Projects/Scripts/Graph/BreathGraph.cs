@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using UniRx;
 using UnityEngine.UI;
+using System;
 
 namespace Graph
 {
@@ -60,17 +61,17 @@ namespace Graph
             /// <summary>
             /// 呼吸状態1
             /// </summary>
-            public SleepData.BreathState BreathState1 { get; }
+            public SleepData.BreathState BreathState1 { get; set; }
 
             /// <summary>
             /// 呼吸状態2
             /// </summary>
-            public SleepData.BreathState BreathState2 { get; }
+            public SleepData.BreathState BreathState2 { get; set; }
 
             /// <summary>
             /// 呼吸状態3
             /// </summary>
-            public SleepData.BreathState BreathState3 { get; }
+            public SleepData.BreathState BreathState3 { get; set; }
 
             /// <summary>
             /// 頭の向き1
@@ -144,6 +145,25 @@ namespace Graph
             public SleepData.BreathState GetBreathState3()
             {
                 return this.BreathState3;
+            }
+
+
+            /// <summary>
+            /// 呼吸状態を不明に変更します
+            /// </summary>
+            public void setBreathState(int n) 
+            {
+                switch (n) {
+                    case 0:
+                    this.BreathState1 = SleepData.BreathState.Empty;
+                    break;
+                    case 1:
+                    this.BreathState2 = SleepData.BreathState.Empty;
+                    break;
+                    case 2:
+                    this.BreathState3 = SleepData.BreathState.Empty;
+                    break;
+                }
             }
         }
 
@@ -382,7 +402,8 @@ namespace Graph
             SleepData.BreathState[] sortedBreathState = {
                 SleepData.BreathState.Normal,
                 SleepData.BreathState.Snore,
-                SleepData.BreathState.Apnea
+                SleepData.BreathState.Apnea,
+                SleepData.BreathState.Empty
             };
             int addCount = 0;	//グラフの右端に余裕を持たせるために追加する値
             foreach (SleepData.HeadDir headDir in System.Enum.GetValues(typeof(SleepData.HeadDir)))
@@ -517,6 +538,92 @@ namespace Graph
         List<LabelData> TransSensingDataToLabelData(List<BreathGraph.Data> dataList)
         {
             List<LabelData> labelDataList = new List<LabelData>();
+
+            bool DuringMukokyuu = false;
+            bool DuringOverMukokyuu = false;
+            int mukokyuuStartRow = 0;
+            int mukokyuuStartRow2 = 0;
+            int overMukokyuuTime = 60 * 3;  // 3分以上の無呼吸状態は不明とする
+            DateTime mukokyuuStartTime;
+            for (int i=0;i<dataList.Count;i++) {
+                BreathGraph.Data data = dataList[i];
+                for (int j=0;j<3;j++) {
+                    if (IsEndMukokyuu(data,j)) {
+                        if (DuringMukokyuu && !DuringOverMukokyuu) {
+                            if (j == 0) {
+                                if (Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,data.GetTime().Value) > overMukokyuuTime){
+                                    DuringOverMukokyuu = true;
+                                    BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
+                                }
+                            }
+                            else if (j == 1) {
+                                if (Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,data.GetTime().Value.AddSeconds(10)) > overMukokyuuTime){
+                                    DuringOverMukokyuu = true;
+                                    BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
+                                }
+                            }
+                            else if (j == 2) {
+                                if (Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,data.GetTime().Value.AddSeconds(20)) > overMukokyuuTime){
+                                    DuringOverMukokyuu = true;
+                                    BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
+                                }
+                            }
+                        }
+
+                        DuringMukokyuu = false;
+                        DuringOverMukokyuu = false;
+                    }
+                    else if (DuringOverMukokyuu) {
+                        Debug.Log("mukomukokyuu over");
+                        dataList[i].setBreathState(j);
+                    }
+                    else if (DuringMukokyuu){
+                        Debug.Log("mukomukokyuu");
+                        if (j == 0) {
+                            if (Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,data.GetTime().Value) > overMukokyuuTime){
+                                DuringOverMukokyuu = true;
+                                BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
+                                dataList[i].BreathState1 = SleepData.BreathState.Empty;
+                            }
+                        }
+                        else if (j == 1) {
+                            if (Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,data.GetTime().Value.AddSeconds(10)) > overMukokyuuTime){
+                                DuringOverMukokyuu = true;
+                                BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
+                                dataList[i].BreathState2 = SleepData.BreathState.Empty;
+                            }
+                        }
+                        else if (j == 2) {
+                            if (Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,data.GetTime().Value.AddSeconds(20)) > overMukokyuuTime){
+                                DuringOverMukokyuu = true;
+                                BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
+                                dataList[i].BreathState3 = SleepData.BreathState.Empty;
+                            }
+                        }
+                    }
+                    else {
+                        if (data.GetBreathState1() == SleepData.BreathState.Apnea && j == 0) {
+                            mukokyuuStartTime = data.GetTime().Value;
+                            mukokyuuStartRow = i;
+                            mukokyuuStartRow2 = j;
+                            DuringMukokyuu = true;
+                        }
+                        else if (data.GetBreathState2() == SleepData.BreathState.Apnea && j == 1) {
+                            mukokyuuStartTime = data.GetTime().Value.AddSeconds(10);
+                            mukokyuuStartRow = i;
+                            mukokyuuStartRow2 = j;
+                            DuringMukokyuu = true;
+                        }
+                        else if (data.GetBreathState3() == SleepData.BreathState.Apnea && j == 2) {
+                            mukokyuuStartTime = data.GetTime().Value.AddSeconds(20);
+                            mukokyuuStartRow = i;
+                            mukokyuuStartRow2 = j;
+                            DuringMukokyuu = true;
+                        }
+                    }
+                }
+                
+            }
             foreach (BreathGraph.Data data in dataList)
             {
                 labelDataList.Add(new LabelData(1f, MatchLabelBreathState1(data)));
@@ -527,6 +634,44 @@ namespace Graph
                 s => s == null
             );
             return labelDataList;
+        }
+
+        bool IsEndMukokyuu(BreathGraph.Data data,int j){
+            if (j == 0 && data.GetBreathState1() != SleepData.BreathState.Apnea){
+                return true;
+            }
+            else if (j == 1 && data.GetBreathState2() != SleepData.BreathState.Apnea){
+                return true;
+            }
+            else if (j == 2 && data.GetBreathState3() != SleepData.BreathState.Apnea){
+                return true;
+            }
+            return false;
+        }
+
+        void BreathStateApneaToEmpty(int startRow,int startRow2,int endRow,int endRow2){
+            
+            
+            dataList[startRow].BreathState3 = SleepData.BreathState.Empty;
+            if (startRow2 <= 1) {
+                dataList[startRow].BreathState2 = SleepData.BreathState.Empty;
+                if (startRow2 == 0) {
+                    dataList[startRow].BreathState1 = SleepData.BreathState.Empty;
+                }
+            }
+            for (int i = startRow + 1;i<endRow;i++){
+                Debug.Log("over the time");
+                    dataList[i].BreathState1 = SleepData.BreathState.Empty;
+                    dataList[i].BreathState2 = SleepData.BreathState.Empty;
+                    dataList[i].BreathState3 = SleepData.BreathState.Empty;
+            }
+            if (endRow2 >= 1) {
+                dataList[endRow].BreathState1 = SleepData.BreathState.Empty;
+                if (endRow2 == 2) {
+                    dataList[endRow].BreathState2 = SleepData.BreathState.Empty;
+                }
+            }
+
         }
 
         /// <summary>
