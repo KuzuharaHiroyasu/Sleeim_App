@@ -114,6 +114,24 @@ namespace Graph
                 return this.time;
             }
 
+
+            /// <summary>
+            /// データの検知時間を取得します
+            /// n=1の場合10秒後、n=2の場合20秒後を取得
+            /// </summary>
+            public DateTime GetTimeValue(int n)
+            {
+                switch (n){
+                    case 1:
+                        return this.time.Value.AddSeconds(10);
+                    case 2:
+                        return this.time.Value.AddSeconds(20);
+                    default:
+                        return this.time.Value;
+                    
+                }
+            }
+
             /// <summary>
             /// 酸素量(0~100%)を取得します
             /// </summary>
@@ -539,91 +557,57 @@ namespace Graph
         {
             List<LabelData> labelDataList = new List<LabelData>();
 
-            bool DuringMukokyuu = false;
-            bool DuringOverMukokyuu = false;
+            bool DuringMukokyuu = false;    // 無呼吸状態フラグ
             int mukokyuuStartRow = 0;
             int mukokyuuStartRow2 = 0;
-            int overMukokyuuTime = 60 * 3;  // 3分以上の無呼吸状態は不明とする
+            int MAX_MUKOKYU_CONTINUOUS_TIME = 60 * 3;  // 3分以上の無呼吸状態は不明とする
             DateTime mukokyuuStartTime;
+            long mukokyuContinuousTime = 0;
             for (int i=0;i<dataList.Count;i++) {
-                BreathGraph.Data data = dataList[i];
-                for (int j=0;j<3;j++) {
-                    if (IsEndMukokyuu(data,j)) {
-                        if (DuringMukokyuu && !DuringOverMukokyuu) {
-                            if (j == 0) {
-                                if (Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,data.GetTime().Value) > overMukokyuuTime){
-                                    DuringOverMukokyuu = true;
-                                    BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
-                                }
-                            }
-                            else if (j == 1) {
-                                if (Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,data.GetTime().Value.AddSeconds(10)) > overMukokyuuTime){
-                                    DuringOverMukokyuu = true;
-                                    BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
-                                }
-                            }
-                            else if (j == 2) {
-                                if (Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,data.GetTime().Value.AddSeconds(20)) > overMukokyuuTime){
-                                    DuringOverMukokyuu = true;
-                                    BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
-                                }
-                            }
-                        }
+                BreathGraph.Data item = dataList[i];
+                // statesはitemの0秒後、10秒後、20秒後の状態
+                SleepData.BreathState[] states = {item.GetBreathState1(), item.GetBreathState2(), item.GetBreathState3()};
+                for (int j=0;j<states.Length;j++) {
+                    var state = states[j];
 
-                        DuringMukokyuu = false;
-                        DuringOverMukokyuu = false;
-                    }
-                    else if (DuringOverMukokyuu) {
-                        Debug.Log("mukomukokyuu over");
-                        dataList[i].setBreathState(j);
-                    }
-                    else if (DuringMukokyuu){
-                        Debug.Log("mukomukokyuu");
-                        if (j == 0) {
-                            if (Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,data.GetTime().Value) > overMukokyuuTime){
-                                DuringOverMukokyuu = true;
-                                BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
-                                dataList[i].BreathState1 = SleepData.BreathState.Empty;
-                            }
-                        }
-                        else if (j == 1) {
-                            if (Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,data.GetTime().Value.AddSeconds(10)) > overMukokyuuTime){
-                                DuringOverMukokyuu = true;
-                                BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
-                                dataList[i].BreathState2 = SleepData.BreathState.Empty;
-                            }
-                        }
-                        else if (j == 2) {
-                            if (Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,data.GetTime().Value.AddSeconds(20)) > overMukokyuuTime){
-                                DuringOverMukokyuu = true;
-                                BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
-                                dataList[i].BreathState3 = SleepData.BreathState.Empty;
-                            }
+
+                    if (state == SleepData.BreathState.Apnea)
+                    {
+                        if (!DuringMukokyuu)
+                        {
+                            DuringMukokyuu = true;
+                            mukokyuuStartTime = item.GetTimeValue(j);
+                            mukokyuuStartRow = i;
+                            mukokyuuStartRow2 = j;
+                        } else
+                        {
+                            mukokyuContinuousTime = Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,item.GetTimeValue(j));
+                            
                         }
                     }
                     else {
-                        if (data.GetBreathState1() == SleepData.BreathState.Apnea && j == 0) {
-                            mukokyuuStartTime = data.GetTime().Value;
-                            mukokyuuStartRow = i;
-                            mukokyuuStartRow2 = j;
-                            DuringMukokyuu = true;
+                        if (mukokyuContinuousTime > MAX_MUKOKYU_CONTINUOUS_TIME) //無呼吸状態が3分(180s)以上続いている場合
+                        {
+                            // 無呼吸開始から終了までの無呼吸状態を「無呼吸」から「不明」に変更
+                            BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
                         }
-                        else if (data.GetBreathState2() == SleepData.BreathState.Apnea && j == 1) {
-                            mukokyuuStartTime = data.GetTime().Value.AddSeconds(10);
-                            mukokyuuStartRow = i;
-                            mukokyuuStartRow2 = j;
-                            DuringMukokyuu = true;
-                        }
-                        else if (data.GetBreathState3() == SleepData.BreathState.Apnea && j == 2) {
-                            mukokyuuStartTime = data.GetTime().Value.AddSeconds(20);
-                            mukokyuuStartRow = i;
-                            mukokyuuStartRow2 = j;
-                            DuringMukokyuu = true;
-                        }
+                        //Reset
+                        mukokyuContinuousTime = 0;
+                        DuringMukokyuu = false;
                     }
+
                 }
                 
             }
+
+
+        //Check when end of file
+        if (mukokyuContinuousTime > MAX_MUKOKYU_CONTINUOUS_TIME) //無呼吸状態が3分(180s)以上続いている場合
+        {
+            // 無呼吸開始から終了までの無呼吸状態を「無呼吸」から「不明」に変更
+            BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,dataList.Count,0);
+        }
+
             foreach (BreathGraph.Data data in dataList)
             {
                 labelDataList.Add(new LabelData(1f, MatchLabelBreathState1(data)));
@@ -660,7 +644,6 @@ namespace Graph
                 }
             }
             for (int i = startRow + 1;i<endRow;i++){
-                Debug.Log("over the time");
                     dataList[i].BreathState1 = SleepData.BreathState.Empty;
                     dataList[i].BreathState2 = SleepData.BreathState.Empty;
                     dataList[i].BreathState3 = SleepData.BreathState.Empty;
