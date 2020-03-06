@@ -244,7 +244,7 @@ class BluetoothSwift: NSObject {
                 // 同一端末の場合
                 BluetoothPlugin.shared.callBackConnectionPeripheral(self.peripheral.identifier.description,
                                                                     deviceName: DEVICE_NAME,
-                                                                    address: "")
+                                                                    address: self.getDeviceAddress(identifier: peripheral.identifier))
                 return
             } else {
                 // 機器を切断する
@@ -937,6 +937,8 @@ class BluetoothSwift: NSObject {
             var isOK : ObjCBool = false
             if let ret = DataManager.shared.dataAnalysisDeviceStatus(data, isOK: &isOK) {
                 if isOK.boolValue {
+                    UserDefaults.standard.set(ret.address.separate(every: 2, with: ":"), forKey: "address_" + peripheral.identifier.uuidString)
+                    
                     BluetoothPlugin.shared.callBackDeviceStatus(ret.address,
                                                                 dataCount: ret.dataCount,
                                                                 year: ret.year,
@@ -1106,12 +1108,7 @@ extension BluetoothSwift: CBCentralManagerDelegate {
         // TODO: 必要？
 //        // ヒットしたのでタイムアウトキャンセル
 //        self.scanStop()
-
-        if !searchPeripheralArray.contains(peripheral) {
-            // 検知済みでない場合
-            self.searchPeripheralArray.append(peripheral)
-        }
-
+        
         guard let name = advertisementData[CBAdvertisementDataLocalNameKey] as? String else {
             return
         }
@@ -1127,11 +1124,16 @@ extension BluetoothSwift: CBCentralManagerDelegate {
                 deviceName = name
             }
         }
+        
+        if !searchPeripheralArray.contains(peripheral) {
+           // 検知済みでない場合
+           self.searchPeripheralArray.append(peripheral)
+        }
 
         if let index = searchPeripheralArray.index(of: peripheral) {
             // 検索結果を送信
             BluetoothPlugin.shared.callBackDeviceInfo(deviceName,
-                                                      address: "",
+                                                      address: self.getDeviceAddress(identifier: peripheral.identifier),
                                                       index: index)
         }
     }
@@ -1148,6 +1150,12 @@ extension BluetoothSwift: CBCentralManagerDelegate {
         // サービス検索 バックグラウンド実行は引数指定しないといけない
         let uuidArray = [CBUUID(string: self.serviceUUID)]
         peripheral.discoverServices(uuidArray)
+    }
+    
+    func getDeviceAddress(identifier: UUID)  -> String {
+        let address = UserDefaults.standard.value(forKey: "address_" + identifier.uuidString) as? String
+        
+        return address == nil ? "" : address!
     }
 
     /**
@@ -1262,7 +1270,7 @@ extension BluetoothSwift: CBPeripheralDelegate {
                 self.timeoutCancel()
                 BluetoothPlugin.shared.callBackConnectionPeripheral(self.peripheral.identifier.description,
                                                                     deviceName: DEVICE_NAME,
-                                                                    address: "")
+                                                                    address: self.getDeviceAddress(identifier: peripheral.identifier))
                 continue
             }
             if characteristic.uuid == indicationUuid {
@@ -1318,7 +1326,7 @@ extension BluetoothSwift: CBPeripheralDelegate {
             timeoutCancel()
             BluetoothPlugin.shared.callBackConnectionPeripheral(self.peripheral.identifier.description,
                                                                 deviceName: DEVICE_NAME,
-                                                                address: "")
+                                                                address: self.getDeviceAddress(identifier: peripheral.identifier))
         }
     }
 
@@ -1345,5 +1353,11 @@ extension BluetoothSwift: CBPeripheralDelegate {
             // 書き込み成功
             BluetoothPlugin.shared.callBackWrite(commandId, isOK: true)
         }
+    }
+}
+
+extension String {
+    func separate(every stride: Int = 4, with separator: Character = " ") -> String {
+        return String(enumerated().map { $0 > 0 && $0 % stride == 0 ? [separator, $1] : [$1]}.joined())
     }
 }
