@@ -309,6 +309,12 @@ namespace Graph
 					line750ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
 					line1000ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
 
+                    // 最初の拡大縮小ボタンの設定
+                    if (!onceDisplayFlag) {
+                        MinusButton.GetComponent<GraphMiniManager>().setDisActive();
+                        PlusButton.GetComponent<GraphBigManager>().setActive();
+                    }
+
 					StartCoroutine ("UpdateGraphPosition");
 					SeriesObject.SetActive (false);
 
@@ -566,7 +572,7 @@ namespace Graph
 			return _sleepingTime;
 		}
 
-		private bool scrollFlag = true;
+		private bool scrollFlag = false;
 
 		public bool IsScroll() {
 			return scrollFlag;
