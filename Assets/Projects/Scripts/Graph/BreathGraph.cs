@@ -557,12 +557,12 @@ namespace Graph
         {
             List<LabelData> labelDataList = new List<LabelData>();
 
-            bool DuringMukokyuu = false;    // 無呼吸状態フラグ
             int mukokyuuStartRow = 0;
             int mukokyuuStartRow2 = 0;
-            int MAX_MUKOKYU_CONTINUOUS_TIME = 60 * 3;  // 3分以上の無呼吸状態は不明とする
-            DateTime mukokyuuStartTime;
+
+            long mukokyuStartTime = 0;
             long mukokyuContinuousTime = 0;
+
             for (int i=0;i<dataList.Count;i++) {
                 BreathGraph.Data item = dataList[i];
                 // statesはitemの0秒後、10秒後、20秒後の状態
@@ -570,43 +570,39 @@ namespace Graph
                 for (int j=0;j<states.Length;j++) {
                     var state = states[j];
 
-
                     if (state == SleepData.BreathState.Apnea)
                     {
-                        if (!DuringMukokyuu)
+                        long tmpTime = ((System.DateTimeOffset)item.GetTimeValue(j)).ToUnixTimeSeconds();
+                        if (mukokyuStartTime == 0)
                         {
-                            DuringMukokyuu = true;
-                            mukokyuuStartTime = item.GetTimeValue(j);
+                            mukokyuStartTime = tmpTime - 10;
                             mukokyuuStartRow = i;
                             mukokyuuStartRow2 = j;
                         } else
                         {
-                            mukokyuContinuousTime = Graph.Time.GetDateDifferencePerSecond(mukokyuuStartTime,item.GetTimeValue(j));
-                            
+                            mukokyuContinuousTime = tmpTime - mukokyuStartTime;
                         }
                     }
                     else {
-                        if (mukokyuContinuousTime > MAX_MUKOKYU_CONTINUOUS_TIME) //無呼吸状態が3分(180s)以上続いている場合
+                        if (mukokyuContinuousTime > CSVManager.MAX_MUKOKYU_CONTINUOUS_TIME) //無呼吸状態が3分(180s)以上続いている場合
                         {
                             // 無呼吸開始から終了までの無呼吸状態を「無呼吸」から「不明」に変更
                             BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,i,j);
                         }
+
                         //Reset
                         mukokyuContinuousTime = 0;
-                        DuringMukokyuu = false;
+                        mukokyuStartTime = 0;
                     }
-
                 }
-                
             }
 
-
-        //Check when end of file
-        if (mukokyuContinuousTime > MAX_MUKOKYU_CONTINUOUS_TIME) //無呼吸状態が3分(180s)以上続いている場合
-        {
-            // 無呼吸開始から終了までの無呼吸状態を「無呼吸」から「不明」に変更
-            BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,dataList.Count,0);
-        }
+            //Check when end of file
+            if (mukokyuContinuousTime > CSVManager.MAX_MUKOKYU_CONTINUOUS_TIME) //無呼吸状態が3分(180s)以上続いている場合
+            {
+                // 無呼吸開始から終了までの無呼吸状態を「無呼吸」から「不明」に変更
+                BreathStateApneaToEmpty(mukokyuuStartRow,mukokyuuStartRow2,dataList.Count,0);
+            }
 
             foreach (BreathGraph.Data data in dataList)
             {

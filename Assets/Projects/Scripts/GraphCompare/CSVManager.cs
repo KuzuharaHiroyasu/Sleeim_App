@@ -5,7 +5,7 @@ using System.IO;
 
 public class CSVManager
 {
-    const int MAX_MUKOKYU_CONTINUOUS_TIME = 180; //無呼吸状態が３分(180s)以上続いている箇所は不明状態にする
+    public const int MAX_MUKOKYU_CONTINUOUS_TIME = 180; //無呼吸状態が３分(180s)以上続いている箇所は不明状態にする
 
     /**
      * Get list of all csv files in app order by name (date)
@@ -112,7 +112,7 @@ public class CSVManager
         float numMukokyu = 0;
         float numFumei = 0;
 
-        //無呼吸状態が５分(300s)以上続いている箇所は不明状態にする
+        //無呼吸状態が3分(180s)以上続いている箇所は不明状態にする
         float numFumeiAble = 0; // 不明に変更される可能性のある無呼吸の数
         long mukokyuContinuousTime = 0;
         long mukokyuStartTime = 0;
@@ -135,7 +135,7 @@ public class CSVManager
                     
                     if (mukokyuStartTime == 0)
                     {
-                        mukokyuStartTime = tmpTimes[i];
+                        mukokyuStartTime = tmpTimes[i] - 10;
                     } else
                     {
                         mukokyuContinuousTime = tmpTimes[i] - mukokyuStartTime;
