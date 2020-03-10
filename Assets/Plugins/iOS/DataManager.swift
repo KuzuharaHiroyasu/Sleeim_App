@@ -576,19 +576,19 @@ class DataManager: NSObject {
         let snoreVol2 = Int(data[DATA_SLEEP_SNORE_VOLUME2])
         let snoreVol3 = Int(data[DATA_SLEEP_SNORE_VOLUME3])
         // 呼吸状態
-        let breathingState1 = Int((data[DATA_SLEEP_STATE] & 0b11000000) >> 6)
-        let breathingState2 = Int((data[DATA_SLEEP_STATE] & 0b00110000) >> 4)
-        let breathingState3 = Int((data[DATA_SLEEP_STATE] & 0b00001100) >> 2)
+        let breathingState1 = Int((data[DATA_SLEEP_STATE] & 0b00000011))
+        let breathingState2 = Int((data[DATA_SLEEP_STATE] & 0b00001100) >> 2)
+        let breathingState3 = Int((data[DATA_SLEEP_STATE] & 0b00110000) >> 4)
         // 睡眠ステージ
-        let sleepStage = Int((data[DATA_SLEEP_STATE] & 0b00000011))
+        let sleepStage = Int((data[DATA_SLEEP_STATE] & 0b11000000) >> 6)
         // 首の向き
-        let neckDirection1 = Int((data[DATA_SLEEP_NECK_DIRECTION] & 0b11000000) >> 6)
-        let neckDirection2 = Int((data[DATA_SLEEP_NECK_DIRECTION] & 0b00110000) >> 4)
-        let neckDirection3 = Int((data[DATA_SLEEP_NECK_DIRECTION] & 0b00001100) >> 2)
+        let neckDirection1 = Int((data[DATA_SLEEP_NECK_DIRECTION] & 0b00000011))
+        let neckDirection2 = Int((data[DATA_SLEEP_NECK_DIRECTION] & 0b00001100) >> 2)
+        let neckDirection3 = Int((data[DATA_SLEEP_NECK_DIRECTION] & 0b00110000) >> 4)
         // フォトセンサー
         let photoSensor1 = Int(data[DATA_PHOTO_SENSOR1])
-        let photoSensor2 = Int(data[DATA_PHOTO_SENSOR1])
-        let photoSensor3 = Int(data[DATA_PHOTO_SENSOR1])
+        let photoSensor2 = Int(data[DATA_PHOTO_SENSOR2])
+        let photoSensor3 = Int(data[DATA_PHOTO_SENSOR3])
 
         return SleepData(
             snoreVolume1: snoreVol1,
