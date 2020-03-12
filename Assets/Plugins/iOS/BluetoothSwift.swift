@@ -1155,7 +1155,7 @@ extension BluetoothSwift: CBCentralManagerDelegate {
     func getDeviceAddress(identifier: UUID)  -> String {
         let address = UserDefaults.standard.value(forKey: "address_" + identifier.uuidString) as? String
         
-        return address == nil ? "" : address!
+        return address == nil ? "iOS_" + identifier.uuidString : address!
     }
 
     /**

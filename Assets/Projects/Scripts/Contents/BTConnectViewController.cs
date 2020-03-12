@@ -227,13 +227,15 @@ public class BTConnectViewController : ViewControllerBase
         /// NOTE: whileループをやめれば、1台だけの検索になります
         /// </summary>
         List<string> listDeviceAdress = new List<string>();	//リストに追加したデバイスのアドレスリスト
+
+        //For iOS
+        Dictionary<string, string[]> deviceList = new Dictionary<string, string[]>(); //Dict (deviceAddress -> (DeviceName, DeviceIndex))
+
         bool? isContinue = null;
         string receiveData = "";
-#if UNITY_ANDROID
-        // iODはデバイスアドレスが取得できないため、複数検知しない
+
         while (true)
         {
-#endif
             isContinue = null;       // BLEデバイス検索結果判定に使用する
             BluetoothManager.Instance.ScanBleDevice(
                 (string data) =>
@@ -247,7 +249,7 @@ public class BTConnectViewController : ViewControllerBase
                     //発見したデバイス情報読み出し
                     var json = Json.Deserialize(data) as Dictionary<string, object>;
                     string deviceName = (string)json["KEY1"];
-                    string deviceAdress = (string)json["KEY2"];
+                    string deviceAdress = (string)json["KEY2"]; //iOSの場合、deviceAdressはiOS_UUID(未接続時)、もしくは、アドレス(接続後) 
                     int deviceIndex = 0;    //iOSのみで使用するデバイス識別番号
 #if UNITY_IOS
                     //どのデバイスと接続するか決定するデバイス識別番号を取得(iOSのみでしか取得できない)
@@ -263,36 +265,52 @@ public class BTConnectViewController : ViewControllerBase
                         //リストに追加する
                         listDeviceAdress.Add(deviceAdress);
                         // TODO: 試験的に、デバイス名とともにデバイスアドレスを表示する。仕様ではないため、お客様からの指示で下の一行を削除する
-                        // iOSはデバイスアドレスが取得できないため、表示しない(できない)
-                        if (deviceAdress != "")
+                        // iOSはデバイスアドレスが取得できない場合（未接続時）、表示しない
+                        if (deviceAdress != "" && !deviceAdress.Contains("iOS_"))
                         {
                             deviceName += " [" + deviceAdress + "]";
                         }
+
+#if UNITY_IOS
+                        //iOSなら、以前に接続したデバイス(アドレスが取得できたデバイス)を優先に表示
+                        deviceList[deviceAdress] = new String[] { deviceName, deviceIndex.ToString()};
+
+                        Adapter.HideAllElement();
+                        var orderDeviceList = Adapter.GetDeviceListByOrderForIOS(deviceList);
+                        foreach (KeyValuePair<string, string[]> entry in orderDeviceList)
+                        {
+                            deviceAdress = entry.Key;
+                            deviceName = entry.Value[0];
+                            deviceIndex = Int32.Parse(entry.Value[1]);
+#endif
                         var sleeimDevice = CreateListElement(
-                            deviceName,
-                            () =>
-                            {
-                                //接続ボタンを押した際のコールバック
-                                //スキャンを停止する
-                                BluetoothManager.Instance.StopScanning();
-                                //インジケーターを削除
-                                if (indicatorObj != null)
-                                    DestroyImmediate(indicatorObj);
-                                //ペアリング処理開始
-                                StartCoroutine(Parering(deviceName, deviceAdress, deviceIndex));
-                                isContinue = false;     // 検索処理終了フラグ
-                            });
-                        Adapter.SetElementToList(sleeimDevice);
+                                                deviceName,
+                                                () => 
+                                                {
+                                                    //接続ボタンを押した際のコールバック
+                                                    //スキャンを停止する
+                                                    BluetoothManager.Instance.StopScanning();
+                                                    //インジケーターを削除
+                                                    if (indicatorObj != null)
+                                                        DestroyImmediate(indicatorObj);
+                                                    //ペアリング処理開始
+                                                    StartCoroutine(Parering(deviceName, deviceAdress.Contains("iOS_") ? "" : deviceAdress, deviceIndex));
+                                                    isContinue = false;     // 検索処理終了フラグ
+                                                });
+
+                            Adapter.SetElementToList(sleeimDevice);
+#if UNITY_IOS
+                        }
+#endif
                     }
+
                     if (isContinue == null) isContinue = true;
                 });
             yield return new WaitUntil(() => isContinue != null);
-#if UNITY_ANDROID
-            // iODはデバイスアドレスが取得できないため、複数検知しない
+
             // 検索失敗or接続完了で終了
             if (isContinue == false) break;
         }
-#endif
 
         //エラー時
         //インジケーター削除
@@ -657,7 +675,7 @@ public class BTConnectViewController : ViewControllerBase
 
         //データ取得開始
         //UpdateDialog.Show("本体から睡眠データを取得しています。\n" + 0 + "/" + dataCount + "件");
-        ProgressDialog.Show("本体から睡眠データを取得しています。" ,dataCount);
+        ProgressDialog.Show("本体から睡眠データを取得しています。", dataCount);
         bool isSuccess = false;
         bool isFailed = false;
         List<string> filePathList = new List<string>();	//CSVの添付パスリスト
