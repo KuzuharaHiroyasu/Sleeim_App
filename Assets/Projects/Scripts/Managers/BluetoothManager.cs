@@ -281,7 +281,7 @@ namespace Kaimin.Managers
 
         delegate void callback_delegate2 (string uuid, string deviceName, string address);
 
-        delegate void callback_delegate3 (string deviceName, string address, int index);
+        delegate void callback_delegate3 (string deviceName, string address, string identifierUuid);
 
         delegate void callback_delegate4 (int comandId, bool isOK);
 
@@ -346,13 +346,13 @@ namespace Kaimin.Managers
         }
 
         [MonoPInvokeCallback (typeof(callback_delegate3))]
-        private static void callBackDeviceInfo (string deviceName, string address, int index)
+        private static void callBackDeviceInfo (string deviceName, string address, string identifierUuid)
         {
-            Debug.Log ("callBackDeviceInfo : " + "deviceName : " + deviceName + "address : " + address + "index : " + index);
+			Debug.Log ("callBackDeviceInfo : " + "deviceName : " + deviceName + "address : " + address + "identifierUuid : " + identifierUuid);
             string jsonText = "{" +
                 "\"KEY1\":\"" + deviceName + "\"," +
                 "\"KEY2\":\"" + address + "\"" +
-                "\"KEY3\":\"" + index + "\"}";		//iOSでのみ使用する機器と接続する際に必要となる識別番号
+				"\"KEY3\":\"" + identifierUuid + "\"}";		//iOSでのみ使用する機器と接続する際に必要となる識別番号
             BluetoothManager.Instance.CallbackScanBleDevice (jsonText);
         }
 
@@ -608,7 +608,7 @@ namespace Kaimin.Managers
         }
 
         [DllImport ("__Internal")]
-        private static extern void _connectionPeripheral (int index);
+		private static extern void _connectionPeripheral (string identifierUuid);
 
         [DllImport ("__Internal")]
         private static extern void _reConnectionPeripheral (string uuid);
@@ -616,9 +616,9 @@ namespace Kaimin.Managers
         /// <summary>
         /// ペリフェラル接続
         /// <param name="deviceAddress">接続先のデバイスアドレス</param>
-        /// <param name="index">iOSでのみ使用するデバイス識別番号</param>
+		/// <param name="identifierUuid">iOSでのみ使用するデバイス識別番号</param>
         /// </summary>
-        public void Connect(String deviceAddress, Action<string> onCallBackError, Action<string> onCallbackConnect, string uuid = "", int index = -1)
+		public void Connect(String deviceAddress, Action<string> onCallBackError, Action<string> onCallbackConnect, string uuid = "", string identifierUuid = "")
         {
 #if UNITY_ANDROID
             _onCallBackError = onCallBackError;
@@ -629,11 +629,11 @@ namespace Kaimin.Managers
                 ajo.CallStatic("Connect", deviceAddress);
             }
 #elif UNITY_IOS
-            if (index != -1) {
+			if (identifierUuid != "") {
             //新しくデバイスと接続する場合(デバイス接続画面でスキャンしたデバイスと接続する場合)
             _onCallBackError = onCallBackError;
             _onCallbackConnect = onCallbackConnect;
-            _connectionPeripheral (index);
+			_connectionPeripheral (identifierUuid);
             } else {
             //ペアリング中のデバイスと接続する場合
             _onCallBackError = onCallBackError;

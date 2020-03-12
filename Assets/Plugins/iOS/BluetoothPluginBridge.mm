@@ -11,7 +11,7 @@ extern "C" {
 
     typedef void (*CallBackErrorDelegate)(int commandId, int errorType);
     typedef void (*CallBackConnectionPeripheralDelegate)(char* uuid, char* deviceName, char* address);
-    typedef void (*CallBackDeviceInfoDelegate)(char* deviceName, char* address, int index);
+    typedef void (*CallBackDeviceInfoDelegate)(char* deviceName, char* address, char* identifierUuid);
     typedef void (*CallBackBoolDelegate)(int commandId, BOOL isOK);
     typedef void (*CallBackGetVersionDelegate)(int g1dAppVerMajor, int g1dAppVerMinor,
                                                int g1dAppVerRevision, int g1dAppVerBuild);
@@ -94,8 +94,9 @@ extern "C" {
         [[BluetoothPlugin shared] scanStop];
     }
 
-    void _connectionPeripheral (int index) {
-        [[BluetoothPlugin shared] connectionPeripheral: index];
+    void _connectionPeripheral (char* identifierUuid) {
+    	NSString* identifierUuid2 = [NSString stringWithCString: identifierUuid encoding:NSUTF8StringEncoding];
+        [[BluetoothPlugin shared] connectionPeripheral: identifierUuid2];
     }
 
     void _reConnectionPeripheral (char* uuid) {
@@ -247,10 +248,10 @@ extern "C" {
         callBackConnectionPeripheralDelegate((char*)[uuid UTF8String], (char*)[deviceName UTF8String], (char*)[address UTF8String]);
     }
 
-    void _callBackDeviceInfo(NSString* deviceName, NSString* address, int index) {
-//        NSLog(@"_callBackDeviceInfo deviceName: %@ index: %@",
-//              deviceName, @(index).stringValue);
-        callBackDeviceInfoDelegate((char*)[deviceName UTF8String], (char*)[address UTF8String], index);
+    void _callBackDeviceInfo(NSString* deviceName, NSString* address, NSString* identifierUuid) {
+//        NSLog(@"_callBackDeviceInfo deviceName: %@ identifierUuid: %@",
+//              deviceName, identifierUuid);
+        callBackDeviceInfoDelegate((char*)[deviceName UTF8String], (char*)[address UTF8String], (char*)[identifierUuid UTF8String]);
     }
 
     void _callBackBool(int commandId, BOOL isOK) {

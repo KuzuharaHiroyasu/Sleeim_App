@@ -6,7 +6,7 @@
 
 OBJC_EXTERN void _callBackError(int commandId, int errorType);
 OBJC_EXTERN void _callBackConnectionPeripheral(NSString* uuid, NSString* deviceName, NSString* address);
-OBJC_EXTERN void _callBackDeviceInfo(NSString* deviceName, NSString* address, int index);
+OBJC_EXTERN void _callBackDeviceInfo(NSString* deviceName, NSString* address, NSString* identifierUuid);
 OBJC_EXTERN void _callBackBool(int commandId, BOOL isOK);
 OBJC_EXTERN void _callBackGetVersion(int g1dAppVerMajor, int g1dAppVerMinor,
                                     int g1dAppVerRevision, int g1dAppVerBuild);

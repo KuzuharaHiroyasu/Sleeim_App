@@ -145,8 +145,8 @@ import ReplayKit
     /**
      * ペリフェアル接続
      */
-    @objc public func connectionPeripheral(_ index: Int) {
-        BluetoothSwift.shared.connectionPeripheral(index)
+    @objc public func connectionPeripheral(_ identifierUuid: String) {
+        BluetoothSwift.shared.connectionPeripheral(identifierUuid)
     }
 
     /**
@@ -302,9 +302,9 @@ import ReplayKit
      * @param String deviceName デバイス名
      * @param String address アドレス
      */
-    func callBackDeviceInfo(_ deviceName: String, address: String, index: Int) {
+    func callBackDeviceInfo(_ deviceName: String, address: String, identifierUuid: String) {
 
-        _callBackDeviceInfo(deviceName, address, Int32(index))
+        _callBackDeviceInfo(deviceName, address, identifierUuid)
     }
 
     /**

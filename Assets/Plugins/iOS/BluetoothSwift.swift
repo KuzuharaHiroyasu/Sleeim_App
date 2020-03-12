@@ -60,7 +60,7 @@ class BluetoothSwift: NSObject {
     private var isScanPeripherals = false
     private var isdeInitialize = false
     private var workItem: DispatchWorkItem!
-    private var searchPeripheralArray: [CBPeripheral] = []
+    private var searchPeripheralArray: [String:CBPeripheral] = [String:CBPeripheral]()
     private var restorationPeripheralArray: [CBPeripheral] = []
     private var profileData: CsvFileManager.ProfileData?
     private var firmwareData:CsvFileManager.FirmwareData?
@@ -184,7 +184,7 @@ class BluetoothSwift: NSObject {
             timeoutCancel()
         }
         // 初期化しておく
-        self.searchPeripheralArray = []
+        //self.searchPeripheralArray = [String:CBPeripheral]()
         self.workItem = DispatchWorkItem {
             self.scanTimeout()
         }
@@ -213,7 +213,7 @@ class BluetoothSwift: NSObject {
     /**
      * ペリフェアル接続
      */
-    func connectionPeripheral(_ index: Int) {
+    func connectionPeripheral(_ identifierUuid: String) {
         // スキャン停止
         scanStop()
         // BluetoothがONじゃない時は何もしない
@@ -222,15 +222,17 @@ class BluetoothSwift: NSObject {
             BluetoothPlugin.shared.callBackError(0, errorCode: .connection)
             return
         }
+
         // 選択されたindexがない時はエラー
-        if (self.searchPeripheralArray.count - 1) < index || index < 0 {
+        let peripheral = self.searchPeripheralArray[identifierUuid] 
+        if peripheral == nil {
             // エラー通知(コマンドIDないので0)
             BluetoothPlugin.shared.callBackError(0, errorCode: .connection)
             return
         }
 
-        let peripheral = self.searchPeripheralArray[index]
-        connectPeripheral(peripheral)
+
+        connectPeripheral(peripheral!)
     }
 
     private func connectPeripheral(_ peripheral: CBPeripheral) {
@@ -1124,18 +1126,17 @@ extension BluetoothSwift: CBCentralManagerDelegate {
                 deviceName = name
             }
         }
-        
-        if !searchPeripheralArray.contains(peripheral) {
+
+        let identifierUuid = peripheral.identifier.uuidString
+        if searchPeripheralArray.index(forKey: identifierUuid) == nil {
            // 検知済みでない場合
-           self.searchPeripheralArray.append(peripheral)
+           self.searchPeripheralArray[identifierUuid] = peripheral
         }
 
-        if let index = searchPeripheralArray.index(of: peripheral) {
-            // 検索結果を送信
-            BluetoothPlugin.shared.callBackDeviceInfo(deviceName,
+        // 検索結果を送信
+        BluetoothPlugin.shared.callBackDeviceInfo(deviceName,
                                                       address: self.getDeviceAddress(identifier: peripheral.identifier),
-                                                      index: index)
-        }
+                                                      identifierUuid: identifierUuid)
     }
 
     /**
@@ -1155,7 +1156,7 @@ extension BluetoothSwift: CBCentralManagerDelegate {
     func getDeviceAddress(identifier: UUID)  -> String {
         let address = UserDefaults.standard.value(forKey: "address_" + identifier.uuidString) as? String
         
-        return address == nil ? "" : address!
+        return address == nil ? "iOS_" + identifier.uuidString : address!
     }
 
     /**
