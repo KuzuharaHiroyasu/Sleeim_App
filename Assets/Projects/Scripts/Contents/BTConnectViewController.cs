@@ -279,28 +279,41 @@ public class BTConnectViewController : ViewControllerBase
                         var orderDeviceList = Adapter.GetDeviceListByOrderForIOS(deviceList);
                         foreach (KeyValuePair<string, string[]> entry in orderDeviceList)
                         {
-                            deviceAdress = entry.Key;
-                            deviceName = entry.Value[0];
-							identifierUuid = entry.Value[1];
-#endif
-                        var sleeimDevice = CreateListElement(
-                                                deviceName,
-                                                () => 
-                                                {
-                                                    //接続ボタンを押した際のコールバック
-                                                    //スキャンを停止する
-                                                    BluetoothManager.Instance.StopScanning();
-                                                    //インジケーターを削除
-                                                    if (indicatorObj != null)
-                                                        DestroyImmediate(indicatorObj);
-                                                    //ペアリング処理開始
-													StartCoroutine(Parering(deviceName, deviceAdress.Contains("iOS_") ? "" : deviceAdress, identifierUuid));
-                                                    isContinue = false;     // 検索処理終了フラグ
-                                                });
+							var sleeimDevice = CreateListElement(
+								entry.Value[0],
+								() => 
+								{
+									//接続ボタンを押した際のコールバック
+									//スキャンを停止する
+									BluetoothManager.Instance.StopScanning();
+									//インジケーターを削除
+									if (indicatorObj != null)
+										DestroyImmediate(indicatorObj);
+									//ペアリング処理開始
+									StartCoroutine(Parering(entry.Value[0], entry.Key.Contains("iOS_") ? "" : entry.Key, entry.Value[1]));
+									isContinue = false;     // 検索処理終了フラグ
+								});
 
-                            Adapter.SetElementToList(sleeimDevice);
-#if UNITY_IOS
+							Adapter.SetElementToList(sleeimDevice);
                         }
+#else
+
+						var sleeimDevice = CreateListElement(
+						deviceName,
+						() => 
+						{
+						//接続ボタンを押した際のコールバック
+						//スキャンを停止する
+						BluetoothManager.Instance.StopScanning();
+						//インジケーターを削除
+						if (indicatorObj != null)
+						DestroyImmediate(indicatorObj);
+						//ペアリング処理開始
+						StartCoroutine(Parering(deviceName, deviceAdress.Contains("iOS_") ? "" : deviceAdress, identifierUuid));
+						isContinue = false;     // 検索処理終了フラグ
+						});
+
+						Adapter.SetElementToList(sleeimDevice);
 #endif
                     }
 
