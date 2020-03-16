@@ -183,7 +183,7 @@ public class SleepListElement : MonoBehaviour {
         }
         else
         {
-            yield return HttpManager.showDialogMessage("インサート不接続のため、データー削除ができません。");
+            yield return HttpManager.showDialogMessage("インターネット未接続のため、データ削除ができません。");
         }
 
         if (myData.deleteAfterAction != null)
@@ -208,9 +208,6 @@ public class SleepListElement : MonoBehaviour {
 
 	//日付
 	String DateText (DateTime startTime, DateTime endTime, int dateIndex, int crossSunCount, int sameDateNum, int crossSunNum) {
-        //就寝時
-        //startTime = CSVManager.getRealDateTime(startTime);
-
         //起床時
         endTime = CSVManager.getRealDateTime(endTime);
 
@@ -220,12 +217,15 @@ public class SleepListElement : MonoBehaviour {
 			//就寝時と起床時の日付が異なっていたら「就寝日～起床日」を返す
 			return CSVManager.getJpDateString(startTime, true) + "～" + CSVManager.getJpDateString(endTime, true) + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
 		} else {
-            if (CSVManager.isInvalidDate(endTime)) return "ー";
+            //就寝時
+            startTime = CSVManager.getRealDateTime(startTime);
+
+            if (CSVManager.isInvalidDate(startTime)) return "ー";
 
             bool isNecessaryIndex = (sameDateNum - crossSunNum) > 1;
 			int indexCount = dateIndex + 1;
 			//就寝時と起床時の日付が同じであれば「就寝日」を返す
-			return CSVManager.getJpDateString(endTime, true) + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
+			return CSVManager.getJpDateString(startTime, true) + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
 		}
 	}
 

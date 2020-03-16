@@ -146,12 +146,14 @@ public class SleepInfoDescriptor : MonoBehaviour {
                 " ～ " +
                 CSVManager.getJpDateString(endTime) + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
         } else {
-            if (CSVManager.isInvalidDate(endTime)) return "ー";
+            startTime = CSVManager.getRealDateTime(startTime);
+
+            if (CSVManager.isInvalidDate(startTime)) return "ー";
 
             //就寝時と起床時の日付が同じであれば「就寝日」を返す
             bool isNecessaryIndex = (sameDateNum - crossSunNum) > 1;
             int indexCount = dateIndex + 1;
-            return CSVManager.getJpDateString(endTime) + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
+            return CSVManager.getJpDateString(startTime) + (isNecessaryIndex ? " (" + indexCount.ToString () + ")" : "");
         }
     }
 
