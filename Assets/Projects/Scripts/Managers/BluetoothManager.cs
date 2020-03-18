@@ -1142,7 +1142,7 @@ namespace Kaimin.Managers
                         break;
                 }
 
-                if (_onCallBackError != null)
+                if (_onCallBackCommandWrite != null)
                 {
                     Action<Boolean> onFinished = _onCallBackCommandWrite;
                     _onCallBackCommandWrite = null;
