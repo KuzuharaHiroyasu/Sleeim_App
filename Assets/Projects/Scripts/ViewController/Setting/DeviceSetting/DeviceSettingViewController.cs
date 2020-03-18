@@ -443,13 +443,13 @@ public class DeviceSettingViewController : ViewControllerBase {
             if (snoreSensitivityText != null) {
                 switch (TempDeviceSetting.SnoreSensitivity) {
                     case SnoreSensitivity.Low:
-                        snoreSensitivityText.text = "弱";
+                        snoreSensitivityText.text = "低";
                         break;
                     case SnoreSensitivity.Mid:
                         snoreSensitivityText.text = "中";
                         break;
                     case SnoreSensitivity.High:
-                        snoreSensitivityText.text = "強";
+                        snoreSensitivityText.text = "高";
                         break;
                 }
             }

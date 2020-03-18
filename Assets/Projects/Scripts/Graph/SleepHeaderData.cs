@@ -54,7 +54,7 @@ public class SleepHeaderData {
     public int VibrationStrength;
 
     /// <summary>
-    /// いびき検出感度 0～3 整数(0：弱、1：中、2：強)
+    /// いびき検出感度 0～3 整数(0：低、1：中、2：高)
     /// </summary>
     public int SnoreSensitivity;
 
