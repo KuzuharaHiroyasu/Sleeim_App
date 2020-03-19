@@ -1631,8 +1631,7 @@ public class SettingViewController : ViewControllerBase
         Debug.Log("データ取得コマンド");
         CsvHeaderSet(); //GET前に必ず実行する
                         //データ取得開始
-        //UpdateDialog.Show("本体から睡眠データを取得しています。\n" + 0 + "/" + dataCount + "件");
-        ProgressDialog.Show("本体から睡眠データを取得しています。", dataCount);
+        LoadingDialog.Show("本体から睡眠データを取得しています。\n" + 0 + "/" + dataCount + "件");
         bool isSuccess = false;
         bool isFailed = false;
         List<string> filePathList = new List<string>(); //CSVの添付パスリスト
@@ -1672,8 +1671,7 @@ public class SettingViewController : ViewControllerBase
                 string csvFileName = (string)json["KEY5"];              //CSVのファイル名。最終的にUnity側でDB登録時にリネームしてもらうファイル名（例：20180624182431.csv）
                 filePathList.Add(csvFilePath);
                 fileNameList.Add(csvFileName);
-                //UpdateDialog.ChangeMessage("本体から睡眠データを取得しています。\n" + currentDataCount + "/" + dataCount + "件");
-                ProgressDialog.UpdateProgress(currentDataCount);
+                LoadingDialog.ChangeMessage("本体から睡眠データを取得しています。\n" + currentDataCount + "/" + dataCount + "件");
                 if (isEndData)
                 {
                     //最後のデータを取得完了すれば
@@ -1684,8 +1682,7 @@ public class SettingViewController : ViewControllerBase
         {
             return isSuccess || isFailed;
         });
-        //UpdateDialog.Dismiss();
-        ProgressDialog.Dismiss();
+        LoadingDialog.Dismiss();
         onGetCSVPathList(filePathList.Count > 0 ? filePathList : null);
         onGetCSVNameList(fileNameList.Count > 0 ? fileNameList : null);
         Debug.Log("Return Get Data");
