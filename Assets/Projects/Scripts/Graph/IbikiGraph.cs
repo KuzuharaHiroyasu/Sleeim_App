@@ -69,6 +69,7 @@ namespace Graph
         // グラフ閾値
         int graphThreshold = 300;
 
+
         void Awake()
         {
             input = InputData.GetComponent<IIbikiData>();
@@ -237,7 +238,7 @@ namespace Graph
 						ScrollRect.horizontalNormalizedPosition = 0.0f;
 					}
 						
-
+                    // イビキグラフを取得
 					RectTransform rect0 = IbikiMainGraph.GetComponent<RectTransform>();
 					var x = rect0.transform.position.x;
 					var y = rect0.transform.position.y;
@@ -255,7 +256,7 @@ namespace Graph
 					rectStart.localPosition=new Vector3(-600*hour/2+55,rectStart.transform.localPosition.y,0);
 
 					RectTransform rectEnd = EndTimeObject.GetComponent<RectTransform>();
-					rectEnd.localPosition=new Vector3(600*hour/2-55,rectStart.transform.localPosition.y,0);
+					rectEnd.localPosition = new Vector3(600*hour/2-55,rectStart.transform.localPosition.y,0);
 
 					StartTimeObject.SetActive (false);
 					EndTimeObject.SetActive (false);
@@ -330,6 +331,27 @@ namespace Graph
 
         }
 
+
+        public void YLog(string prefix) {
+
+
+            
+            float ly0 = IbikiMainGraph.transform.localPosition.y;
+
+            float yyy = line250ImageRect.transform.localPosition.y;
+            float yy2 = line250ImageRect.position.y;
+
+            GameObject obj = lineTouchiRect.gameObject.transform.parent.gameObject;
+
+
+					RectTransform rect0 = IbikiMainGraph.GetComponent<RectTransform>();
+					var y = rect0.position.y;
+
+            Debug.Log(prefix + " graph " + ly0 + " " + IbikiMainGraph.transform.position.y);
+            // Debug.Log(prefix + " parent " + obj.transform.localPosition.y + " " + obj.transform.position.y);
+            // Debug.Log(prefix + " 250 " + yyy + " " + yy2);
+        }
+
         /// <summary>
         /// IGraphDataSwitch実装
         /// グラフにアタッチしたデータを取り除きます
@@ -393,7 +415,7 @@ namespace Graph
 			//目盛を調整
 			Output_TimeLabel.SetIbikiScroll(hour);
 
-			StartCoroutine ("UpdateGraphPosition2");
+			StartCoroutine ("UpdateGraphPositionResizeBig");
 			SeriesObject.SetActive (false);
 
             lineTouchiRect.sizeDelta = new Vector2(600*hour,3.0f);
@@ -451,7 +473,7 @@ namespace Graph
 			Output_TimeLabel.SetIbikiScroll(hour);
 
             IbikiMainGraph.transform.localPosition = new Vector3(IbikiMainGraph.transform.localPosition.x,-121.5f+8.5f);
-			StartCoroutine ("UpdateGraphPosition2");
+			StartCoroutine ("UpdateGraphPositionResizeMin");
 			SeriesObject.SetActive (false);
 
             //線を調整
@@ -602,20 +624,60 @@ namespace Graph
 			SeriesObject.SetActive (true);
 			RectTransform rect0 = SeriesObject.GetComponent<RectTransform>();
 			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,-263.5f);
-//			if (scrollFlag) {
-//				rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150,0);
-//			} else {
-//				rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y,0);
-//			}
-			float y = IbikiMainGraph.transform.position.y;
-			Debug.Log ("bb2 " + rect0.localPosition.y + " " + rect0.transform.position.y + " " + y);
+
+            Vector3 ibikiMainPosition = IbikiMainGraph.transform.localPosition;
+            if (!PlusButton.activeSelf) {
+                IbikiMainGraph.transform.localPosition = new Vector3(ibikiMainPosition.x,-130.0f);
+            }
+            else if (IsScroll()) {
+                IbikiMainGraph.transform.localPosition = new Vector3(ibikiMainPosition.x,-121.5f);
+            }
+            else {
+                IbikiMainGraph.transform.localPosition = new Vector3(ibikiMainPosition.x,-130.0f);
+            }
 
             Vector3 headLocalPosition = HeadDirGraphObject.transform.localPosition;
             HeadDirGraphObject.transform.localPosition = new Vector3(headLocalPosition.x,-563.5f+20.0f);
 
+            //線を調整
+            if (!PlusButton.activeSelf) {
+                lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f-8.0f+(float)graphThreshold*85.0f/250.0f);
+            }
+            else if (IsScroll()) {
+                lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f-8.0f+(float)graphThreshold*85.0f/250.0f+8.5f);
+            }
+            else {
+                lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f-8.0f+(float)graphThreshold*85.0f/250.0f);
+            }
+
 		}
 
-		IEnumerator UpdateGraphPosition2()
+		IEnumerator UpdateGraphPositionResizeMin()
+		{
+			yield return new WaitForEndOfFrame();
+
+			SeriesObject.SetActive (true);
+			RectTransform rect0 = SeriesObject.GetComponent<RectTransform>();
+			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150,0);
+
+            Vector3 ibikiMainPosition = IbikiMainGraph.transform.localPosition;
+            IbikiMainGraph.transform.localPosition = new Vector3(ibikiMainPosition.x,-130f);
+
+            Vector3 headLocalPosition = HeadDirGraphObject.transform.localPosition;
+            HeadDirGraphObject.transform.localPosition = new Vector3(headLocalPosition.x,-563.5f+20.0f);
+
+            //線を調整
+            lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,ll);
+
+            line250ImageRect.transform.localPosition = new Vector3(line250ImageRect.transform.localPosition.x,-299.65f-8.5f);
+            line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-299.65f+85.0f-8.5f);
+            line750ImageRect.transform.localPosition = new Vector3(line750ImageRect.transform.localPosition.x,-299.65f+85.0f*2-8.5f);
+            line1000ImageRect.transform.localPosition = new Vector3(line1000ImageRect.transform.localPosition.x,-299.65f+85.0f*3-8.5f);
+
+		}
+
+
+		IEnumerator UpdateGraphPositionResizeBig()
 		{
 			yield return new WaitForEndOfFrame();
 
@@ -623,18 +685,16 @@ namespace Graph
 			RectTransform rect0 = SeriesObject.GetComponent<RectTransform>();
 			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150,0);
 			float y = IbikiMainGraph.transform.localPosition.y;
-			Debug.Log ("bb " + rect0.localPosition.y + " " + rect0.transform.position.y + " " + y);
 
             Vector3 ibikiMainPosition = IbikiMainGraph.transform.localPosition;
             IbikiMainGraph.transform.localPosition = new Vector3(ibikiMainPosition.x,-121.5f);
+            float y2 = IbikiMainGraph.transform.localPosition.y;
 
             Vector3 headLocalPosition = HeadDirGraphObject.transform.localPosition;
             HeadDirGraphObject.transform.localPosition = new Vector3(headLocalPosition.x,-563.5f+20.0f);
 
-
             //線を調整
-            lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f+(float)graphThreshold*85.0f/250.0f);
-                    
+            lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f+(float)graphThreshold*85.0f/250.0f+0.5f);
 
             line250ImageRect.transform.localPosition = new Vector3(line250ImageRect.transform.localPosition.x,-299.65f);
             line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-299.65f+85.0f);
