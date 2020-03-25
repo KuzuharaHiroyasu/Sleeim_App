@@ -667,7 +667,7 @@ namespace Graph
             HeadDirGraphObject.transform.localPosition = new Vector3(headLocalPosition.x,-563.5f+20.0f);
 
             //線を調整
-            lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,ll);
+            lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f+(float)graphThreshold*85.0f/250.0f+0.5f-8.5f);
 
             line250ImageRect.transform.localPosition = new Vector3(line250ImageRect.transform.localPosition.x,-299.65f-8.5f);
             line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-299.65f+85.0f-8.5f);
