@@ -332,16 +332,16 @@ public class HomeViewController : ViewControllerBase
         switch (deviceSetting.ActionMode)
         {
             case ActionMode.SuppressModeIbiki:
-                ActionModeValue.text = "低減モード(いびき)";
+                ActionModeValue.text = "振動モード(いびき)";
                 break;
             case ActionMode.SuppressMode:
-                ActionModeValue.text = "低減モード(いびき+無呼吸)";
+                ActionModeValue.text = "振動モード(いびき+呼吸レス)";
                 break;
             case ActionMode.MonitoringMode:
                 ActionModeValue.text = "モニタリング";
                 break;
             case ActionMode.SuppressModeMukokyu:
-                ActionModeValue.text = "低減モード（無呼吸）";
+                ActionModeValue.text = "振動モード(呼吸レス)";
                 break;
             default:
                 // 何もしない

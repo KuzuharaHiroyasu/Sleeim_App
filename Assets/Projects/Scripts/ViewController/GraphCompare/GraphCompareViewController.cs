@@ -49,7 +49,7 @@ public class GraphCompareViewController : ViewControllerBase
     public List<ChartInfo> chartsOfSuppress = new List<ChartInfo>(); //Using with saved average values to calcuate average of suppress (Chart2)
 
     const string MSG_NO_DATA = "No Data";
-    const string MSG_RECENT_PART = "直近の分";
+    const string MSG_RECENT_PART = "睡眠データの推移";
 
     // Use this for initialization
     protected override void Start()

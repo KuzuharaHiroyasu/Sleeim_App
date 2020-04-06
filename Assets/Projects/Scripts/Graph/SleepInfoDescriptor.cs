@@ -192,16 +192,16 @@ public class SleepInfoDescriptor : MonoBehaviour {
         switch (Data.SleepMode)
         {
             case 0:
-            ActionModeText.text = "低減モード(いびき)";
+            ActionModeText.text = "振動モード(いびき)";
             break;
             case 1:
-            ActionModeText.text = "低減モード(いびき+無呼吸)";
+            ActionModeText.text = "振動(いびき+呼吸レス)";
             break;
             case 2:
             ActionModeText.text = "モニタリングモード";
             break;
             default:
-            ActionModeText.text = "低減モード（無呼吸）";
+            ActionModeText.text = "振動モード(呼吸レス)";
             break;
         }
     }

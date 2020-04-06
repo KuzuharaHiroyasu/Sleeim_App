@@ -225,7 +225,7 @@ public class HomeNewViewController : ViewControllerBase
                         //p1 = 5; p2 = 6; p3 = 7; p4 = 82;
                         //p1 = 95; p2 = 3; p3 = 2; p4 = 0;
                         double[] pieValues = new double[4] { p1, p2, p3, p4 }; //Percents of pKaiMin, Ibiki, Mukokyu, Fumei
-                        string[] pieLabels = new string[4] { "快眠", "いびき", "無呼吸", "不明" };
+                        string[] pieLabels = new string[4] { "快眠", "いびき", "呼吸レス", "不明" };
                         makePieChart(pieValues, pieLabels);
                     }
 

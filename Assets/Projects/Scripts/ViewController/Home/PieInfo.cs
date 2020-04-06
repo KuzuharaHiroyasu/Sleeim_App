@@ -37,9 +37,9 @@ public class PieInfo : MonoBehaviour {
             } else if (label == "いびき") {
                 pieLabel.text = "いび";
                 piePercentValue.text = "き";
-            } else if (label == "無呼吸") {
-                pieLabel.text = "無呼";
-                piePercentValue.text = "吸";
+            } else if (label == "呼吸レス") {
+                pieLabel.text = "呼吸";
+                piePercentValue.text = "レス";
             } else if (label == "不明") {
                 pieLabel.text = "不";
                 piePercentValue.text = "明";

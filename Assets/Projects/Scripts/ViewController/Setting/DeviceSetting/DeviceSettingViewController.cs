@@ -426,16 +426,16 @@ public class DeviceSettingViewController : ViewControllerBase {
             if (actionModeText != null) {
                 switch (TempDeviceSetting.ActionMode) {
                     case ActionMode.SuppressModeIbiki:
-                        actionModeText.text = "低減(いびき)";
+                        actionModeText.text = "振動モード(いびき)";
                         break;
                     case ActionMode.SuppressMode:
-                        actionModeText.text = "低減(いびき+無呼吸)";
+                        actionModeText.text = "振動(いびき+呼吸レス)";
                         break;
                     case ActionMode.MonitoringMode:
-                        actionModeText.text = "モニタリング";
+                        actionModeText.text = "モニタリングモード";
                         break;
                     case ActionMode.SuppressModeMukokyu:
-                        actionModeText.text = "低減(無呼吸)";
+                        actionModeText.text = "振動モード(呼吸レス)";
                         break;
                 }
             }

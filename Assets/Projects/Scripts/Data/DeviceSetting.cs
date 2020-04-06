@@ -40,16 +40,16 @@ public class DeviceSetting {
 			switch (ActionMode)
 			{
 			case ActionMode.SuppressModeIbiki:
-				ret = "低減モード(いびき)";
+				ret = "振動モード(いびき)";
 				break;
 			case ActionMode.SuppressMode:
-				ret = "低減モード(いびき+無呼吸)";
+				ret = "振動モード(いびき+呼吸レス)";
 				break;
 			case ActionMode.MonitoringMode:
 				ret = "モニタリング";
 				break;
 			case ActionMode.SuppressModeMukokyu:
-				ret = "低減モード（無呼吸）";
+				ret = "振動モード(呼吸レス)";
 				break;
 			default:
 				// 何もしない
