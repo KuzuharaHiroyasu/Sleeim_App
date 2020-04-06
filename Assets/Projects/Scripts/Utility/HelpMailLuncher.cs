@@ -6,7 +6,7 @@ using System;
 public class HelpMailLuncher : MonoBehaviour
 {
 
-    static string MAIL_ADRESS = "support_swsw@one-a.co.jp";
+    static string MAIL_ADRESS = "swanswan@one-a.co.jp";
     static string NEW_LINE = "\n";
 
     /// <summary>
@@ -44,7 +44,6 @@ public class HelpMailLuncher : MonoBehaviour
         body += "■アプリのバージョン" + NEW_LINE;
         body += Application.version + NEW_LINE;
         body += "■ファームウェアのバージョン" + NEW_LINE;
-        body += "H1D " + UserDataManager.Device.GetH1DAppVersion() + NEW_LINE;
         body += "G1D " + UserDataManager.Device.GetG1DAppVersion() + NEW_LINE;
         body += "■あなたの使っている端末とOS" + NEW_LINE;
         body += deviceName + "/" + SystemInfo.operatingSystem + NEW_LINE;

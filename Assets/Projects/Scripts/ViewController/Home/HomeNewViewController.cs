@@ -651,6 +651,7 @@ public class HomeNewViewController : ViewControllerBase
             //UpdateApneaCountIcon();
             //UpdateApneaCountDate();
             UpdateLatestPieChart();
+            UserDataManager.Scene.ResetGraphDate();
 
             UpdateDialog.Dismiss();
             //データ取得完了のダイアログ表示

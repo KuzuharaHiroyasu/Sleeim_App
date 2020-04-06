@@ -1567,6 +1567,7 @@ public class SettingViewController : ViewControllerBase
             UpdateDialog.Dismiss();
             //同期時刻を保存する
             UserDataManager.State.SaveDataReceptionTime(DateTime.Now);
+            UserDataManager.Scene.ResetGraphDate();
             onResponse(true);
             yield break;
         }

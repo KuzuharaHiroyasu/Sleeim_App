@@ -577,6 +577,7 @@ public class BTConnectViewController : ViewControllerBase
 
             //同期時刻を保存(端末の現在時刻を保存して表示させる)
             UserDataManager.State.SaveDataReceptionTime(DateTime.Now);
+            UserDataManager.Scene.ResetGraphDate();
 
             UpdateDialog.Dismiss();
             //データ取得完了のダイアログ表示

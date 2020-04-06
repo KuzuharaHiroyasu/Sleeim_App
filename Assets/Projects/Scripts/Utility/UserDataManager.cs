@@ -278,6 +278,11 @@ public static class UserDataManager {
             PlayerPrefs.SetString (graphDateKey, dateTime);
         }
 
+        public static void ResetGraphDate()
+        {
+            PlayerPrefs.SetString(graphDateKey, "");
+        }
+
         /// <summary>
         /// グラフ画面を開いた時の日付指定を解除します
         /// </summary>
