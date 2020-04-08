@@ -60,9 +60,7 @@ namespace Graph
         public RectTransform lineTouchiRect;
 
 		public GameObject scrollView;
-
-		public GameObject PlusButton;
-		public GameObject MinusButton;
+		public GameObject zoomButton;
 
 		bool onceDisplayFlag = false;
 		List<System.DateTime> ibikiTimeList;
@@ -192,9 +190,7 @@ namespace Graph
         /// </summary>
         public void SetActive()
         {
-
-			PlusButton.SetActive (true);
-			MinusButton.SetActive (true);
+			zoomButton.SetActive(true);
 
             //ラベル・凡例を表示
             foreach (GameObject label in Label)
@@ -217,12 +213,10 @@ namespace Graph
 					List<LabelData> labelDataList = TransSensingDataToLabelData(dataList);
 
 					float hour = sleepingTime (dataList);
-					PlusButton.SetActive(true);
-					MinusButton.SetActive(true);
+					zoomButton.SetActive(true);
 					if (hour <= 1.0f) {
 						hour = 0.95f;
-						PlusButton.SetActive(false);
-						MinusButton.SetActive(false);
+						zoomButton.SetActive(false);
 					}
 					else if (!scrollFlag){
 						hour = 0.95f;
@@ -312,8 +306,7 @@ namespace Graph
 
                     // 最初の拡大縮小ボタンの設定
                     if (!onceDisplayFlag) {
-                        MinusButton.GetComponent<GraphMiniManager>().setDisActive();
-                        PlusButton.GetComponent<GraphBigManager>().setActive();
+                        zoomButton.GetComponent<GraphZoomManager>().setBigButtonAsDefault();
                     }
 
 					StartCoroutine ("UpdateGraphPosition");
@@ -626,13 +619,9 @@ namespace Graph
 			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,-263.5f);
 
             Vector3 ibikiMainPosition = IbikiMainGraph.transform.localPosition;
-            if (!PlusButton.activeSelf) {
-                IbikiMainGraph.transform.localPosition = new Vector3(ibikiMainPosition.x,-130.0f);
-            }
-            else if (IsScroll()) {
+            if (zoomButton.activeSelf && IsScroll()) {
                 IbikiMainGraph.transform.localPosition = new Vector3(ibikiMainPosition.x,-121.5f);
-            }
-            else {
+            } else {
                 IbikiMainGraph.transform.localPosition = new Vector3(ibikiMainPosition.x,-130.0f);
             }
 
@@ -640,16 +629,11 @@ namespace Graph
             HeadDirGraphObject.transform.localPosition = new Vector3(headLocalPosition.x,-563.5f+20.0f);
 
             //線を調整
-            if (!PlusButton.activeSelf) {
-                lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f-8.0f+(float)graphThreshold*85.0f/250.0f);
-            }
-            else if (IsScroll()) {
+            if (zoomButton.activeSelf && IsScroll()) {
                 lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f-8.0f+(float)graphThreshold*85.0f/250.0f+8.5f);
-            }
-            else {
+            } else {
                 lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f-8.0f+(float)graphThreshold*85.0f/250.0f);
             }
-
 		}
 
 		IEnumerator UpdateGraphPositionResizeMin()
@@ -673,7 +657,6 @@ namespace Graph
             line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-299.65f+85.0f-8.5f);
             line750ImageRect.transform.localPosition = new Vector3(line750ImageRect.transform.localPosition.x,-299.65f+85.0f*2-8.5f);
             line1000ImageRect.transform.localPosition = new Vector3(line1000ImageRect.transform.localPosition.x,-299.65f+85.0f*3-8.5f);
-
 		}
 
 
@@ -700,7 +683,6 @@ namespace Graph
             line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-299.65f+85.0f);
             line750ImageRect.transform.localPosition = new Vector3(line750ImageRect.transform.localPosition.x,-299.65f+85.0f*2);
             line1000ImageRect.transform.localPosition = new Vector3(line1000ImageRect.transform.localPosition.x,-299.65f+85.0f*3);
-
 		}
 
         void LogYPosition(){
@@ -709,7 +691,6 @@ namespace Graph
             Debug.Log("headDirGraph " + HeadDirGraphObject.transform.position.y + " " + HeadDirGraphObject.transform.localPosition.y);
             Debug.Log("line250 " + line250ImageRect.transform.position.y + " " + line250ImageRect.transform.localPosition.y);
             Debug.Log("line750 " + line750ImageRect.transform.position.y + " " + line750ImageRect.transform.localPosition.y);
-
         }
 
         //取得した、いびきの大きさのデータをグラフに表示しやすいようにラベルデータへ変換する
