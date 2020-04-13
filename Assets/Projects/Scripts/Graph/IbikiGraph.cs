@@ -653,10 +653,10 @@ namespace Graph
             //線を調整
             lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f+(float)graphThreshold*85.0f/250.0f+0.5f-8.5f);
 
-            line250ImageRect.transform.localPosition = new Vector3(line250ImageRect.transform.localPosition.x,-299.65f-8.5f);
-            line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-299.65f+85.0f-8.5f);
-            line750ImageRect.transform.localPosition = new Vector3(line750ImageRect.transform.localPosition.x,-299.65f+85.0f*2-8.5f);
-            line1000ImageRect.transform.localPosition = new Vector3(line1000ImageRect.transform.localPosition.x,-299.65f+85.0f*3-8.5f);
+            line250ImageRect.transform.localPosition = new Vector3(line250ImageRect.transform.localPosition.x,-316.65f-6.8f);
+            line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-316.65f-6.8f+68.0f);
+            line750ImageRect.transform.localPosition = new Vector3(line750ImageRect.transform.localPosition.x,-316.65f-6.8f+68.0f*2);
+            line1000ImageRect.transform.localPosition = new Vector3(line1000ImageRect.transform.localPosition.x,-316.65f-6.8f+68.0f*3);
 		}
 
 
@@ -679,10 +679,10 @@ namespace Graph
             //線を調整
             lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f+(float)graphThreshold*85.0f/250.0f+0.5f);
 
-            line250ImageRect.transform.localPosition = new Vector3(line250ImageRect.transform.localPosition.x,-299.65f);
-            line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-299.65f+85.0f);
-            line750ImageRect.transform.localPosition = new Vector3(line750ImageRect.transform.localPosition.x,-299.65f+85.0f*2);
-            line1000ImageRect.transform.localPosition = new Vector3(line1000ImageRect.transform.localPosition.x,-299.65f+85.0f*3);
+            line250ImageRect.transform.localPosition = new Vector3(line250ImageRect.transform.localPosition.x,-316.65f);
+            line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-316.65f+68.0f);
+            line750ImageRect.transform.localPosition = new Vector3(line750ImageRect.transform.localPosition.x,-316.65f+68.0f*2);
+            line1000ImageRect.transform.localPosition = new Vector3(line1000ImageRect.transform.localPosition.x,-316.65f+68.0f*3);
 		}
 
         void LogYPosition(){
