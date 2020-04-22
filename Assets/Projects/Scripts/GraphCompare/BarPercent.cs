@@ -27,10 +27,10 @@ public class BarPercent : MonoBehaviour {
         double p4 = 100 - p1 - p2 - p3;
         p4 = p4 < 0.1 ? 0 : System.Math.Round(p4, 1);
 
-        pkaiMin.text  = p1 + "%";
-        pIbiki.text   = p2 + "%";
-        pMukokyu.text = p3 + "%";
-        pFumei.text   = p4 + "%";
+        pkaiMin.text  = p1 + ""; //%
+        pIbiki.text   = p2 + "";
+        pMukokyu.text = p3 + "";
+        pFumei.text   = p4 + "";
 
         if(vibrationStrength >= 0)
         {
