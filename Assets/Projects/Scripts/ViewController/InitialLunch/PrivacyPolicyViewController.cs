@@ -10,7 +10,6 @@ public class PrivacyPolicyViewController : ViewControllerBase {
 
 	protected override void Start () {
 		base.Start ();
-		prehab.GetComponent<PopUpWebView> ().Url = URL;
 	}
 
 	public override SceneTransitionManager.LoadScene SceneTag {
@@ -21,6 +20,6 @@ public class PrivacyPolicyViewController : ViewControllerBase {
 
 	//戻るボタンをタップした際に呼び出される
 	public void OnBackButtonTap () {
-		SceneTransitionManager.LoadLevel (SceneTransitionManager.LoadScene.InitialLunch);
+		SceneTransitionManager.LoadLevel (SceneTransitionManager.LoadScene.Home);
 	}
 }

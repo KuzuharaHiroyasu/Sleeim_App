@@ -35,7 +35,6 @@ public class TermsOfUse : ViewControllerBase {
 
 	protected override void Start () {
 		base.Start ();
-        //prehab.GetComponent<PopUpWebView> ().Url = URL;
 
         int tapFromSetting = PlayerPrefs.GetInt("tapFromSetting", 0);
         if (tapFromSetting == 1)
