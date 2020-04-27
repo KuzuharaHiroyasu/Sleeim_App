@@ -491,6 +491,18 @@ public class HomeNewViewController : ViewControllerBase
         SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
     }
 
+    public void OnActionModeButtonTap()
+    {
+        PlayerPrefs.SetInt("tapFromHome", 1);
+        SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.ActionMode);
+    }
+
+    public void OnVibrationButtonTap()
+    {
+        PlayerPrefs.SetInt("tapFromHome", 1);
+        SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.SuppressionStrength);
+    }
+
     //同期ボタンを押した際に実行
     public void OnSyncButtonTap()
     {

@@ -53,7 +53,7 @@ public class DeviceSettingViewController : ViewControllerBase {
         StartCoroutine(BackButtonCoroutine());
     }
 
-    IEnumerator BackButtonCoroutine()
+    public IEnumerator BackButtonCoroutine()
     {
         bool? isSaveSetting = null;
 
@@ -142,7 +142,7 @@ public class DeviceSettingViewController : ViewControllerBase {
     public void OnSuppressionStartTimeButtonTap()
     {
         //ピッカーを表示して低減開始時間を設定させる
-        string title = "低減開始時間設定";
+        string title = "振動開始時間設定";
         string unit = "分";
         float maxValue = (float)SuppressionStartTime.Max;
         float minValue = (float)SuppressionStartTime.Min;

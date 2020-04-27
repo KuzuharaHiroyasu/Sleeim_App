@@ -73,7 +73,7 @@ public class SuppressionStrengthViewController : DeviceSettingViewController
     /// 戻るボタン押下イベントハンドラ
     /// </summary>
     public void OnReturnButtonTap() {
-        SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
+        SceneTransitionManager.LoadLevel(isTapFromHome() ? SceneTransitionManager.LoadScene.Home : SceneTransitionManager.LoadScene.DeviceSetting);
     }
 
     /// <summary>

@@ -6,7 +6,8 @@ using UnityEngine.UI;
 /// <summary>
 /// 動作モード設定画面
 /// </summary>
-public class ActionModeViewController : ViewControllerBase {
+public class ActionModeViewController : DeviceSettingViewController
+{
 
     /// <summary>
     /// 振動モード(いびき)トグル
@@ -72,7 +73,15 @@ public class ActionModeViewController : ViewControllerBase {
     /// 戻るボタン押下イベントハンドラ
     /// </summary>
     public void OnReturnButtonTap() {
-        SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
+        int tapFromHome = PlayerPrefs.GetInt("tapFromHome", 0);
+        if (tapFromHome == 1)
+        {
+            StartCoroutine(BackButtonCoroutine());
+        }
+        else
+        {
+            SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
+        }
     }
 
     /// <summary>
