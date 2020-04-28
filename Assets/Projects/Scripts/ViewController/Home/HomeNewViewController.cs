@@ -565,6 +565,7 @@ public class HomeNewViewController : ViewControllerBase
         {
             yield break;	//接続エラー時に以降のBle処理を飛ばす
         }
+
         //デバイスと接続
         if (!UserDataManager.State.isConnectingDevice())
         {
@@ -581,6 +582,7 @@ public class HomeNewViewController : ViewControllerBase
             //デバイスアイコンの表示を更新する
             UpdateDeviceIcon();
         }
+
         UpdateDialog.Show("同期中");
         //デバイス時刻補正
         bool isCorrectTimeSuccess = false;
@@ -596,6 +598,7 @@ public class HomeNewViewController : ViewControllerBase
             yield return StartCoroutine(TellFailedSync());
             yield break;	//エラーが発生した場合は以降のBle処理を飛ばす
         }
+
         //電池残量を取得
         bool isGetBatteryStateSuccess = false;
         yield return StartCoroutine(GetBatteryState((bool isSuccess) => isGetBatteryStateSuccess = isSuccess));
@@ -608,6 +611,7 @@ public class HomeNewViewController : ViewControllerBase
         //電池アイコン表示更新
         UpdateBatteryIcon();
         UpdateDialog.Dismiss();
+
         //デバイスに睡眠データがある場合、取得するかどうかユーザに尋ねる
         bool isOk = false;
         int getDataCount = -1;
@@ -633,6 +637,7 @@ public class HomeNewViewController : ViewControllerBase
         {		//睡眠データを取得しないなら
             yield break;	//以降のBle処理を飛ばす
         }
+
         //睡眠データを取得
         yield return StartCoroutine(GetSleepDataFlow(
             getDataCount,
@@ -667,8 +672,7 @@ public class HomeNewViewController : ViewControllerBase
 
             UpdateDialog.Dismiss();
             //データ取得完了のダイアログ表示
-            if (csvPathList.Count > 0)
-                yield return StartCoroutine(TellGetDataComplete(csvPathList.Count));
+            yield return StartCoroutine(TellGetDataComplete(csvPathList.Count));
         }
         else
         {
@@ -1093,7 +1097,7 @@ public class HomeNewViewController : ViewControllerBase
                 string csvFileName = (string)json["KEY5"];				//CSVのファイル名。最終的にUnity側でDB登録時にリネームしてもらうファイル名（例：20180624182431.csv）
                 filePathList.Add(csvFilePath);
                 fileNameList.Add(csvFileName);
-                LoadingDialog.ChangeMessage("本体から睡眠データを取得しています。\n" + currentDataCount + "/" + dataCount + "件");
+                LoadingDialog.ChangeMessage("本体から睡眠データの" + dataCount + "件のうち" + currentDataCount + "件目取得中");
                 if (isEndData)
                 {
                     //最後のデータを取得完了すれば
