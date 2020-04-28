@@ -12,7 +12,7 @@ public class SleepData
     /// <summary>
     /// いびきの大きさ最大値
     /// </summary>
-    public static readonly int MaxSnoreVolume = 1000;
+    public static readonly int MaxSnoreVolume = 800;
 
     /// <summary>
     /// 睡眠データCSVファイルのそれぞれのデータのカラム番号

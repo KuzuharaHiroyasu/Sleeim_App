@@ -51,7 +51,7 @@ namespace Graph
 		public GameObject LinkParent;
 
 
-
+		public RectTransform lineBottomRect;
 		public RectTransform line250ImageRect;
 		public RectTransform line500ImageRect;
 		public RectTransform line750ImageRect;
@@ -67,6 +67,8 @@ namespace Graph
         // グラフ閾値
         int graphThreshold = 300;
 
+        // 
+        float lineUpValue = 68.0f;
 
         void Awake()
         {
@@ -292,13 +294,14 @@ namespace Graph
                     lineTouchiRect.sizeDelta = new Vector2(600*hour,3.0f);
 
 					if (onceDisplayFlag) {
-						lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,21.85f-85.0f+(float)graphThreshold*85.0f/250.0f-321.0f);
+						lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,21.85f-85.0f+(float)graphThreshold*85.0f/250.0f-321.0f + lineUpValue);
 					} else {
-						lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,21.85f-85.0f+(float)graphThreshold*85.0f/250.0f);
+						lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,21.85f-85.0f+(float)graphThreshold*85.0f/250.0f + lineUpValue);
 					}
                     
                     lineTouchiRect.gameObject.SetActive(true);
 
+					lineBottomRect.sizeDelta = new Vector2(600*hour,2.0f);
 					line250ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
 					line500ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
 					line750ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
@@ -414,6 +417,7 @@ namespace Graph
             lineTouchiRect.sizeDelta = new Vector2(600*hour,3.0f);
 
 
+			lineBottomRect.sizeDelta = new Vector2(600*hour,2.0f);
             line250ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
             line500ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
             line750ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
@@ -471,6 +475,7 @@ namespace Graph
 
             //線を調整
             lineTouchiRect.sizeDelta = new Vector2(600*hour,3.0f);
+            lineBottomRect.sizeDelta = new Vector2(600*hour,2.0f);
             
             line250ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
             line500ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
@@ -616,7 +621,7 @@ namespace Graph
 
 			SeriesObject.SetActive (true);
 			RectTransform rect0 = SeriesObject.GetComponent<RectTransform>();
-			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,-263.5f);
+			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,-263.5f + lineUpValue);
 
             Vector3 ibikiMainPosition = IbikiMainGraph.transform.localPosition;
             if (zoomButton.activeSelf && IsScroll()) {
@@ -630,9 +635,9 @@ namespace Graph
 
             //線を調整
             if (zoomButton.activeSelf && IsScroll()) {
-                lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f-8.0f+(float)graphThreshold*85.0f/250.0f+8.5f);
+                lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f-8.0f+(float)graphThreshold*85.0f/250.0f+8.5f + lineUpValue);
             } else {
-                lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f-8.0f+(float)graphThreshold*85.0f/250.0f);
+                lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f-8.0f+(float)graphThreshold*85.0f/250.0f + lineUpValue);
             }
 		}
 
@@ -642,7 +647,7 @@ namespace Graph
 
 			SeriesObject.SetActive (true);
 			RectTransform rect0 = SeriesObject.GetComponent<RectTransform>();
-			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150,0);
+			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150 + lineUpValue,0);
 
             Vector3 ibikiMainPosition = IbikiMainGraph.transform.localPosition;
             IbikiMainGraph.transform.localPosition = new Vector3(ibikiMainPosition.x,-130f);
@@ -651,12 +656,14 @@ namespace Graph
             HeadDirGraphObject.transform.localPosition = new Vector3(headLocalPosition.x,-563.5f+20.0f);
 
             //線を調整
-            lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f+(float)graphThreshold*85.0f/250.0f+0.5f-8.5f);
+            lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f+(float)graphThreshold*85.0f/250.0f+0.5f-8.5f + lineUpValue);
 
-            line250ImageRect.transform.localPosition = new Vector3(line250ImageRect.transform.localPosition.x,-316.65f-6.8f);
-            line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-316.65f-6.8f+68.0f);
-            line750ImageRect.transform.localPosition = new Vector3(line750ImageRect.transform.localPosition.x,-316.65f-6.8f+68.0f*2);
-            line1000ImageRect.transform.localPosition = new Vector3(line1000ImageRect.transform.localPosition.x,-316.65f-6.8f+68.0f*3);
+            lineBottomRect.transform.localPosition = new Vector3(lineBottomRect.transform.localPosition.x,-316.65f-6.8f-68.0f + lineUpValue);
+            
+            line250ImageRect.transform.localPosition = new Vector3(line250ImageRect.transform.localPosition.x,-316.65f-6.8f + lineUpValue);
+            line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-316.65f-6.8f+68.0f + lineUpValue);
+            line750ImageRect.transform.localPosition = new Vector3(line750ImageRect.transform.localPosition.x,-316.65f-6.8f+68.0f*2 + lineUpValue);
+            line1000ImageRect.transform.localPosition = new Vector3(line1000ImageRect.transform.localPosition.x,-316.65f-6.8f+68.0f*3 + lineUpValue);
 		}
 
 
@@ -666,7 +673,7 @@ namespace Graph
 
 			SeriesObject.SetActive (true);
 			RectTransform rect0 = SeriesObject.GetComponent<RectTransform>();
-			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150,0);
+			rect0.localPosition=new Vector3(rect0.transform.localPosition.x,rect0.transform.localPosition.y-150 + lineUpValue,0);
 			float y = IbikiMainGraph.transform.localPosition.y;
 
             Vector3 ibikiMainPosition = IbikiMainGraph.transform.localPosition;
@@ -677,12 +684,13 @@ namespace Graph
             HeadDirGraphObject.transform.localPosition = new Vector3(headLocalPosition.x,-563.5f+20.0f);
 
             //線を調整
-            lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f+(float)graphThreshold*85.0f/250.0f+0.5f);
-
-            line250ImageRect.transform.localPosition = new Vector3(line250ImageRect.transform.localPosition.x,-316.65f);
-            line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-316.65f+68.0f);
-            line750ImageRect.transform.localPosition = new Vector3(line750ImageRect.transform.localPosition.x,-316.65f+68.0f*2);
-            line1000ImageRect.transform.localPosition = new Vector3(line1000ImageRect.transform.localPosition.x,-316.65f+68.0f*3);
+            lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,-299.65f-85.0f+(float)graphThreshold*85.0f/250.0f+0.5f + lineUpValue);
+            lineBottomRect.transform.localPosition = new Vector3(lineBottomRect.transform.localPosition.x,-316.65f - 68.0f + lineUpValue);
+            
+            line250ImageRect.transform.localPosition = new Vector3(line250ImageRect.transform.localPosition.x,-316.65f + lineUpValue);
+            line500ImageRect.transform.localPosition = new Vector3(line500ImageRect.transform.localPosition.x,-316.65f+68.0f + lineUpValue);
+            line750ImageRect.transform.localPosition = new Vector3(line750ImageRect.transform.localPosition.x,-316.65f+68.0f*2 + lineUpValue);
+            line1000ImageRect.transform.localPosition = new Vector3(line1000ImageRect.transform.localPosition.x,-316.65f+68.0f*3 + lineUpValue);
 		}
 
         void LogYPosition(){

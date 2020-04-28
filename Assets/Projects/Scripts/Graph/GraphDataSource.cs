@@ -110,6 +110,10 @@ namespace Graph
                 snoreVolume1Rate = snoreVolume1Rate > 1.0f ? 1.0f : snoreVolume1Rate;
                 snoreVolume2Rate = snoreVolume2Rate > 1.0f ? 1.0f : snoreVolume2Rate;
                 snoreVolume3Rate = snoreVolume3Rate > 1.0f ? 1.0f : snoreVolume3Rate;
+                // ここで大きさ調整
+                snoreVolume1Rate = snoreVolume1Rate * 0.8f;
+                snoreVolume2Rate = snoreVolume2Rate * 0.8f;
+                snoreVolume3Rate = snoreVolume3Rate * 0.8f;
                 SleepData.HeadDir headDir1 = data.GetHeadDir1();
                 SleepData.HeadDir headDir2 = data.GetHeadDir2();
                 SleepData.HeadDir headDir3 = data.GetHeadDir3();
