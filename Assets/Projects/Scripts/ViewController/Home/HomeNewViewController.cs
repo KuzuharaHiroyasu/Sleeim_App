@@ -539,6 +539,35 @@ public class HomeNewViewController : ViewControllerBase
 
             //デバイスアイコンの表示を更新する
             UpdateDeviceIcon();
+
+            UpdateDialog.Show("同期中");
+            //デバイス時刻補正
+            bool isCorrectTimeSuccess = false;
+            DateTime correctDeviceTime = DateTime.MinValue;
+            yield return StartCoroutine(CorrectDeviceTime((bool isSuccess, DateTime correctTime) =>
+            {
+                isCorrectTimeSuccess = isSuccess;
+                correctDeviceTime = correctTime;
+            }));
+            if (!isCorrectTimeSuccess)
+            {
+                UpdateDialog.Dismiss();
+                yield return StartCoroutine(TellFailedSync());
+                yield break;    //エラーが発生した場合は以降のBle処理を飛ばす
+            }
+
+            //電池残量を取得
+            bool isGetBatteryStateSuccess = false;
+            yield return StartCoroutine(GetBatteryState((bool isSuccess) => isGetBatteryStateSuccess = isSuccess));
+            if (!isGetBatteryStateSuccess)
+            {
+                UpdateDialog.Dismiss();
+                yield return StartCoroutine(TellFailedSync());
+                yield break;    //エラーが発生した場合は以降のBle処理を飛ばす
+            }
+            //電池アイコン表示更新
+            UpdateBatteryIcon();
+            UpdateDialog.Dismiss();
         }
     }
 
