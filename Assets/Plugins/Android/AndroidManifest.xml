@@ -5,7 +5,7 @@
 	android:theme="@style/UnityThemeSelector" tools:node="replace" tools:replace="android:theme">
     <!-- Android : Native -->
     <!-- MainActivity : for Permission Check -->
-    <activity android:name="jp.co.onea.sleeim.unityandroidplugin.main.MainActivity" android:label="@string/app_name" android:hardwareAccelerated="true">
+    <activity android:name="jp.co.onea.sleeim.unityandroidplugin.main.MainActivity" android:label="@string/app_name" android:hardwareAccelerated="true" android:theme="@style/AppTheme">
       <intent-filter>
         <!-- 最初に起動するActivityに指定する -->
         <action android:name="android.intent.action.MAIN" />
