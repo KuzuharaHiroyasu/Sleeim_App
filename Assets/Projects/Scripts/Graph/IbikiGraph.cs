@@ -299,7 +299,7 @@ namespace Graph
 						lineTouchiRect.transform.localPosition = new Vector3(lineTouchiRect.transform.localPosition.x,21.85f-85.0f+(float)graphThreshold*85.0f/250.0f + lineUpValue);
 					}
                     
-                    lineTouchiRect.gameObject.SetActive(true);
+                    //lineTouchiRect.gameObject.SetActive(true);
 
 					lineBottomRect.sizeDelta = new Vector2(600*hour,2.0f);
 					line250ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
