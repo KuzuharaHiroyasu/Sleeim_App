@@ -15,7 +15,7 @@ using Kaimin.Common;
 public class HomeNewViewController : ViewControllerBase
 {
     public Text nickNameText = null; //ニックネーム
-    public Text dataReceptionTimeText = null; //最終データ受信時刻
+    //public Text dataReceptionTimeText = null; //最終データ受信時刻
     public Image batteryIcon = null; //機器の電池残量を表すアイコン
     public Image deviceIcon = null;  //機器との接続状態を表すアイコン
     public Button syncButton = null;		  //データ取得(同期)ボタン
@@ -24,6 +24,7 @@ public class HomeNewViewController : ViewControllerBase
     public Image suppressionStrengthIcon = null;
 
     public Text sleepTimeText = null; //睡眠時間
+    public Text sleepDateText = null; //睡眠日付
 
     //PieChart
     public Color[] pieColors; //Colors of Fumei, Mukokyu, Ibiki, Kaimin
@@ -137,6 +138,7 @@ public class HomeNewViewController : ViewControllerBase
     //最終データ受信時刻を更新
     void UpdateDataReceptionTime()
     {
+        /*
         DateTime time = UserDataManager.State.GetDataReceptionTime();
         bool isExistData = time != DateTime.MinValue;
         
@@ -145,6 +147,7 @@ public class HomeNewViewController : ViewControllerBase
         } else {
             dataReceptionTimeText.text = "-";	//データがなければハイフンを表示
         }
+        */
     }
 
     /// <summary>
@@ -212,6 +215,10 @@ public class HomeNewViewController : ViewControllerBase
                     string sleepTime = string.Format("{0:00}:{1:00}", hourWithDay, ts.Minutes);
                     sleepTimeText.text = sleepTime;
 
+                    DateTime fileDateTime = Kaimin.Common.Utility.TransFilePathToDate(filepaths[_selectIndex]);
+                    DateTime realDateTime = CSVManager.getRealDateTime(fileDateTime);
+                    sleepDateText.text = CSVManager.isInvalidDate(realDateTime) ? "-" : realDateTime.ToString("yyyy/MM/dd HH:mm");
+
                     //Step2: Show pie chart
                     chartInfo = CSVManager.convertSleepDataToChartInfo(latestSleepDatas);
                     if (chartInfo != null)
@@ -267,6 +274,7 @@ public class HomeNewViewController : ViewControllerBase
             pieInfo.hidePieInfo();
             piePrefab.fillAmount = 0;
             sleepTimeText.text = "-";
+            sleepDateText.text = "";
         }
     }
 
