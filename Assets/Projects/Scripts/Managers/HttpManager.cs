@@ -54,7 +54,7 @@ namespace Kaimin.Managers
 
                 MultipartFormDataContent form = new MultipartFormDataContent();
 
-                using (FileStream stream = File.Open(@filePath, FileMode.Open))
+                using (FileStream stream = File.Open(@filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     byte[] result = new byte[stream.Length];
                     await stream.ReadAsync(result, 0, (int)stream.Length);
