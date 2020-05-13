@@ -73,15 +73,7 @@ public class ActionModeViewController : DeviceSettingViewController
     /// 戻るボタン押下イベントハンドラ
     /// </summary>
     public void OnReturnButtonTap() {
-        int tapFromHome = PlayerPrefs.GetInt("tapFromHome", 0);
-        if (tapFromHome == 1)
-        {
-            StartCoroutine(BackButtonCoroutine());
-        }
-        else
-        {
-            SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
-        }
+        SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
     }
 
     /// <summary>
