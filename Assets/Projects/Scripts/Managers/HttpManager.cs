@@ -65,6 +65,7 @@ namespace Kaimin.Managers
                     form.Add(fileContent, "file", fileName);
                     form.Add(new StringContent(deviceId), "device_id");
                     form.Add(new StringContent(uploadPath), "uploadPath");
+                    form.Add(new StringContent(Kaimin.Common.Utility.getSecurityText()), "security_text");
 
                     Debug.Log("UploadFileAsync-start(" + fileName + ")");
                     var response = await client.PostAsync($"{API_UPLOAD_URL}/", form);
@@ -125,6 +126,7 @@ namespace Kaimin.Managers
                 MultipartFormDataContent form = new MultipartFormDataContent();
                 form.Add(new StringContent(deviceId), "device_id");
                 form.Add(new StringContent(fileName), "file_name");
+                form.Add(new StringContent(Kaimin.Common.Utility.getSecurityText()), "security_text");
 
                 Debug.Log("DeleteFileAPI-start(" + fileName + ")");
                 var response = await client.PostAsync($"{API_DELETE_URL}/", form);
@@ -148,6 +150,7 @@ namespace Kaimin.Managers
             {
                 MultipartFormDataContent form = new MultipartFormDataContent();
                 form.Add(new StringContent(deviceId), "device_id");
+                form.Add(new StringContent(Kaimin.Common.Utility.getSecurityText()), "security_text");
 
                 Debug.Log("BackupDataAPI-start(" + deviceId + ")");
                 var response = await client.PostAsync($"{API_BACKUP_URL}/", form);
@@ -176,6 +179,7 @@ namespace Kaimin.Managers
                 MultipartFormDataContent form = new MultipartFormDataContent();
                 form.Add(new StringContent(directoryPath), "directory_path");
                 form.Add(new StringContent(requireNotEmpty.ToString()), "require_not_empty");
+                form.Add(new StringContent(Kaimin.Common.Utility.getSecurityText()), "security_text");
 
                 Debug.Log("IsDirectoryExistAPI-start(" + directoryPath + ")");
                 var response = await client.PostAsync($"{API_DIR_EXIST_URL}/", form);
@@ -207,6 +211,7 @@ namespace Kaimin.Managers
                 MultipartFormDataContent form = new MultipartFormDataContent();
                 form.Add(new StringContent(directoryPath), "directory_path");
                 form.Add(new StringContent(fileType.ToString()), "file_type");
+                form.Add(new StringContent(Kaimin.Common.Utility.getSecurityText()), "security_text");
 
                 Debug.Log("FileListAPI-start(" + directoryPath + ")");
                 var response = await client.PostAsync($"{API_FILE_LIST_URL}/", form);
