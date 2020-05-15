@@ -626,7 +626,7 @@ public class HomeNewViewController : ViewControllerBase
         {
             isCorrectTimeSuccess = isSuccess;
             correctDeviceTime = correctTime;
-        }));
+        }, true));
         if (!isCorrectTimeSuccess)
         {
             UpdateDialog.Dismiss();
@@ -1178,7 +1178,7 @@ public class HomeNewViewController : ViewControllerBase
     }
 
     //機器時刻を補正する
-    IEnumerator CorrectDeviceTime(Action<bool, DateTime> onResponse)
+    IEnumerator CorrectDeviceTime(Action<bool, DateTime> onResponse, bool forceCorrectFlag = false)
     {
         //ＮＴＰサーバから時刻を取得してきて、
         DateTime correctTime = DateTime.MinValue;	//補正のための正しい時間
@@ -1216,6 +1216,12 @@ public class HomeNewViewController : ViewControllerBase
         {
             //デバイス時刻の取得に失敗すれば、これ以降の処理を行わない
             onResponse(false, correctTime);
+
+            if (forceCorrectFlag)
+            {
+                yield return StartCoroutine(SetDeviceTime(correctTime, onResponse));
+            }
+            
             yield break;
         }
         else
