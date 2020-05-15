@@ -19,7 +19,7 @@ public class BarPercent : MonoBehaviour {
 		
 	}
 
-    public void drawChartInfo(float percent1, float percent2, float percent3, int sleepMode, int vibrationStrength = -1)
+    public void drawChartInfo(float percent1, float percent2, float percent3, int sleepMode, int vibrationStrength = -1, bool showPercent = true)
     {
         double p1 = System.Math.Round((double)(percent1 * 100), 1);
         double p2 = System.Math.Round((double)(percent2 * 100), 1);
@@ -27,10 +27,12 @@ public class BarPercent : MonoBehaviour {
         double p4 = 100 - p1 - p2 - p3;
         p4 = p4 < 0.1 ? 0 : System.Math.Round(p4, 1);
 
-        pkaiMin.text  = p1 + ""; //%
-        pIbiki.text   = p2 + "";
-        pMukokyu.text = p3 + "";
-        pFumei.text   = p4 + "";
+        string suffix = showPercent ? " %" : "";
+
+        pkaiMin.text  = p1 + suffix;
+        pIbiki.text   = p2 + suffix;
+        pMukokyu.text = p3 + suffix;
+        pFumei.text   = p4 + suffix;
 
         if(vibrationStrength >= 0)
         {

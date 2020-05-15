@@ -144,7 +144,7 @@ public class HomeNewViewController : ViewControllerBase
         if(isExistData) {
             dataReceptionTimeText.text = time.Month.ToString("00") + "/" + time.Day.ToString("00") + " " + time.Hour.ToString("00") + ":" + time.Minute.ToString("00");
         } else {
-            dataReceptionTimeText.text = "-";	//データがなければハイフンを表示
+            dataReceptionTimeText.text = "";	//データがなければハイフンを表示
         }
     }
 
