@@ -67,9 +67,10 @@ namespace Kaimin.Managers
             PermissionCode = int.Parse(code);
         }
 
-		[DllImport ("__Internal")]
+#if UNITY_IOS
+        [DllImport ("__Internal")]
 		private static extern void _openBLESetting ();
-
+#endif
         /// <summary>
         /// Bluetooth有効化リクエスト発行
         /// </summary>
@@ -112,16 +113,17 @@ namespace Kaimin.Managers
 #endif
         }
 
-		[DllImport ("__Internal")]
+#if UNITY_IOS
+        [DllImport ("__Internal")]
 		private static extern void _openLocalNotificationSetting ();
-			
-		/// <summary>
-		/// 通知を許可してもらうために設定画面を開きます。
-		/// 設定画面を閉じた際にコールバックが返ります。
-		/// NotificationRequestResultCodeで結果を受け取ってください。
-		/// 0:許可なし 1:許可
-		/// </summary>
-		public void NotificationRequest () {
+#endif
+        /// <summary>
+        /// 通知を許可してもらうために設定画面を開きます。
+        /// 設定画面を閉じた際にコールバックが返ります。
+        /// NotificationRequestResultCodeで結果を受け取ってください。
+        /// 0:許可なし 1:許可
+        /// </summary>
+        public void NotificationRequest () {
 			#if UNITY_ANDROID
 			NativeManager.Instance.NotificationRequestResultCode = -1;	//初期化
 			string cbMethodName = ((Action<string>)OnFinishedResultNfRequest).Method.Name;
@@ -140,14 +142,14 @@ namespace Kaimin.Managers
 		void OnFinishedResultNfRequest (string result) {
 			NotificationRequestResultCode = Convert.ToInt32 (Convert.ToBoolean (result));
 		}
-
-		[DllImport ("__Internal")]
+#if UNITY_IOS
+        [DllImport ("__Internal")]
 		private static extern void _stopAlarm ();
-
-		/// <summary>
-		/// アラームを停止させる
-		/// </summary>
-		public void StopAlerm () {
+#endif
+        /// <summary>
+        /// アラームを停止させる
+        /// </summary>
+        public void StopAlerm () {
 			#if UNITY_ANDROID
 			using (AndroidJavaObject ajo = new AndroidJavaObject (_packageNameMyApplication)) {
 				ajo.CallStatic ("AlarmStop");
@@ -157,9 +159,10 @@ namespace Kaimin.Managers
 			#endif
 		}
 
-		[DllImport("__Internal")]
+#if UNITY_IOS
+        [DllImport("__Internal")]
 		private static extern Boolean _checkBluetoothPoweredOn();
-
+#endif
         /// <summary>
         /// Bluetooth有効/無効チェック
         /// </summary>
@@ -178,9 +181,10 @@ namespace Kaimin.Managers
             return ret;
         }
 
-		[DllImport("__Internal")]
+#if UNITY_IOS
+        [DllImport("__Internal")]
 		private static extern Boolean _checkBluetoothSupported();
-
+#endif
         /// <summary>
         /// BLEサポートチェック
         /// </summary>
