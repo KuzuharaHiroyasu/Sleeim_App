@@ -4,9 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class PrivacyPolicyViewController : ViewControllerBase {
-
-	[SerializeField]GameObject prehab;
-	[SerializeField]string URL;
+	//http://down.one-a.co.jp/Welness/legal/privacy_policy.html
 
 	protected override void Start () {
 		base.Start ();

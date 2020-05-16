@@ -5,9 +5,6 @@ using UnityEngine.UI;
 
 public class TermsOfUse : ViewControllerBase {
 
-	//[SerializeField]GameObject prehab;
-	//[SerializeField]string URL;
-
 	[SerializeField]
     // 画面真ん中のスクロールビュー
 	private ScrollRect scrollRect;
