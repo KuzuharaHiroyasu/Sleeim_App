@@ -140,6 +140,7 @@ namespace Kaimin.Managers
             }
         }
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _checkLocalNotificationSetting ();
 
@@ -157,6 +158,8 @@ namespace Kaimin.Managers
             yield return new WaitUntil (() => _notificationState != -1);
             onComplete ();
         }
+#endif
+
 
         /// <summary>
         /// システムの初期化
@@ -268,12 +271,12 @@ namespace Kaimin.Managers
                 "CallbackH1dTransferDataDone",
                 "CallBackAlarm",
                 "CallBackCommandWrite");
-            #if UNITY_IOS
+#if UNITY_IOS
             //iOSの場合は、Initializeの後に状態を確認しに行く必要がある。
             //応答が返ってくれば完了とする
             yield return new WaitUntil (() => _bluetoothState != -1);
             Debug.Log ("BleInitializeComplete_State:" + _bluetoothState);
-            #endif
+#endif
             yield break;
         }
 
@@ -305,6 +308,8 @@ namespace Kaimin.Managers
 
         delegate void callback_delegate14 (int status);
 
+#if UNITY_IOS
+
         [DllImport ("__Internal")]
         private static extern void _initialize (callback_delegate1 callBackError,
             callback_delegate2 callBackConnectionPeripheral,
@@ -320,6 +325,7 @@ namespace Kaimin.Managers
             callback_delegate12 callBackBluetoothState,
             callback_delegate13 callBackDeviceStatus,
             callback_delegate14 callBackNotificationStatus);
+#endif
 
         // コールバック関数を、MonoPInvokeCallbackを付けてstaticで定義
         [MonoPInvokeCallback (typeof(callback_delegate1))]
@@ -548,9 +554,10 @@ namespace Kaimin.Managers
             return ret;
         }
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _deInitialize ();
-
+#endif
         /// <summary>
         /// Bluetooth終了処理
         /// </summary>
@@ -566,9 +573,10 @@ namespace Kaimin.Managers
 #endif
         }
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _scanStart ();
-
+#endif
         /// <summary>
         /// 検索開始
         /// </summary>
@@ -589,8 +597,10 @@ namespace Kaimin.Managers
 #endif
         }
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _scanStop ();
+#endif
 
         /// <summary>
         /// 検索停止
@@ -607,12 +617,15 @@ namespace Kaimin.Managers
 #endif
         }
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
 		private static extern void _connectionPeripheral (string identifierUuid);
+#endif
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _reConnectionPeripheral (string uuid);
-
+#endif
         /// <summary>
         /// ペリフェラル接続
         /// <param name="deviceAddress">接続先のデバイスアドレス</param>
@@ -643,9 +656,10 @@ namespace Kaimin.Managers
 #endif
         }
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _disConnectPeripheral ();
-
+#endif
         /// <summary>
         /// ペリフェラル切断
         /// </summary>
@@ -661,11 +675,12 @@ namespace Kaimin.Managers
 #endif
         }
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _setCsvHeaderInfo(string deviceId, string nickname, string sex,
             string birthday, string tall, string weight,
             string sleepStartTime, string sleepEndTime, string g1dVersion);
-
+#endif
         /// <summary>
         /// データ取得用（ヘッダ設定）
         /// GET実施前に設定を行う
@@ -690,10 +705,10 @@ namespace Kaimin.Managers
             _setCsvHeaderInfo(deviceId, nickName, sex, birthday, tall, weight, sleepStartTime, sleepEndTime, g1dVersion);
 #endif
         }
-
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _sendDateSetting (string date);
-
+#endif
         /// <summary>
         /// コマンド：日時設定
         /// <param name="date">デバイスに設定する日時(yyyy/MM/dd hh:mm:ss)</param>
@@ -717,11 +732,13 @@ namespace Kaimin.Managers
 #endif
         }
 
+#if UNITY_IOS
         /// <summary>
         /// ファーム更新用サービスUUIDに変更する
         /// </summary>
         [DllImport ("__Internal")]
         private static extern void _changeServiceUUIDToFirmwareUpdate();
+#endif
         public void ChangeServiceUUIDToFirmwareUpdate()
         {
 #if UNITY_ANDROID
@@ -734,11 +751,13 @@ namespace Kaimin.Managers
 #endif
         }
 
+#if UNITY_IOS
         /// <summary>
         /// ファーム更新制御コマンド送信用キャラクタリスティックUUIDに変更する
         /// </summary>
         [DllImport ("__Internal")]
         private static extern void _changeCharacteristicUUIDToFirmwareUpdateControl();
+#endif
         public void ChangeCharacteristicUUIDToFirmwareUpdateControl()
         {
 #if UNITY_ANDROID
@@ -751,11 +770,13 @@ namespace Kaimin.Managers
 #endif
         }
 
+#if UNITY_IOS
         /// <summary>
         /// ファーム更新データ送信用キャラクタリスティックUUIDに変更する
         /// </summary>
         [DllImport ("__Internal")]
         private static extern void _changeCharacteristicUUIDToFirmwareUpdateData();
+#endif
         public void ChangeCharacteristicUUIDToFirmwareUpdateData()
         {
 #if UNITY_ANDROID
@@ -768,11 +789,13 @@ namespace Kaimin.Managers
 #endif
         }
 
+#if UNITY_IOS
         /// <summary>
         /// 汎用通信用サービスUUIDに変更する
         /// </summary>
         [DllImport ("__Internal")]
         private static extern void _changeServiceUUIDToNormal();
+#endif
         public void ChangeServiceUUIDToNormal()
         {
 #if UNITY_ANDROID
@@ -785,10 +808,12 @@ namespace Kaimin.Managers
 #endif
         }
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _sendAlarmSetting (int alarm, int snoreAlarm, int snoreSensitivity, int apneaAlarm,
             int alarmDelay, int bodyMoveStop, int alramTime);
 
+#endif
         /// <summary>
         /// コマンド：アラーム設定
         /// <param name="alarmSet">アラーム有効/無効</param>
@@ -886,9 +911,10 @@ namespace Kaimin.Managers
             SendBleCommand(CommandG1dUpdateControl, value);
         }
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _sendCommand (int commandId);
-
+#endif
         /// <summary>
         /// コマンド送信
         /// <param name="id">コマンドID</param>
@@ -916,9 +942,10 @@ namespace Kaimin.Managers
 #endif
         }
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _sendGetEnd (bool isOK);
-
+#endif
         /// <summary>
         /// データ取得完了通知
         /// <param name="result">データ取得完了結果</param>
@@ -941,9 +968,10 @@ namespace Kaimin.Managers
 #endif
         }
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _sendH1DDate (byte[] data, int length);
-
+#endif
         /// <summary>
         /// G1Dプログラム転送データ
         /// <param name="code">転送コード</param>
@@ -966,9 +994,10 @@ namespace Kaimin.Managers
 #endif
         }
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _sendH1DCheckSum (byte[] data, int length);
-
+#endif
         /// <summary>
         /// H1Dプログラム転送結果確認
         /// <param name="chksum">チェックサム</param>
@@ -995,9 +1024,10 @@ namespace Kaimin.Managers
 
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if UNITY_IOS
         [DllImport ("__Internal")]
         private static extern void _sendBleCommand(int commandType, byte[] command, int length);
-
+#endif
         /// <summary>
         /// BLEコマンドを送信する
         ///
@@ -1227,9 +1257,9 @@ namespace Kaimin.Managers
             {
                 Debug.Log(_JKEY1 + (string)_itemDic[_JKEY1]); //デバイス名
                 Debug.Log(_JKEY2 + (string)_itemDic[_JKEY2]); //デバイスアドレス
-                #if UNITY_IOS
+#if UNITY_IOS
                 Debug.Log (_JKEY3 + (string)_itemDic[_JKEY3]);	//iOSのみで使用するデバイス識別番号
-                #endif
+#endif
 
                 if ((string)_itemDic[_JKEY1] != null) //デバイス名はネィティブ側でフィルタを実施している（iOSはUUIDでフィルタして返却）
                 {
