@@ -10,6 +10,8 @@ using Asyncoroutine;
 using System.IO;
 using System.Linq;
 using UnityEngine.UI;
+using UnityEngine.Android;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -300,23 +302,70 @@ public class SplashViewController : ViewControllerBase
     {
         //必須(Dangerous)パーミッションのチェック
 #if UNITY_ANDROID
-        NativeManager.Instance.Initialize();
-        NativeManager.Instance.CheckFuncPermission();
-        yield return new WaitUntil(() => NativeManager.Instance.PermissionCode != -1);
-        bool isOKPermission = NativeManager.Instance.PermissionCode == 0;   //0より大きい:許可なし 0:許可
-        if (isOKPermission)
+        StartCoroutine(AskForPermissions());
+
+        if (Permission.HasUserAuthorizedPermission(Permission.FineLocation) && 
+           Permission.HasUserAuthorizedPermission(Permission.ExternalStorageRead))
         {
-            Debug.Log("Permission All OK.");
+            NativeManager.Instance.Initialize();
+            NativeManager.Instance.CheckFuncPermission();
+            yield return new WaitUntil(() => NativeManager.Instance.PermissionCode != -1);
+            bool isOKPermission = NativeManager.Instance.PermissionCode == 0;   //0より大きい:許可なし 0:許可
+            if (isOKPermission)
+            {
+                Debug.Log("Permission All OK.");
+            }
+            else
+            {
+                bool isOK = false;
+                MessageDialog.Show("「設定」から権限を付与して\nアプリを再起動して下さい", true, false, () => isOK = true);
+                yield return new WaitUntil(() => isOK);
+                ShutDownApp();
+            }
         }
-        else
-        {
-            bool isOK = false;
-            MessageDialog.Show("「設定」から権限を付与して\nアプリを再起動して下さい", true, false, () => isOK = true);
-            yield return new WaitUntil(() => isOK);
-            ShutDownApp();
-        }
+        
 #endif
         yield return null;
+    }
+
+    private IEnumerator AskForPermissions()
+    {
+#if UNITY_ANDROID
+        List<bool> permissions = new List<bool>() { false, false };
+        List<bool> permissionsAsked = new List<bool>() { false, false };
+        List<Action> actions = new List<Action>()
+        {
+            new Action(() => {
+                permissions[0] = Permission.HasUserAuthorizedPermission(Permission.FineLocation);
+                if (!permissions[0] && !permissionsAsked[0])
+                {
+                    Permission.RequestUserPermission(Permission.FineLocation);
+                    permissionsAsked[0] = true;
+                    return;
+                }
+            }),
+            new Action(() => {
+                permissions[1] = Permission.HasUserAuthorizedPermission(Permission.ExternalStorageRead);
+                if (!permissions[1] && !permissionsAsked[1])
+                {
+                    Permission.RequestUserPermission(Permission.ExternalStorageRead);
+                    permissionsAsked[1] = true;
+                    return;
+                }
+            }),
+        };
+
+        for (int i = 0; i < permissionsAsked.Count;)
+        {
+            actions[i].Invoke();
+            if (permissions[i])
+            {
+                ++i;
+            }
+
+            yield return new WaitForEndOfFrame();
+        }
+#endif
     }
 
     //アプリ終了
