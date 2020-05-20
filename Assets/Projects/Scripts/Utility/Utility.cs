@@ -147,7 +147,15 @@ namespace Kaimin.Common
 			HMS = HMS.Insert (2, ":");				//HH:MMSS
 			HMS = HMS.Insert (5, ":");				//HH:MM:SS
 			string date = YMD + " " + HMS;
-			return DateTime.Parse (date);
+
+            try
+            {
+                return DateTime.Parse(date);
+            }
+            catch (Exception e)
+            {
+                return DateTime.MinValue;
+            }
 		}
 
         /// <summary>

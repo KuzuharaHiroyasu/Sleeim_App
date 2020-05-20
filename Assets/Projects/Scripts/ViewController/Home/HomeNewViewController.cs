@@ -197,11 +197,21 @@ public class HomeNewViewController : ViewControllerBase
         {
             if (filepaths != null && filepaths.Length != 0)
             {
-                int _selectIndex = filepaths.Length - 1; //最新のファイルを取得
-                latestSleepDatas = CSVSleepDataReader.GetSleepDatas(filepaths[_selectIndex]); //最新の睡眠データのリスト
-                latestSleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(filepaths[_selectIndex]); //最新の睡眠データのヘッダーデータ
+                //Get latest valid file 
+                int _selectIndex = -1; 
+                for (int i = filepaths.Length - 1; i >= 0; i--)
+                {
+                    latestSleepDatas = CSVSleepDataReader.GetSleepDatas(filepaths[i]); //最新の睡眠データのリスト
+                    latestSleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(filepaths[i]); //最新の睡眠データのヘッダーデータ
 
-                if (latestSleepHeaderData != null && latestSleepDatas != null)
+                    if(latestSleepHeaderData != null && latestSleepDatas != null && latestSleepDatas.Count > 0)
+                    {
+                        _selectIndex = i; //最新のファイルを取得
+                        break;
+                    }
+                }
+
+                if (_selectIndex >= 0)
                 {
                     DateTime startTime = latestSleepHeaderData.DateTime;
                     DateTime endTime = latestSleepDatas.Select(data => data.GetDateTime()).Last();

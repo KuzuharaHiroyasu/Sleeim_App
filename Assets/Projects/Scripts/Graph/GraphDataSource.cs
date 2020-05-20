@@ -60,16 +60,26 @@ namespace Graph
                 Debug.Log("FilePath:" + filePath);
             }
             Debug.Log("EndCheckGraphData----------------------------");
-            _selectMax = _filepath.Length - 1;//最新のファイルを取得
 
+            //Get latest valid file 
+            _selectMax = -1;
+            for (int i = _filepath.Length - 1; i >= 0; i--)
+            {
+                List<SleepData> latestSleepDatas = CSVSleepDataReader.GetSleepDatas(_filepath[i]); //最新の睡眠データのリスト
+                if (latestSleepDatas != null && latestSleepDatas.Count > 0)
+                {
+                    _selectMax = i; //最新のファイルを取得
+                    break;
+                }
+            }
 
-			scrollView.SetActive (false);
+            scrollView.SetActive (false);
             if (_filepath.Length != 0)
             { //エラーが出ないように
                 DateTime targetDate = UserDataManager.Scene.GetGraphDate();
                 //合致する日付データを検索する
                 bool isExistSelectData = _filepath
-                    .Where(path => Kaimin.Common.Utility.TransFilePathToDate(path) == targetDate)
+                    .Where(path => Kaimin.Common.Utility.TransFilePathToDate(path) == targetDate && targetDate != DateTime.MinValue)
                     .Count() > 0;
                 if (isExistSelectData)
                 {
@@ -84,9 +94,13 @@ namespace Graph
                     //最新データを表示したい場合
                     _selectIndex = _selectMax;
                 }
-                sleepDataList = ReadSleepDataFromCSV(_filepath[_selectIndex]);         //睡眠データをCSVから取得する
-                sleepHeaderData = ReadSleepHeaderDataFromCSV(_filepath[_selectIndex]); //睡眠のヘッダーデータをCSVから取得する
-                AttachData();
+
+                if(_selectIndex >= 0)
+                {
+                    sleepDataList = ReadSleepDataFromCSV(_filepath[_selectIndex]);         //睡眠データをCSVから取得する
+                    sleepHeaderData = ReadSleepHeaderDataFromCSV(_filepath[_selectIndex]); //睡眠のヘッダーデータをCSVから取得する
+                    AttachData();
+                }
 			}
 			//表示するデータがなければ、NODATAを表示する
 			noDataImage.enabled = _filepath.Length == 0;
