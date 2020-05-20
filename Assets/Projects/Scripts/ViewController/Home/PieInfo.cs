@@ -28,8 +28,15 @@ public class PieInfo : MonoBehaviour {
             pieLabel.text = label;
             piePercentValue.text = percent.ToString() + "%";
         } else if (percent >= 5) {
-            pieLabel.text = label;
-            piePercentValue.text = "";
+            if(label == "呼吸レス" && percent < 7.5)
+            {
+                pieLabel.text = "呼吸";
+                piePercentValue.text = "レス";
+            } else
+            {
+                pieLabel.text = label;
+                piePercentValue.text = "";
+            }
         } else if (percent >= 3.5) {
             if(label == "快眠") {
                 pieLabel.text = "快";

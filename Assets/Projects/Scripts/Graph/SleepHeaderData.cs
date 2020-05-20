@@ -100,6 +100,13 @@ public class SleepHeaderData {
         int hour = int.Parse(timeArr[0]);
         int min = int.Parse(timeArr[1]);
         int sec = int.Parse(timeArr[2]);
-        this.DateTime = new System.DateTime(year, month, day, hour, min, sec);
+
+        try
+        {
+            this.DateTime = new System.DateTime(year, month, day, hour, min, sec);
+        } catch
+        {
+            this.DateTime = System.DateTime.MinValue;
+        }
     }
 }

@@ -356,7 +356,7 @@ public class FtpFunction {
 
     static IEnumerator AskReDownloadData(MonoBehaviour mono, List<string> filePathList, int downloadCompleteDataSum)
     {
-        #if UNITY_ANDROID
+#if UNITY_ANDROID
             bool isShutDownApp = false;
             yield return mono.StartCoroutine(AskShutDownApp((bool _isShutDownApp) => isShutDownApp = _isShutDownApp));
             if (isShutDownApp)
@@ -369,11 +369,14 @@ public class FtpFunction {
                 //終了しないなら、復元処理を再度行う
                 yield return mono.StartCoroutine(DownloadServerDatasToRegistDBByHttp(mono, filePathList, downloadCompleteDataSum));
             }
-        #elif UNITY_IOS
+#elif UNITY_IOS
 			//iOSの場合は、アプリの終了が行えないため確認はせずに再接続する
 			yield return mono.StartCoroutine(DownloadServerDatasToRegistDBByHttp(mono, filePathList, downloadCompleteDataSum));
-        #endif
-    }
+#endif
+
+		yield return null;
+
+	}
 
     /// <summary>
     /// サーバーに存在する指定のパスのファイルを取得して、DBに登録する
