@@ -71,12 +71,18 @@ public class BirthViewController : ViewControllerBase {
 	public void changeYearDropDownValue(int value){
 		yearValue = value + 1900;
 		changeBirth ();
+
+		updateDropDownDayList();
+		updateDropDownSelectedDay();
 	}
 
 	// 月のドロップダウンが変更された時に呼び出される
 	public void changeMonthDropDownValue(int value){
 		monthValue = value + 1;
 		changeBirth ();
+
+		updateDropDownDayList();
+		updateDropDownSelectedDay();
 	}
 
 	// 日のドロップダウンが変更された時に呼び出される
@@ -91,7 +97,6 @@ public class BirthViewController : ViewControllerBase {
 	private void changeBirth(){
 		DateTime dateTime = makeBirth ();
 		UserDataManager.Setting.Profile.SaveBirthDay (dateTime);
-		updateDropDownDayList ();
 	}
 
 	// ドロップダウンで選択された生年月日からDateTime変数を作って返す
