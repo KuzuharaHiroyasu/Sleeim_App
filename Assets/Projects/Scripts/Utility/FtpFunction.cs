@@ -373,6 +373,8 @@ public class FtpFunction {
 			//iOSの場合は、アプリの終了が行えないため確認はせずに再接続する
 			yield return mono.StartCoroutine(DownloadServerDatasToRegistDBByHttp(mono, filePathList, downloadCompleteDataSum));
         #endif
+
+		    yield return null;
     }
 
     /// <summary>
