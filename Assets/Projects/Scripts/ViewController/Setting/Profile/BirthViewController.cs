@@ -71,12 +71,18 @@ public class BirthViewController : ViewControllerBase {
 	public void changeYearDropDownValue(int value){
 		yearValue = value + 1900;
 		changeBirth ();
+
+		updateDropDownDayList();
+		updateDropDownSelectedDay();
 	}
 
 	// 月のドロップダウンが変更された時に呼び出される
 	public void changeMonthDropDownValue(int value){
 		monthValue = value + 1;
 		changeBirth ();
+
+		updateDropDownDayList();
+		updateDropDownSelectedDay();
 	}
 
 	// 日のドロップダウンが変更された時に呼び出される
@@ -84,7 +90,6 @@ public class BirthViewController : ViewControllerBase {
 		Debug.Log("value = " + value);  //値を取得（先頭から連番(0～n-1)）
 		Debug.Log("text(options) = " + dropDownDay.options[value].text);  //リストからテキストを取得
 		dayValue = value + 1;
-		changeBirth ();
 	}
 
 	// 生年月日が変更された時に呼び出される
