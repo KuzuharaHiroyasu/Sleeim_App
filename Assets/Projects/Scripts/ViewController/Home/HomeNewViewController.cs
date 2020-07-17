@@ -24,7 +24,7 @@ public class HomeNewViewController : ViewControllerBase
     public Image suppressionStrengthIcon = null;
 
     public Text sleepTimeText = null; //睡眠時間
-    //public Text sleepDateText = null; //睡眠日付
+    public Text sleepDateText = null; //睡眠日付 (選択したグラフの日付)
 
     //PieChart
     public Color[] pieColors; //Colors of Fumei, Mukokyu, Ibiki, Kaimin
@@ -46,8 +46,15 @@ public class HomeNewViewController : ViewControllerBase
     [SerializeField] Sprite suppressStrengthIcon_high = null;
     [SerializeField] Sprite suppressStrengthIcon_multi = null;
 
+    public Button btnPrev;
+    public Button btnNext;
+    string[] filePaths;
+    int selectFilePosition = -1;
+    int MIN_FILE_POSITION = 0;
+    int MAX_FILE_POSITION = -1;
+
     // Use this for initialization
-    protected override void Start () {
+    protected override void Start() {
         base.Start();
         //ホーム画面をロードした事を記録する
         UserDataManager.State.SaveLoadHomeScene();
@@ -56,9 +63,18 @@ public class HomeNewViewController : ViewControllerBase
         //ホーム画面でペアリングが解除された際に、同期ボタンに反映できるよう設定
         DeviceStateManager.Instance.OnDevicePareringDisConnectEvent += UpdateSyncButton;
 
+        string dataPath = Kaimin.Common.Utility.GsDataPath();
+        filePaths = Kaimin.Common.Utility.GetAllFiles(dataPath, "*.csv");
+        if(filePaths != null)
+        {
+            MAX_FILE_POSITION = filePaths.Length - 1;
+        }
+        this.btnPrev.GetComponent<Button>().onClick.AddListener(delegate { this.onClickPrevBtn(); });
+        this.btnNext.GetComponent<Button>().onClick.AddListener(delegate { this.onClickNextBtn(); });
+
         //ニックネーム設定
         UpdateNicknameDisp();
-        
+
         //デバイス関連設定
         UpdateSyncButton();
         UpdateDeviceIcon();
@@ -70,19 +86,73 @@ public class HomeNewViewController : ViewControllerBase
         //UpdateApneaCountDate();
         UpdateLatestPieChart();
 
+        //Recalculate MIN_FILE_POSITION
+        for (int i = 0; i <= MAX_FILE_POSITION; i++)
+        {
+            List<SleepData> sleepDatas = CSVSleepDataReader.GetSleepDatas(filePaths[i]); //睡眠データのリスト
+            SleepHeaderData sleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(filePaths[i]); //睡眠データのヘッダーデータ
+
+            if (sleepHeaderData != null && sleepDatas != null && sleepDatas.Count > 0)
+            {
+                MIN_FILE_POSITION = i; //ファイルを取得
+                updatePrevNextBtnState();
+                break;
+            }
+        }
+
         UpdateDeviceSetting();
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+    // Update is called once per frame
+    void Update() {
+
+    }
 
     public override SceneTransitionManager.LoadScene SceneTag
     {
         get
         {
             return SceneTransitionManager.LoadScene.Home;
+        }
+    }
+
+    public void onClickPrevBtn()
+    {
+        if (filePaths != null && selectFilePosition < MAX_FILE_POSITION)
+        {
+            selectFilePosition++;
+            UpdatePieChart(selectFilePosition, false);
+            updatePrevNextBtnState();
+        }
+    }
+
+    public void onClickNextBtn()
+    {
+        if(filePaths != null && selectFilePosition > MIN_FILE_POSITION)
+        {
+            selectFilePosition--;
+            UpdatePieChart(selectFilePosition, true);
+            updatePrevNextBtnState();
+        }
+    }
+
+    public void updatePrevNextBtnState()
+    {
+        if (filePaths == null || MAX_FILE_POSITION <= 0 || MIN_FILE_POSITION == MAX_FILE_POSITION)
+        {
+            this.btnPrev.interactable = false;
+            this.btnNext.interactable = false;
+        } else
+        {
+            this.btnPrev.interactable = true;
+            this.btnNext.interactable = true;
+            if (selectFilePosition <= MIN_FILE_POSITION)
+            {
+                this.btnNext.interactable = false;
+            } else if (selectFilePosition >= MAX_FILE_POSITION)
+            {
+                this.btnPrev.interactable = false;
+            }
         }
     }
 
@@ -138,10 +208,15 @@ public class HomeNewViewController : ViewControllerBase
     //最終データ受信時刻を更新
     void UpdateDataReceptionTime()
     {
+        if (dataReceptionTimeText == null)
+        {
+            return;
+        }
+
         DateTime time = UserDataManager.State.GetDataReceptionTime();
         bool isExistData = time != DateTime.MinValue;
-        
-        if(isExistData) {
+
+        if (isExistData) {
             dataReceptionTimeText.text = time.Month.ToString("00") + "/" + time.Day.ToString("00") + " " + time.Hour.ToString("00") + ":" + time.Minute.ToString("00");
         } else {
             dataReceptionTimeText.text = "";	//データがなければハイフンを表示
@@ -186,35 +261,62 @@ public class HomeNewViewController : ViewControllerBase
 
     public void UpdateLatestPieChart()
     {
-        List<SleepData> latestSleepDatas = null;
-        SleepHeaderData latestSleepHeaderData = null;
-        ChartInfo chartInfo = null;
+        selectFilePosition = MAX_FILE_POSITION; //Important
+        this.UpdatePieChart(selectFilePosition, true);
 
-        string dataPath = Kaimin.Common.Utility.GsDataPath();
-        string[] filepaths = Kaimin.Common.Utility.GetAllFiles(dataPath, "*.csv");
+        MAX_FILE_POSITION = selectFilePosition; //Update max position
+        updatePrevNextBtnState();
+    }
+
+
+    public void UpdatePieChart(int filePosition, bool isDescOrder = true)
+    {
+        List<SleepData> sleepDatas = null;
+        SleepHeaderData sleepHeaderData = null;
+        ChartInfo chartInfo = null;
 
         try
         {
-            if (filepaths != null && filepaths.Length != 0)
+            if (filePaths != null && MIN_FILE_POSITION <= filePosition && filePosition <= MAX_FILE_POSITION)
             {
                 //Get latest valid file 
                 int _selectIndex = -1; 
-                for (int i = filepaths.Length - 1; i >= 0; i--)
+                if(isDescOrder)
                 {
-                    latestSleepDatas = CSVSleepDataReader.GetSleepDatas(filepaths[i]); //最新の睡眠データのリスト
-                    latestSleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(filepaths[i]); //最新の睡眠データのヘッダーデータ
-
-                    if(latestSleepHeaderData != null && latestSleepDatas != null && latestSleepDatas.Count > 0)
+                    for (int i = filePosition; i >= MIN_FILE_POSITION; i--)
                     {
-                        _selectIndex = i; //最新のファイルを取得
-                        break;
+                        sleepDatas = CSVSleepDataReader.GetSleepDatas(filePaths[i]); //睡眠データのリスト
+                        sleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(filePaths[i]); //睡眠データのヘッダーデータ
+
+                        if (sleepHeaderData != null && sleepDatas != null && sleepDatas.Count > 0)
+                        {
+                            _selectIndex = i; //ファイルを取得
+                            break;
+                        }
+                    }
+                } else
+                {
+                    for (int i = filePosition; i <= MAX_FILE_POSITION; i++)
+                    {
+                        sleepDatas = CSVSleepDataReader.GetSleepDatas(filePaths[i]); //睡眠データのリスト
+                        sleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(filePaths[i]); //睡眠データのヘッダーデータ
+
+                        if (sleepHeaderData != null && sleepDatas != null && sleepDatas.Count > 0)
+                        {
+                            _selectIndex = i; //ファイルを取得
+                            break;
+                        }
                     }
                 }
 
                 if (_selectIndex >= 0)
                 {
-                    DateTime startTime = latestSleepHeaderData.DateTime;
-                    DateTime endTime = latestSleepDatas.Select(data => data.GetDateTime()).Last();
+                    selectFilePosition = _selectIndex;
+
+                    DateTime startTime = sleepHeaderData.DateTime;
+                    DateTime endTime = sleepDatas.Select(data => data.GetDateTime()).Last();
+
+                    UserDataManager.Scene.SaveGraphDate(sleepHeaderData.DateTime); //Used to move to graph when call OnToGraphButtonTap()
 
                     //Step1: Update SleepTime
                     int sleepTimeSec = Graph.Time.GetDateDifferencePerSecond(startTime, endTime);
@@ -223,12 +325,12 @@ public class HomeNewViewController : ViewControllerBase
                     string sleepTime = string.Format("{0:00}:{1:00}", hourWithDay, ts.Minutes);
                     sleepTimeText.text = sleepTime;
 
-                    DateTime fileDateTime = Kaimin.Common.Utility.TransFilePathToDate(filepaths[_selectIndex]);
+                    DateTime fileDateTime = Kaimin.Common.Utility.TransFilePathToDate(filePaths[_selectIndex]);
                     DateTime realDateTime = CSVManager.getRealDateTime(fileDateTime);
-                    //sleepDateText.text = CSVManager.isInvalidDate(realDateTime) ? "-" : realDateTime.ToString("yyyy/MM/dd HH:mm");
+                    sleepDateText.text = CSVManager.isInvalidDate(realDateTime) ? "-" : realDateTime.ToString("yyyy/MM/dd HH:mm");
 
                     //Step2: Show pie chart
-                    chartInfo = CSVManager.convertSleepDataToChartInfo(latestSleepDatas);
+                    chartInfo = CSVManager.convertSleepDataToChartInfo(sleepDatas);
                     if (chartInfo != null)
                     {
                         double p1 = System.Math.Round((double)(chartInfo.pKaiMin * 100), 1);
@@ -251,7 +353,7 @@ public class HomeNewViewController : ViewControllerBase
                     //レベル４ 睡眠時間が７時間未満
                     //レベル５ 上記すべての項目を満たしていない
                     int sleepLevel = 5; //Default
-                    int apneaCount = latestSleepHeaderData.ApneaDetectionCount;
+                    int apneaCount = sleepHeaderData.ApneaDetectionCount;
                     double sleepTimeTotal = endTime.Subtract(startTime).TotalSeconds;
                     //無呼吸平均回数(時)
                     double apneaAverageCount = sleepTimeTotal == 0 ? 0 : (double)(apneaCount * 3600) / sleepTimeTotal;  // 0除算を回避
@@ -282,7 +384,7 @@ public class HomeNewViewController : ViewControllerBase
             pieInfo.hidePieInfo();
             piePrefab.fillAmount = 0;
             sleepTimeText.text = "-";
-            //sleepDateText.text = "";
+            sleepDateText.text = "";
         }
     }
 
@@ -490,8 +592,9 @@ public class HomeNewViewController : ViewControllerBase
     //グラフに遷移するためのボタンをタップした際に実行
     public void OnToGraphButtonTap()
     {
-        //最新データに遷移するように設定
-        UserDataManager.Scene.SaveGraphDate(DateTime.MinValue);
+        //現在データに遷移するように設定
+        UserDataManager.Scene.SaveGraphDate(UserDataManager.Scene.GetGraphDate());
+        
         //タブは初期状態で選択されるように設定
         UserDataManager.Scene.InitGraphTabSave();
         UserDataManager.Scene.InitGraphDataTabSave();
