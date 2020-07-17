@@ -95,10 +95,10 @@ public class HomeNewViewController : ViewControllerBase
             if (sleepHeaderData != null && sleepDatas != null && sleepDatas.Count > 0)
             {
                 MIN_FILE_POSITION = i; //ファイルを取得
-                updatePrevNextBtnState();
                 break;
             }
         }
+        updatePrevNextBtnState();
 
         UpdateDeviceSetting();
     }
@@ -116,7 +116,7 @@ public class HomeNewViewController : ViewControllerBase
         }
     }
 
-    public void onClickPrevBtn()
+    public void onClickNextBtn()
     {
         if (filePaths != null && selectFilePosition < MAX_FILE_POSITION)
         {
@@ -126,7 +126,7 @@ public class HomeNewViewController : ViewControllerBase
         }
     }
 
-    public void onClickNextBtn()
+    public void onClickPrevBtn()
     {
         if(filePaths != null && selectFilePosition > MIN_FILE_POSITION)
         {
@@ -144,14 +144,16 @@ public class HomeNewViewController : ViewControllerBase
             this.btnNext.interactable = false;
         } else
         {
-            this.btnPrev.interactable = true;
-            this.btnNext.interactable = true;
-            if (selectFilePosition <= MIN_FILE_POSITION)
+            this.btnPrev.interactable = false;
+            this.btnNext.interactable = false;
+            if (selectFilePosition > MIN_FILE_POSITION)
             {
-                this.btnNext.interactable = false;
-            } else if (selectFilePosition >= MAX_FILE_POSITION)
+                this.btnPrev.interactable = true;
+            } 
+            
+            if (selectFilePosition < MAX_FILE_POSITION)
             {
-                this.btnPrev.interactable = false;
+                this.btnNext.interactable = true;
             }
         }
     }
