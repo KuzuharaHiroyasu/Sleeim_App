@@ -30,7 +30,7 @@ namespace Graph
         string[] _filepath; //取得したファイル一覧
         int _selectIndex = 0; //選択中の日付Index
         int _selectMin = 0; //選択範囲のMIN
-        int _selectMax = 0; //選択範囲のMAX
+        int _selectMax = -1; //選択範囲のMAX
 
         string[] filePath = null;
         string[] FilePath
@@ -61,14 +61,25 @@ namespace Graph
             }
             Debug.Log("EndCheckGraphData----------------------------");
 
-            //Get latest valid file 
+            //Get valid _selectMax
             _selectMax = -1;
             for (int i = _filepath.Length - 1; i >= 0; i--)
             {
-                List<SleepData> latestSleepDatas = CSVSleepDataReader.GetSleepDatas(_filepath[i]); //最新の睡眠データのリスト
-                if (latestSleepDatas != null && latestSleepDatas.Count > 0)
+                List<SleepData> sleepDatas = CSVSleepDataReader.GetSleepDatas(_filepath[i]); //最新の睡眠データのリスト
+                if (sleepDatas != null && sleepDatas.Count > 0)
                 {
                     _selectMax = i; //最新のファイルを取得
+                    break;
+                }
+            }
+
+            //Get valid _selectMin
+            for (int i = 0; i <= _selectMax; i++)
+            {
+                List<SleepData> sleepData = CSVSleepDataReader.GetSleepDatas(_filepath[i]); //最新の睡眠データのリスト
+                if (sleepData != null && sleepData.Count > 0)
+                {
+                    _selectMin = i; //最新のファイルを取得
                     break;
                 }
             }
@@ -102,10 +113,11 @@ namespace Graph
                     AttachData();
                 }
 			}
+
 			//表示するデータがなければ、NODATAを表示する
 			noDataImage.enabled = _filepath.Length == 0;
 			scrollView.SetActive (!noDataImage.enabled);
-            NextCheckRange(); //暫定：次のインデックスが存在有無で有効/無効を切り替え
+            updateBackNextBtnState(); //暫定：次のインデックスが存在有無で有効/無効を切り替え
         }
 
         //AttachData()で自動的に呼び出される
@@ -294,14 +306,20 @@ namespace Graph
         /// </summary>
         public void ChangeNextDate()
         {
-            if (CheckSelecRange(1))
+            while (_selectIndex < _selectMax)
             { //暫定：範囲内であれば処理を実行
                 _selectIndex++;
                 sleepDataList = ReadSleepDataFromCSV(_filepath[_selectIndex]);         //睡眠データをCSVから取得する
                 sleepHeaderData = ReadSleepHeaderDataFromCSV(_filepath[_selectIndex]); //睡眠のヘッダーデータをCSVから取得する
-                AttachData();
-                NextCheckRange();
+
+                if (sleepHeaderData != null && sleepDataList != null && sleepDataList.Count > 0)
+                {
+                    AttachData();
+                    break;
+                }
             }
+
+            updateBackNextBtnState();
         }
         /// <summary>
         /// とりあえず日付送り機能用に
@@ -309,14 +327,20 @@ namespace Graph
         /// </summary>
         public void ChangeBackDate()
         {
-            if (CheckSelecRange(0))
+            while (_selectIndex > _selectMin)
             { //暫定：範囲内であれば処理を実行
                 _selectIndex--;
                 sleepDataList = ReadSleepDataFromCSV(_filepath[_selectIndex]);         //睡眠データをCSVから取得する
                 sleepHeaderData = ReadSleepHeaderDataFromCSV(_filepath[_selectIndex]); //睡眠のヘッダーデータをCSVから取得する
-                AttachData();
-                NextCheckRange();
+
+                if (sleepHeaderData != null && sleepDataList != null && sleepDataList.Count > 0)
+                {
+                    AttachData();
+                    break;
+                }
             }
+
+            updateBackNextBtnState();
         }
 
         /// <summary>
@@ -344,10 +368,20 @@ namespace Graph
         /// 次のインデックスが存在有無で有効/無効を切り替え
         /// </summary>
         /// <returns></returns>
-        public void NextCheckRange()
+        public void updateBackNextBtnState()
         {
-            _backDateButton.interactable = CheckSelecRange(0);
-            _nextDateButton.interactable = CheckSelecRange(1);
+            _backDateButton.interactable = false;
+            _nextDateButton.interactable = false;
+
+            if(_selectIndex > _selectMin)
+            {
+                _backDateButton.interactable = true;
+            }
+
+            if(_selectIndex < _selectMax)
+            {
+                _nextDateButton.interactable = true;
+            }
         }
     }
 }
