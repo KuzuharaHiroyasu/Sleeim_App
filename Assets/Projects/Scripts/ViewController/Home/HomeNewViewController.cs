@@ -63,12 +63,8 @@ public class HomeNewViewController : ViewControllerBase
         //ホーム画面でペアリングが解除された際に、同期ボタンに反映できるよう設定
         DeviceStateManager.Instance.OnDevicePareringDisConnectEvent += UpdateSyncButton;
 
-        string dataPath = Kaimin.Common.Utility.GsDataPath();
-        filePaths = Kaimin.Common.Utility.GetAllFiles(dataPath, "*.csv");
-        if(filePaths != null)
-        {
-            MAX_FILE_POSITION = filePaths.Length - 1;
-        }
+        GetSetFilePaths(); //Important
+
         this.btnPrev.GetComponent<Button>().onClick.AddListener(delegate { this.onClickPrevBtn(); });
         this.btnNext.GetComponent<Button>().onClick.AddListener(delegate { this.onClickNextBtn(); });
 
@@ -106,6 +102,16 @@ public class HomeNewViewController : ViewControllerBase
     // Update is called once per frame
     void Update() {
 
+    }
+
+    public void GetSetFilePaths()
+    {
+        string dataPath = Kaimin.Common.Utility.GsDataPath();
+        filePaths = Kaimin.Common.Utility.GetAllFiles(dataPath, "*.csv");
+        if (filePaths != null)
+        {
+            MAX_FILE_POSITION = filePaths.Length - 1;
+        }
     }
 
     public override SceneTransitionManager.LoadScene SceneTag
@@ -817,8 +823,19 @@ public class HomeNewViewController : ViewControllerBase
             //無呼吸検知関連設定
             //UpdateApneaCountIcon();
             //UpdateApneaCountDate();
+
+            GetSetFilePaths(); //Re-update file paths before updating latest pie chart
             UpdateLatestPieChart();
+            
             UserDataManager.Scene.ResetGraphDate();
+
+            //データ取得完了後、自動的にBLE接続を切る
+            bool isConnecting = UserDataManager.State.isConnectingDevice();
+            if (isConnecting)
+            {
+                BluetoothManager.Instance.Disconnect();
+                deviceIcon.sprite = deviceIcon_NotConnecting;
+            }
 
             UpdateDialog.Dismiss();
             //データ取得完了のダイアログ表示

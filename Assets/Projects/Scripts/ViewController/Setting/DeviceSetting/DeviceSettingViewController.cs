@@ -186,6 +186,14 @@ public class DeviceSettingViewController : ViewControllerBase {
         if (isSuccess) {
             SaveDeviceSetting();
             LastDeviceSetting = UserDataManager.Setting.DeviceSettingData.Load();
+
+            //デバイス設定で変更完了後、自動的にBLE接続を切る
+            bool isConnecting = UserDataManager.State.isConnectingDevice();
+            if (isConnecting)
+            {
+                BluetoothManager.Instance.Disconnect();
+            }
+
             yield return StartCoroutine(ShowMessageDialogCoroutine("設定を変更しました。"));
         } else {
             yield return StartCoroutine(ShowMessageDialogCoroutine("設定変更に失敗しました。"));

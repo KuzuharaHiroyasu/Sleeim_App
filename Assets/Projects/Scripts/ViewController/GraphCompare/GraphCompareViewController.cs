@@ -56,6 +56,10 @@ public class GraphCompareViewController : ViewControllerBase
     {
         base.Start();
 
+        //平均グラフの横幅を2倍に調整
+        barChart1.changeWidth(barChart1.width * 2);
+        barChart2.changeWidth(barChart2.width * 2);
+
         //Important inits
         this.fileList = CSVManager.getCsvFileList();
         if(this.fileList.Count() == 0)
