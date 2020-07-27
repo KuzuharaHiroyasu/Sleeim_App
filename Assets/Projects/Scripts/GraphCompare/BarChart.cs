@@ -25,6 +25,12 @@ public class BarChart : MonoBehaviour {
 
     }
 
+    public void changeWidth(int newWith)
+    {
+        width = newWith;
+        barChart.rectTransform.sizeDelta = new Vector2(width, height);
+    }
+
     public void drawBarChart(float percentKaimin, float percentIbiki, float percentMukokyu)
     {
         int barWidth = width - 2;
