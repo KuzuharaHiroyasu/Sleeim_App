@@ -50,10 +50,11 @@ public class DeviceSettingViewController : ViewControllerBase {
     /// 戻るボタン押下イベントハンドラ
     /// </summary>
     public void OnReturnButtonTap() {
-        StartCoroutine(BackButtonCoroutine());
+        SceneTransitionManager.LoadLevel(isTapFromHome() ? SceneTransitionManager.LoadScene.Home : SceneTransitionManager.LoadScene.Setting);
     }
 
-    public IEnumerator BackButtonCoroutine()
+    //Only call from child class
+    public IEnumerator BackButtonCoroutineForChildClass()
     {
         bool? isSaveSetting = null;
 
@@ -98,7 +99,7 @@ public class DeviceSettingViewController : ViewControllerBase {
             FlushTempDeviceSetting();
         }
 
-        SceneTransitionManager.LoadLevel(isTapFromHome() ? SceneTransitionManager.LoadScene.Home : SceneTransitionManager.LoadScene.Setting);
+        SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
     }
 
     /// <summary>

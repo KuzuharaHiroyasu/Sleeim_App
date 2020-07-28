@@ -70,10 +70,19 @@ public class ActionModeViewController : DeviceSettingViewController
     }
 
     /// <summary>
+    /// 保存ボタン押下イベントハンドラ
+    /// </summary>
+    public void OnSaveButtonTap()
+    {
+        base.OnSaveButtonTap();
+    }
+
+    /// <summary>
     /// 戻るボタン押下イベントハンドラ
     /// </summary>
     public void OnReturnButtonTap() {
-        SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
+        //SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
+        StartCoroutine(base.BackButtonCoroutineForChildClass());
     }
 
     /// <summary>
