@@ -113,3 +113,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Projects/Scenes/Setting/Profile/Birth.unity
     guid: a3add28cc1a1c436e9b6210d3d9fc26d
+  - enabled: 1
+    path: Assets/Projects/Scenes/Setting/Contact/Contact.unity
+    guid: 21b6f47e98dfd4d4381b0e65aae1cff5
