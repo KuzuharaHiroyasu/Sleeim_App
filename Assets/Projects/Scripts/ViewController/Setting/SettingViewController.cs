@@ -1973,7 +1973,7 @@ public class SettingViewController : ViewControllerBase
     //「お問い合わせ」ボタンが押されると呼び出される
     public void OnHelpButtonTap()
     {
-        HelpMailLuncher.Lunch();
+        SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.Contact);
     }
 
     //「利用規約」ボタンが押されると呼び出される
