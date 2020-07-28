@@ -6,7 +6,8 @@ using UnityEngine.UI;
 /// <summary>
 /// いびき感度画面管理クラス
 /// </summary>
-public class SnoreSensitivityViewController : ViewControllerBase {
+public class SnoreSensitivityViewController : DeviceSettingViewController
+{
 
     /// <summary>
     /// 弱トグル
@@ -61,11 +62,19 @@ public class SnoreSensitivityViewController : ViewControllerBase {
     }
 
     /// <summary>
+    /// 保存ボタン押下イベントハンドラ
+    /// </summary>
+    public void OnSaveButtonTap()
+    {
+        base.OnSaveButtonTap();
+    }
+
+    /// <summary>
     /// 戻るボタン押下イベントハンドラ
     /// </summary>
     public void OnReturnButtonTap() {
-        SceneTransitionManager.LoadLevel(
-            SceneTransitionManager.LoadScene.DeviceSetting);
+        //SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
+        StartCoroutine(base.BackButtonCoroutineForChildClass());
     }
 
     /// <summary>

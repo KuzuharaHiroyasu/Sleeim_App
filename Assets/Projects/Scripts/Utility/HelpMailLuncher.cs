@@ -48,6 +48,13 @@ public class HelpMailLuncher : MonoBehaviour
         body += "■あなたの使っている端末とOS" + NEW_LINE;
         body += deviceName + "/" + SystemInfo.operatingSystem + NEW_LINE;
 
+        string deviceAdress = UserDataManager.Device.GetLastDeviceAdress();
+        if (deviceAdress != "")
+        {
+            body += "■BDアドレス" + NEW_LINE;
+            body += deviceAdress + NEW_LINE;
+        }
+
         body += "■お問い合わせ内容" + NEW_LINE;
         body += NEW_LINE;
         body += "■問題が発生した画面を入力してください（任意）" + NEW_LINE;

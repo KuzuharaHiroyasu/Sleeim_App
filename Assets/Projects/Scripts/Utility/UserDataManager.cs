@@ -948,6 +948,11 @@ public static class UserDataManager {
             return PlayerPrefs.GetString (pareringDeviceAdress, "112233445566");
         }
 
+        public static string GetLastDeviceAdress()
+        {
+            return PlayerPrefs.GetString(pareringDeviceAdress, "");
+        }
+
         /// <summary>
         /// ペアリング中のデバイスのマックアドレスを保存します
         /// </summary>
