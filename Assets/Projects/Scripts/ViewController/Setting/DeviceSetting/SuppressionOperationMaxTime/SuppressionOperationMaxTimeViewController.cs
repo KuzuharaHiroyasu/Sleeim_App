@@ -6,7 +6,8 @@ using UnityEngine.UI;
 /// <summary>
 /// 低減動作最大継続時間画面管理クラス
 /// </summary>
-public class SuppressionOperationMaxTimeViewController : ViewControllerBase {
+public class SuppressionOperationMaxTimeViewController : DeviceSettingViewController
+{
 
     /// <summary>
     /// 5分トグル
@@ -61,10 +62,19 @@ public class SuppressionOperationMaxTimeViewController : ViewControllerBase {
     }
 
     /// <summary>
+    /// 保存ボタン押下イベントハンドラ
+    /// </summary>
+    public void OnSaveButtonTap()
+    {
+        base.OnSaveButtonTap();
+    }
+
+    /// <summary>
     /// 戻るボタン押下イベントハンドラ
     /// </summary>
     public void OnReturnButtonTap() {
-        SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
+        //SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
+        StartCoroutine(base.BackButtonCoroutineForChildClass());
     }
 
     /// <summary>
