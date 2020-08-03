@@ -335,7 +335,7 @@ public class HomeNewViewController : ViewControllerBase
 
                     DateTime fileDateTime = Kaimin.Common.Utility.TransFilePathToDate(filePaths[_selectIndex]);
                     DateTime realDateTime = CSVManager.getRealDateTime(fileDateTime);
-                    sleepDateText.text = CSVManager.isInvalidDate(realDateTime) ? "-" : realDateTime.ToString("yyyy/MM/dd HH:mm");
+                    sleepDateText.text = CSVManager.isInvalidDate(realDateTime) ? "-" : CSVManager.getJpDateString(realDateTime);
 
                     //Step2: Show pie chart
                     chartInfo = CSVManager.convertSleepDataToChartInfo(sleepDatas);
