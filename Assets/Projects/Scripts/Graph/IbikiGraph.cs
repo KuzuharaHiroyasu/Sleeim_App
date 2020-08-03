@@ -57,6 +57,10 @@ namespace Graph
 		public RectTransform line750ImageRect;
 		public RectTransform line1000ImageRect;
 
+        public Text LineTitle = null;
+        public Text LineTitleTop = null;
+        public Text LineTitleBottom = null;
+
         public RectTransform lineTouchiRect;
 
 		public GameObject scrollView;
@@ -207,7 +211,11 @@ namespace Graph
             //背景のいびきレベルを表示
 //            IbikiLebelBack.SetActive(true);
 
-			try
+            LineTitle.gameObject.SetActive(true);
+            LineTitleTop.gameObject.SetActive(true);
+            LineTitleBottom.gameObject.SetActive(true);
+
+            try
 			{
 				if (dataList != null)
 				{
@@ -369,6 +377,10 @@ namespace Graph
                 legend.SetActive(false);
             }
             Output_AnalyzeTable.SetActive(false);
+
+            LineTitle.gameObject.SetActive(false);
+            LineTitleTop.gameObject.SetActive(false);
+            LineTitleBottom.gameObject.SetActive(false);
         }
 
 		public void ReSizeBig(){

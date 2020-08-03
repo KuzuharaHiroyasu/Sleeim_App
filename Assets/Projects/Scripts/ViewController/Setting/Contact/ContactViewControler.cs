@@ -40,7 +40,7 @@ public class ContactViewControler : ViewControllerBase {
 	{
 		if(HttpManager.IsInternetAvailable())
 		{
-			Application.OpenURL(HttpManager.HTTP_BASE_URL + "/Welness/legal/terms.html");
+			Application.OpenURL(HttpManager.HTTP_BASE_URL + "/Welness/faq/faq.html");
 		} else
 		{
 			StartCoroutine(HttpManager.showDialogMessage("インターネット未接続のため、ページが開けません。"));
