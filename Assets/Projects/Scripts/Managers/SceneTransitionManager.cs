@@ -47,7 +47,8 @@ public class SceneTransitionManager : MonoBehaviour {
 		TermsOfUse,			//利用規約
         GraphCompare,       //比較のグラフ
 		Birth,              //生年月日
-		Contact             //問い合わせ
+		Contact,             //問い合わせ
+		SliderDemo           
 	};
 
 	/// <summary>
@@ -173,6 +174,8 @@ public class SceneTransitionManager : MonoBehaviour {
 		case LoadScene.Birth:
 			return LoadScene.Profile;
 		case LoadScene.Contact:
+			return LoadScene.Setting;
+		case LoadScene.SliderDemo:
 			return LoadScene.Setting;
 		default:
 			return LoadScene.Other;
@@ -317,6 +320,10 @@ public class SceneTransitionManager : MonoBehaviour {
 			break;
 		case LoadScene.Contact:
 			sceneName = "Contact";
+			isUseTab = false;
+			break;
+		case LoadScene.SliderDemo:
+			sceneName = "SliderDemo";
 			isUseTab = false;
 			break;
 		default:

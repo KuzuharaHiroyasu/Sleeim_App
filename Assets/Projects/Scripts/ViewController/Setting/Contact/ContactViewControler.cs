@@ -33,7 +33,13 @@ public class ContactViewControler : ViewControllerBase {
 
 	public void OnMailContactButtonTap()
 	{
-		HelpMailLuncher.Lunch();
+		if (HttpManager.IsInternetAvailable())
+		{
+			HelpMailLuncher.Lunch();
+		} else
+		{
+			StartCoroutine(HttpManager.showDialogMessage("インターネット未接続のため、メールで問い合わせが出来ません。"));
+		}
 	}
 
 	public void OnQAButtonTap()
@@ -47,4 +53,9 @@ public class ContactViewControler : ViewControllerBase {
 		}
 	}
 
+	public void OnSlideDemoTap()
+	{
+		SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.SliderDemo);
+	}
+	
 }
