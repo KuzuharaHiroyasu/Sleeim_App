@@ -116,3 +116,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Projects/Scenes/Setting/Contact/Contact.unity
     guid: 21b6f47e98dfd4d4381b0e65aae1cff5
+  - enabled: 1
+    path: Assets/Projects/Scenes/Home/SliderDemo.unity
+    guid: 555bb21a7dcc4f349b34c4e13b8b7bd7
