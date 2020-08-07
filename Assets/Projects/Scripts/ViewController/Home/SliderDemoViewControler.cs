@@ -45,8 +45,8 @@ public class SliderDemoViewControler : ViewControllerBase {
         int pieIndex = 0;
         if (MIN_FILE_POSITION >= 0 && MAX_FILE_POSITION >= 0)
         {
-            slider.pieCharts.Add(0, pieChart); //Add Min
-            slider.filePaths.Add(0, filePaths[MIN_FILE_POSITION]); //Add Min
+            slider.pieCharts.Add(pieChart); //Add Min
+            slider.filePaths.Add(filePaths[MIN_FILE_POSITION]); //Add Min
             for (int i = MIN_FILE_POSITION + 1; i <= MAX_FILE_POSITION; i++)
             {
                 pieIndex++;
@@ -116,7 +116,7 @@ public class SliderDemoViewControler : ViewControllerBase {
 		SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.Setting);
 	}
 
-    public void UpdatePieChart(PieChartSlider slider, int pieIndex, bool isDescOrder = true)
+    public void UpdatePieChart(PieChartSlider slider, int pieIndex, bool isToNext = false)
     {
         ChartInfo chartInfo = null;
 
@@ -211,6 +211,23 @@ public class SliderDemoViewControler : ViewControllerBase {
             pieChart.sleepDateText.text = "";
 
             slider.RemoveLayoutElement(pieIndex);
+
+            if(isToNext)
+            {
+                if (pieIndex < slider.filePaths.Count - 1)
+                {
+                    slider.MoveToIndex(pieIndex + 1);
+                    this.UpdatePieChart(slider, pieIndex + 1);
+                }
+            } else
+            {
+                if (pieIndex > 0)
+                {
+                    slider.MoveToIndex(pieIndex - 1);
+                    this.UpdatePieChart(slider, pieIndex - 1);
+                }
+            }
+            
         }
     }
 }

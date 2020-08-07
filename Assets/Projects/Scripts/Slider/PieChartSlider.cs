@@ -34,8 +34,8 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
     Vector2 targetPosition;
 
     public SliderDemoViewControler controllerDelegate = null;
-    public Dictionary<int, PieChart>  pieCharts = null;
-    public Dictionary<int, String>  filePaths = null;
+    public List<PieChart>  pieCharts = null;
+    public List<String>  filePaths = null;
 
     protected override void Awake()
     {
@@ -52,8 +52,8 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
         int count = LayoutElementCount();
         SetContentSize(count);
 
-        pieCharts = new Dictionary<int, PieChart>();
-        filePaths = new Dictionary<int, String>();
+        pieCharts = new List<PieChart>();
+        filePaths = new List<String>();
 
         if (startingIndex < count)
         {
@@ -78,8 +78,8 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
 
     public void PushPieChart(PieChart pieChart, int i, String filePath)
     {
-        pieCharts.Add(i, pieChart);
-        filePaths.Add(i, filePath);
+        pieCharts.Add(pieChart);
+        filePaths.Add(filePath);
 
         LayoutElement layoutElementPrefab = pieChart.GetComponent<LayoutElement>();
         PushLayoutElement(layoutElementPrefab);
@@ -109,6 +109,9 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
             {
                 cellIndex -= 1;
             }
+
+            filePaths.RemoveAt(index);
+            pieCharts.RemoveAt(index);
         }
     }
 
@@ -161,7 +164,7 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
         if (IndexShouldChangeFromDrag(data))
         {
             int direction = (data.pressPosition.x - data.position.x) > 0f ? 1 : -1;
-            SnapToIndex(cellIndex + direction * CalculateScrollingAmount(data));
+            SnapToIndex(cellIndex + direction * CalculateScrollingAmount(data), direction == 1);
         }
         else
         {
@@ -188,15 +191,15 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
 
     public void SnapToNext()
     {
-        SnapToIndex(cellIndex + 1);
+        SnapToIndex(cellIndex + 1, true);
     }
 
     public void SnapToPrev()
     {
-        SnapToIndex(cellIndex - 1);
+        SnapToIndex(cellIndex - 1, false);
     }
 
-    public void SnapToIndex(int newCellIndex)
+    public void SnapToIndex(int newCellIndex, bool isToNext = true)
     {
         int maxIndex = CalculateMaxIndex();
         if (wrapAround && maxIndex > 0)
@@ -215,7 +218,7 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
         onRelease.Invoke(cellIndex);
         StartLerping();
 
-        this.controllerDelegate.UpdatePieChart(this, cellIndex);
+        this.controllerDelegate.UpdatePieChart(this, cellIndex, isToNext);
     }
 
     public void MoveToIndex(int newCellIndex)
