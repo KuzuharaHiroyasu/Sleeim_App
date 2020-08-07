@@ -280,12 +280,6 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 60965881}
---- !u!114 &94131888 stripped
-MonoBehaviour:
-  m_PrefabParentObject: {fileID: 114093149266368380, guid: 9741dbf0ff7866b448d2d4322ef86800,
-    type: 2}
-  m_PrefabInternal: {fileID: 1102136263}
-  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
 --- !u!1 &108676415
 GameObject:
   m_ObjectHideFlags: 0
@@ -1064,12 +1058,6 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 867930725}
---- !u!114 &886644394 stripped
-MonoBehaviour:
-  m_PrefabParentObject: {fileID: 114946107696456300, guid: 9741dbf0ff7866b448d2d4322ef86800,
-    type: 2}
-  m_PrefabInternal: {fileID: 1102136263}
-  m_Script: {fileID: 11500000, guid: 01235fb8b362d2948adde90470df7e0c, type: 3}
 --- !u!1 &894637668
 GameObject:
   m_ObjectHideFlags: 0
@@ -1220,11 +1208,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &955941396 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1561295366930912, guid: 9741dbf0ff7866b448d2d4322ef86800,
-    type: 2}
-  m_PrefabInternal: {fileID: 1102136263}
 --- !u!1 &1043365261
 GameObject:
   m_ObjectHideFlags: 0
@@ -1531,6 +1514,12 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 9741dbf0ff7866b448d2d4322ef86800, type: 2}
   m_IsPrefabParent: 0
+--- !u!114 &1102136264 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114376844259612688, guid: 9741dbf0ff7866b448d2d4322ef86800,
+    type: 2}
+  m_PrefabInternal: {fileID: 1102136263}
+  m_Script: {fileID: 11500000, guid: 44d59591a4345cd4c847ed3a9955282b, type: 3}
 --- !u!1 &1119218876
 GameObject:
   m_ObjectHideFlags: 0
@@ -3007,9 +2996,7 @@ MonoBehaviour:
   - {r: 0.9411765, g: 0.9019608, b: 0.6509804, a: 1}
   - {r: 0.93333334, g: 0.77254903, b: 0.8039216, a: 1}
   - {r: 0.78431374, g: 0.8039216, b: 0.80784315, a: 1}
-  piePrefab: {fileID: 94131888}
-  pieInfo: {fileID: 886644394}
-  circleOuter: {fileID: 955941396}
+  pieChart: {fileID: 1102136264}
   batteryIcon_unknown: {fileID: 21300000, guid: 44c4c53b3affa21409fd1099b6492d76,
     type: 3}
   batteryIcon_low: {fileID: 21300000, guid: d7a4daa5e0108094d886778bf7dd6c2a, type: 3}
