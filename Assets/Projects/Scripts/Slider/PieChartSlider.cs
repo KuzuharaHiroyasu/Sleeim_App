@@ -3,10 +3,12 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Linq;
 using UnityEngine.Events;
+using System.Collections.Generic;
+using System;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(ScrollRect), typeof(CanvasGroup))]
-public class ScrollSnap : UIBehaviour, IDragHandler, IEndDragHandler
+public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
 {
     [SerializeField] public int startingIndex = 0;
     [SerializeField] public bool wrapAround = false;
@@ -31,6 +33,10 @@ public class ScrollSnap : UIBehaviour, IDragHandler, IEndDragHandler
     Vector2 releasedPosition;
     Vector2 targetPosition;
 
+    public SliderDemoViewControler controllerDelegate = null;
+    public Dictionary<int, PieChart>  pieCharts = null;
+    public Dictionary<int, String>  filePaths = null;
+
     protected override void Awake()
     {
         base.Awake();
@@ -42,10 +48,12 @@ public class ScrollSnap : UIBehaviour, IDragHandler, IEndDragHandler
         this.canvasGroup = GetComponent<CanvasGroup>();
         this.content = scrollRect.content;
         this.cellSize = content.GetComponent<GridLayoutGroup>().cellSize;
-        //this.cellSize = new Vector2(420, 420);
         content.anchoredPosition = new Vector2(-cellSize.x * cellIndex, content.anchoredPosition.y);
         int count = LayoutElementCount();
         SetContentSize(count);
+
+        pieCharts = new Dictionary<int, PieChart>();
+        filePaths = new Dictionary<int, String>();
 
         if (startingIndex < count)
         {
@@ -68,20 +76,39 @@ public class ScrollSnap : UIBehaviour, IDragHandler, IEndDragHandler
         }
     }
 
+    public void PushPieChart(PieChart pieChart, int i, String filePath)
+    {
+        pieCharts.Add(i, pieChart);
+        filePaths.Add(i, filePath);
+
+        LayoutElement layoutElementPrefab = pieChart.GetComponent<LayoutElement>();
+        PushLayoutElement(layoutElementPrefab);
+    }
+
     public void PushLayoutElement(LayoutElement element)
     {
         element.transform.SetParent(content.transform, false);
         SetContentSize(LayoutElementCount());
     }
 
+
     public void PopLayoutElement()
     {
         LayoutElement[] elements = content.GetComponentsInChildren<LayoutElement>();
-        Destroy(elements[elements.Length - 1].gameObject);
-        SetContentSize(LayoutElementCount() - 1);
-        if (cellIndex == CalculateMaxIndex())
+        RemoveLayoutElement(elements.Length - 1);
+    }
+
+    public void RemoveLayoutElement(int index)
+    {
+        LayoutElement[] elements = content.GetComponentsInChildren<LayoutElement>();
+        if(index >= 0 && index < elements.Length)
         {
-            cellIndex -= 1;
+            Destroy(elements[index].gameObject);
+            SetContentSize(LayoutElementCount() - 1);
+            if (cellIndex == CalculateMaxIndex())
+            {
+                cellIndex -= 1;
+            }
         }
     }
 
@@ -184,8 +211,11 @@ public class ScrollSnap : UIBehaviour, IDragHandler, IEndDragHandler
             actualIndex += newCellIndex - cellIndex;
             cellIndex = newCellIndex;
         }
+
         onRelease.Invoke(cellIndex);
         StartLerping();
+
+        this.controllerDelegate.UpdatePieChart(this, cellIndex);
     }
 
     public void MoveToIndex(int newCellIndex)
@@ -196,8 +226,11 @@ public class ScrollSnap : UIBehaviour, IDragHandler, IEndDragHandler
             actualIndex += newCellIndex - cellIndex;
             cellIndex = newCellIndex;
         }
+
         onRelease.Invoke(cellIndex);
         content.anchoredPosition = CalculateTargetPoisition(cellIndex);
+
+        //this.sliderController.UpdatePieChart(dict[cellIndex], cellIndex);
     }
 
     void StartLerping()
