@@ -12,6 +12,7 @@ public class PieChart : MonoBehaviour {
 	public Text sleepTimeText = null; //睡眠時間
 	public Text sleepDateText = null; //睡眠日付 (選択したグラフの日付)
 	public GameObject circleOuter;
+	public GameObject pieChart;
 
 	// Use this for initialization
 	void Start () {

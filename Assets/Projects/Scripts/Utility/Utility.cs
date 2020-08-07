@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 using System.Security.Cryptography;
 using System.Text;
+using UnityEngine.UI;
 
 namespace Kaimin.Common
 {
@@ -339,6 +340,215 @@ namespace Kaimin.Common
 
             // Return the encrypted data as a string
             return cipherText;
+        }
+
+        public static Color convertHexToColor(String htmlValue)
+        {
+            Color newCol;
+            if (!ColorUtility.TryParseHtmlString(htmlValue, out newCol))
+            {
+                newCol = Color.blue;
+            }
+
+            return newCol;
+        }
+
+        public static void makePieChart(PieChart pieChart, double[] pieValues, string[] pieLabels, Color[] pieColors)
+        {
+            double total = 0f;
+            int numPie = pieValues.Length;
+            for (int i = 0; i < numPie; i++)
+            {
+                total += pieValues[i];
+            }
+
+            if (total > 0 && pieColors.Length >= numPie)
+            {
+                //Rotate image to top middle
+                float zRotation = 180f;
+                float zPieInfoRotation = 180f;
+                float drawAngleTotal = 0;
+
+                for (int i = 0; i < numPie; i++)
+                {
+                    pieChart.pieInfo.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, zPieInfoRotation));
+                    pieChart.pieInfo.hidePieInfo();
+
+                    float fillAmount = (float)(pieValues[i] / total);
+                    Image image = GameObject.Instantiate(pieChart.piePrefab) as Image;
+                    image.transform.SetParent(pieChart.circleOuter.transform, false);
+                    image.color = pieColors[i];
+                    image.fillAmount = fillAmount;
+                    image.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, zRotation));
+
+                    int[] position = Utility.getPositionByPercent(fillAmount * 100, drawAngleTotal);
+                    PieInfo p = GameObject.Instantiate(pieChart.pieInfo) as PieInfo;
+                    p.transform.SetParent(image.transform, false);
+                    p.transform.localPosition = new Vector3(position[0], position[1] + 189, 0);
+                    if (pieValues[i] > 0)
+                    {
+                        p.drawPieInfo(pieLabels[i], pieValues[i]);
+                    }
+
+                    float rotateAngle = fillAmount * 360;
+                    zPieInfoRotation += rotateAngle;
+                    zRotation -= rotateAngle;
+                    drawAngleTotal += rotateAngle;
+                }
+            }
+        }
+
+        public static int[] getPositionByPercent(double percent, float drawAngleTotal)
+        {
+            var dict = new Dictionary<double, int[]>();
+            dict[0] = new int[2] { -2, -320 };
+            dict[0.25] = new int[2] { -3, -320 };
+            dict[0.5] = new int[2] { -4, -320 };
+            dict[1] = new int[2] { -5, -320 };
+            dict[1.5] = new int[2] { -7, -320 };
+            dict[2] = new int[2] { -9, -320 };
+            dict[2.5] = new int[2] { -10, -320 };
+            dict[3] = new int[2] { -11, -320 };
+            dict[4] = new int[2] { -15, -320 };
+
+            if ((45 <= drawAngleTotal && drawAngleTotal <= 135) || (225 <= drawAngleTotal && drawAngleTotal <= 315))
+            {
+                dict[5] = new int[2] { -28, -325 };
+                dict[6] = new int[2] { -35, -325 };
+                dict[7] = new int[2] { -35, -325 };
+                dict[7.5] = new int[2] { -35, -325 };
+                dict[8] = new int[2] { -35, -325 };
+                dict[9] = new int[2] { -35, -325 };
+            }
+            else
+            {
+                dict[5] = new int[2] { -19, -335 };
+                dict[6] = new int[2] { -24, -335 };
+                dict[7] = new int[2] { -28, -335 };
+                dict[7.5] = new int[2] { -29, -335 };
+                dict[8] = new int[2] { -32, -335 };
+                dict[9] = new int[2] { -35, -335 };
+            }
+
+            dict[10] = new int[2] { -40, -320 };
+            dict[11] = new int[2] { -43, -320 };
+            dict[12] = new int[2] { -46, -320 };
+            dict[13] = new int[2] { -50, -320 };
+            dict[14] = new int[2] { -55, -315 };
+            dict[15] = new int[2] { -60, -310 };
+            dict[16] = new int[2] { -64, -310 };
+            dict[17] = new int[2] { -68, -305 };
+            dict[18] = new int[2] { -70, -300 };
+            dict[19] = new int[2] { -72, -300 };
+
+            dict[20] = new int[2] { -74, -295 };
+            dict[21] = new int[2] { -77, -290 };
+            dict[22] = new int[2] { -78, -288 };
+            dict[23] = new int[2] { -80, -288 };
+            dict[24] = new int[2] { -82, -286 };
+            dict[25] = new int[2] { -86, -283 };
+            dict[26] = new int[2] { -88, -278 };
+            dict[27] = new int[2] { -89, -273 };
+            dict[28] = new int[2] { -89, -271 };
+            dict[29] = new int[2] { -91, -268 };
+
+            dict[30] = new int[2] { -93, -265 };
+            dict[31] = new int[2] { -95, -263 };
+            dict[32] = new int[2] { -95, -257 };
+            dict[33] = new int[2] { -97, -253 };
+            dict[34] = new int[2] { -97, -251 };
+            dict[35] = new int[2] { -97, -248 };
+            dict[36] = new int[2] { -97, -245 };
+            dict[37] = new int[2] { -99, -243 };
+            dict[38] = new int[2] { -101, -241 };
+            dict[39] = new int[2] { -101, -239 };
+
+            dict[40] = new int[2] { -101, -236 };
+            dict[41] = new int[2] { -103, -233 };
+            dict[42] = new int[2] { -105, -230 };
+            dict[43] = new int[2] { -107, -227 };
+            dict[44] = new int[2] { -109, -224 };
+            dict[45] = new int[2] { -109, -221 };
+            dict[46] = new int[2] { -111, -218 };
+            dict[47] = new int[2] { -112, -215 };
+            dict[48] = new int[2] { -114, -212 };
+            dict[49] = new int[2] { -115, -209 };
+
+            dict[50] = new int[2] { -115, -205 };
+            dict[51] = new int[2] { -118, -200 };
+            dict[52] = new int[2] { -120, -196 };
+            dict[53] = new int[2] { -122, -192 };
+            dict[54] = new int[2] { -122, -188 };
+
+            dict[55] = new int[2] { -122, -184 };
+            dict[56] = new int[2] { -122, -180 };
+            dict[57] = new int[2] { -122, -176 };
+            dict[58] = new int[2] { -122, -172 };
+            dict[59] = new int[2] { -122, -168 };
+
+            dict[60] = new int[2] { -122, -164 };
+            dict[61] = new int[2] { -122, -160 };
+            dict[62] = new int[2] { -122, -156 };
+            dict[63] = new int[2] { -122, -152 };
+            dict[64] = new int[2] { -122, -148 };
+            dict[65] = new int[2] { -122, -144 };
+            dict[66] = new int[2] { -120, -140 };
+            dict[67] = new int[2] { -118, -136 };
+            dict[68] = new int[2] { -116, -132 };
+            dict[69] = new int[2] { -112, -128 };
+
+            dict[70] = new int[2] { -108, -124 };
+            dict[71] = new int[2] { -106, -120 };
+            dict[72] = new int[2] { -106, -116 };
+            dict[73] = new int[2] { -106, -112 };
+            dict[74] = new int[2] { -104, -108 };
+            dict[75] = new int[2] { -100, -104 };
+            dict[76] = new int[2] { -98, -100 };
+            dict[77] = new int[2] { -96, -96 };
+            dict[78] = new int[2] { -92, -92 };
+            dict[79] = new int[2] { -88, -88 };
+
+            dict[80] = new int[2] { -84, -84 };
+            dict[81] = new int[2] { -80, -80 };
+            dict[82] = new int[2] { -76, -76 };
+            dict[83] = new int[2] { -74, -74 };
+            dict[84] = new int[2] { -72, -72 };
+            dict[85] = new int[2] { -70, -70 };
+            dict[86] = new int[2] { -68, -70 };
+            dict[87] = new int[2] { -66, -69 };
+            dict[88] = new int[2] { -64, -69 };
+            dict[89] = new int[2] { -61, -69 };
+
+            dict[90] = new int[2] { -58, -69 };
+            dict[91] = new int[2] { -54, -69 };
+            dict[92] = new int[2] { -50, -69 };
+            dict[93] = new int[2] { -46, -69 };
+            dict[94] = new int[2] { -42, -69 };
+            dict[95] = new int[2] { -38, -69 };
+            dict[96] = new int[2] { -32, -69 };
+            dict[97] = new int[2] { -26, -69 };
+            dict[98] = new int[2] { -21, -69 };
+            dict[99] = new int[2] { -11, -69 };
+            dict[99.5] = new int[2] { -8, -69 };
+            dict[100] = new int[2] { -0, -69 };
+
+            //key1 <= percent <= key2
+            double key1 = 0;
+            double key2 = 0;
+            foreach (KeyValuePair<double, int[]> entry in dict)
+            {
+                if (percent <= entry.Key)
+                {
+                    key2 = entry.Key;
+                    break;
+                }
+                else
+                {
+                    key1 = entry.Key;
+                }
+            }
+
+            return (key2 - percent > percent - key1) ? dict[key1] : dict[key2];
         }
     }
 }
