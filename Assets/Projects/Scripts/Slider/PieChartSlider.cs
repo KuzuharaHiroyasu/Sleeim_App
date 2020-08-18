@@ -33,7 +33,8 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
     Vector2 releasedPosition;
     Vector2 targetPosition;
 
-    public SliderDemoViewControler controllerDelegate = null;
+    //public SliderDemoViewControler controllerDelegate = null;
+    public HomeNewViewController controllerDelegate = null;
     public List<PieChart>  pieCharts = null;
     public List<String>  filePaths = null;
 
@@ -101,7 +102,7 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
     public void RemoveLayoutElement(int index)
     {
         LayoutElement[] elements = content.GetComponentsInChildren<LayoutElement>();
-        if(index >= 0 && index < elements.Length)
+        if(index >= 0 && index < elements.Length && filePaths.Count > 0)
         {
             Destroy(elements[index].gameObject);
             SetContentSize(LayoutElementCount() - 1);
@@ -218,7 +219,10 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
         onRelease.Invoke(cellIndex);
         StartLerping();
 
-        this.controllerDelegate.UpdatePieChart(this, cellIndex, isToNext);
+        if (controllerDelegate != null)
+        {
+            this.controllerDelegate.UpdatePieChart(this, cellIndex, isToNext);
+        }
     }
 
     public void MoveToIndex(int newCellIndex)
@@ -232,8 +236,6 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
 
         onRelease.Invoke(cellIndex);
         content.anchoredPosition = CalculateTargetPoisition(cellIndex);
-
-        //this.sliderController.UpdatePieChart(dict[cellIndex], cellIndex);
     }
 
     void StartLerping()
