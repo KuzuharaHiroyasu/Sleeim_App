@@ -353,6 +353,16 @@ namespace Kaimin.Common
             return newCol;
         }
 
+        public static void makePieChartEmpty(PieChart pieChart)
+        {
+            //pieChart.circleOuter.SetActive(false);
+            pieChart.circleOuter.GetComponent<Image>().color = Utility.convertHexToColor("#0063dc"); //Default is level 5
+            pieChart.pieInfo.hidePieInfo();
+            pieChart.piePrefab.fillAmount = 0;
+            pieChart.sleepTimeText.text = "-";
+            pieChart.sleepDateText.text = "";
+        }
+
         public static void makePieChart(PieChart pieChart, double[] pieValues, string[] pieLabels, Color[] pieColors)
         {
             double total = 0f;

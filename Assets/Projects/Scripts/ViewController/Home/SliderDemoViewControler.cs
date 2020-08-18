@@ -20,9 +20,10 @@ public class SliderDemoViewControler : ViewControllerBase {
 	int selectedPieIndex = -1;
 	int MIN_FILE_POSITION = -1;
 	int MAX_FILE_POSITION = -1;
+    PieChartSlider pieChartSlider;
 
-	// Use this for initialization
-	protected override void Start () {
+    // Use this for initialization
+    protected override void Start () {
 		base.Start();
 
         loadCharts();
@@ -33,8 +34,8 @@ public class SliderDemoViewControler : ViewControllerBase {
         //var canvas = GetComponentInParent<Canvas>();
         //LayoutElement layoutElementPrefab = pieChart.GetComponent<LayoutElement>();
 
-        var slider = canvas.GetComponentInChildren<PieChartSlider>();
-        slider.controllerDelegate = this;
+        pieChartSlider = canvas.GetComponentInChildren<PieChartSlider>();
+        //pieChartSlider.controllerDelegate = this;
 
         string dataPath = Kaimin.Common.Utility.GsDataPath();
         filePaths = Kaimin.Common.Utility.GetAllFiles(dataPath, "*.csv");
@@ -45,16 +46,16 @@ public class SliderDemoViewControler : ViewControllerBase {
         int pieIndex = 0;
         if (MIN_FILE_POSITION >= 0 && MAX_FILE_POSITION >= 0)
         {
-            slider.pieCharts.Add(pieChart); //Add Min
-            slider.filePaths.Add(filePaths[MIN_FILE_POSITION]); //Add Min
+            pieChartSlider.pieCharts.Add(pieChart); //Add Min
+            pieChartSlider.filePaths.Add(filePaths[MIN_FILE_POSITION]); //Add Min
             for (int i = MIN_FILE_POSITION + 1; i <= MAX_FILE_POSITION; i++)
             {
                 pieIndex++;
-                slider.PushPieChart(Instantiate(pieChart), pieIndex, filePaths[i]);
+                pieChartSlider.PushPieChart(Instantiate(pieChart), pieIndex, filePaths[i]);
             }
 
-            slider.MoveToIndex(pieIndex);
-            this.UpdatePieChart(slider, pieIndex);
+            pieChartSlider.MoveToIndex(pieIndex);
+            this.UpdatePieChart(pieChartSlider, pieIndex);
         } else
         {
             //No data
@@ -204,11 +205,7 @@ public class SliderDemoViewControler : ViewControllerBase {
 
         if (chartInfo == null) //Invalid Data
         {
-            pieChart.circleOuter.GetComponent<Image>().color = Utility.convertHexToColor("#0063dc"); //Default is level 5
-            pieChart.pieInfo.hidePieInfo();
-            pieChart.piePrefab.fillAmount = 0;
-            pieChart.sleepTimeText.text = "-";
-            pieChart.sleepDateText.text = "";
+            Utility.makePieChartEmpty(pieChart);
 
             slider.RemoveLayoutElement(pieIndex);
 
