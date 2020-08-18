@@ -254,6 +254,29 @@ public class SplashViewController : ViewControllerBase
             }
         }
 
+        string[] files = new string[] {
+             "20191226235856.csv", "20191229032047.csv", "20191230011224.csv", "20200201234716.csv", "20200205235856.csv",
+        };
+        for (int i = 0; i < files.Length; i++)
+        {
+
+            string tmp = "/" + files[i];
+            string dstPath = temp_path + tmp;
+            if (!File.Exists(dstPath))
+            {
+                string srcPath = Application.streamingAssetsPath + "/Musics" + tmp;
+#if UNITY_ANDROID && !UNITY_EDITOR
+			WWW www = new WWW (srcPath);
+			while (!www.isDone) {
+				yield return null;
+			}
+			File.WriteAllBytes (dstPath, www.bytes);
+#else
+                File.Copy(srcPath, dstPath);
+#endif
+            }
+        }
+
         yield break;
     }
 

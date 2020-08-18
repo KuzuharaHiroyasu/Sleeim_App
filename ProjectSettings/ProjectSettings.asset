@@ -158,7 +158,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 0
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: jp.co.onea.sleeim
+    Android: jp.co.onea.sleeim_slide
     Standalone: jp.co.onea.sleeim
     iOS: jp.co.one-a.sleeim
   buildNumber:

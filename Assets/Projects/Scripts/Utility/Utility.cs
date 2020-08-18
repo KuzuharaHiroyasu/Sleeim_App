@@ -70,6 +70,33 @@ namespace Kaimin.Common
 			if (db == null) {
 				return null;
 			} else {
+                int addedSampleData = PlayerPrefs.GetInt("addedSampleData", 0);
+                if (addedSampleData == 0)
+                {
+                    List<string> newFiles = new List<string>();
+                    string[] files = new string[] {
+                       "20191226235856.csv", "20191229032047.csv", "20191230011224.csv", "20200201234716.csv", "20200205235856.csv",
+                    };
+
+                    for (int i = 0; i < files.Length; i++)
+                    {
+                        var filePath = Utility.MusicTemplatePath() + "/" + files[i];
+                        if (System.IO.File.Exists(filePath))
+                        {
+                            newFiles.Add(filePath);
+
+                            var untilLastDotCount = files[i].LastIndexOf('.');   //はじめから'.'までの文字数。0はじまり
+                            var dateString = files[i].Substring(0, untilLastDotCount);
+
+                            db.GetSleepTable().Update(new DbSleepData(dateString, "Music/Template/" + files[i], false));
+                        }
+                    }
+
+                    PlayerPrefs.SetInt("addedSampleData", 1);
+
+                    return newFiles.ToArray();
+                }
+
                 var sleepTable = db.GetSleepTable();
                 return sleepTable.SelectDbSleepData().Select (data => {
 					string dataPath = "";
@@ -351,6 +378,16 @@ namespace Kaimin.Common
             }
 
             return newCol;
+        }
+
+        public static void makePieChartEmpty(PieChart pieChart)
+        {
+            //pieChart.circleOuter.SetActive(false);
+            pieChart.circleOuter.GetComponent<Image>().color = Utility.convertHexToColor("#0063dc"); //Default is level 5
+            pieChart.pieInfo.hidePieInfo();
+            pieChart.piePrefab.fillAmount = 0;
+            pieChart.sleepTimeText.text = "-";
+            pieChart.sleepDateText.text = "";
         }
 
         public static void makePieChart(PieChart pieChart, double[] pieValues, string[] pieLabels, Color[] pieColors)
