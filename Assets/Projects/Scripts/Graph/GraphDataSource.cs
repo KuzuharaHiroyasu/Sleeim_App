@@ -13,33 +13,31 @@ namespace Graph
     /// センシングデータをグラフにアタッチできる形式に変換する。
     /// グラフで使用できるデータを提供する。
     /// </summary>
-    public class GraphDataSource : MonoBehaviour, IIbikiData, IBreathData, IHeadDirData, ISleepInfo
+    public class GraphDataSource : MonoBehaviour
     {
-		[SerializeField] Image noDataImage = null;	//データがない場合に表示する画像
-		[SerializeField] GameObject scrollView;
-        /// <summary>
-        /// グラフに表示するデータが変更された際に通知する
-        /// </summary>
-        public Subject<Unit> OnGraphDataChange = new Subject<Unit>();
+ 
         List<SleepData> sleepDataList;      //取得した睡眠データ
         SleepHeaderData sleepHeaderData;    //取得したCSVヘッダーに記述された睡眠データ
 
         Button _nextDateButton;
         Button _backDateButton;
 
-        string[] _filepath; //取得したファイル一覧
-        int _selectIndex = 0; //選択中の日付Index
-        int _selectMin = 0; //選択範囲のMIN
-        int _selectMax = -1; //選択範囲のMAX
+        [SerializeField] Canvas canvas;
+        public GraphItem graphItem;
+        GraphItemSlider graphItemSlider;
 
-        string[] filePath = null;
-        string[] FilePath
+        string[] filePaths; //取得したファイル一覧
+        int selectedGraphIndex = -1;
+        int MIN_FILE_POSITION = 0; //選択範囲のMIN
+        int MAX_FILE_POSITION = -1; //選択範囲のMAX
+
+        string[] FilePathsAll
         {
             get
             {
-                if (filePath == null)
-                    filePath = Kaimin.Common.Utility.GetAllFiles(Kaimin.Common.Utility.GsDataPath(), "*.csv");
-                return filePath;
+                if (filePaths == null)
+                    filePaths = Kaimin.Common.Utility.GetAllFiles(Kaimin.Common.Utility.GsDataPath(), "*.csv");
+                return filePaths;
             }
         }
 
@@ -52,73 +50,154 @@ namespace Graph
             cube = GameObject.Find("BackDateButton");
             _backDateButton = cube.GetComponent<Button>();
 
-            _filepath = Kaimin.Common.Utility.GetAllFiles(Kaimin.Common.Utility.GsDataPath(), "*.csv");
-            //取得したファイルパスを確認
-            Debug.Log("StartCheckGraphData----------------------------");
-            foreach (var filePath in _filepath)
-            {
-                Debug.Log("FilePath:" + filePath);
-            }
-            Debug.Log("EndCheckGraphData----------------------------");
+            graphItemSlider = canvas.GetComponentInChildren<GraphItemSlider>();
+            graphItemSlider.controllerDelegate = this;
 
-            //Get valid _selectMax
-            _selectMax = -1;
-            for (int i = _filepath.Length - 1; i >= 0; i--)
+            GetSetFilePaths();
+            SetMaxFilePosition(); //Recalculate MAX_FILE_POSITION
+            SetMinFilePosition(); //Recalculate MIN_FILE_POSITION
+
+            int graphIndex = 0;
+            graphItemSlider.graphItems = new List<GraphItem>();
+            graphItemSlider.filePaths = new List<String>();
+
+            if (MIN_FILE_POSITION >= 0 && MAX_FILE_POSITION >= 0)
             {
-                List<SleepData> sleepDatas = CSVSleepDataReader.GetSleepDatas(_filepath[i]); //最新の睡眠データのリスト
-                if (sleepDatas != null && sleepDatas.Count > 0)
+                for (int i = MIN_FILE_POSITION; i <= MAX_FILE_POSITION; i++)
                 {
-                    _selectMax = i; //最新のファイルを取得
-                    break;
+                    graphItemSlider.PushGraphItem(Instantiate(graphItem), graphIndex, filePaths[i]); 
+                    graphIndex++;
                 }
-            }
 
-            //Get valid _selectMin
-            for (int i = 0; i <= _selectMax; i++)
-            {
-                List<SleepData> sleepData = CSVSleepDataReader.GetSleepDatas(_filepath[i]); //最新の睡眠データのリスト
-                if (sleepData != null && sleepData.Count > 0)
-                {
-                    _selectMin = i; //最新のファイルを取得
-                    break;
-                }
-            }
+                graphItemSlider.RemoveDefaultLayoutElement(); //Remove default
 
-            scrollView.SetActive (false);
-            if (_filepath.Length != 0)
-            { //エラーが出ないように
+                selectedGraphIndex = graphIndex; //Default (最新データを表示)
+
                 DateTime targetDate = UserDataManager.Scene.GetGraphDate();
                 //合致する日付データを検索する
-                bool isExistSelectData = _filepath
+                bool isExistSelectData = graphItemSlider.filePaths
                     .Where(path => Kaimin.Common.Utility.TransFilePathToDate(path) == targetDate && targetDate != DateTime.MinValue)
                     .Count() > 0;
                 if (isExistSelectData)
                 {
                     //日付を選択して表示したい場合
-                    _selectIndex = _filepath
+                    selectedGraphIndex = graphItemSlider.filePaths
                         .Select((path, index) => new { Path = path, Index = index })
                         .Where(data => Kaimin.Common.Utility.TransFilePathToDate(data.Path) == targetDate)
                         .First().Index;
                 }
+
+                StartCoroutine(LoadSleepDataInFirstTime());
+
+                graphItemSlider.MoveToIndex(selectedGraphIndex);
+            }
+            else
+            {
+                //表示するデータがなければ、NODATAを表示する
+                graphItem.noDataImage.enabled = true;
+                graphItem.scrollView.SetActive(false);
+            }
+
+            updatePrevNextBtnState(); //暫定：次のインデックスが存在有無で有効/無効を切り替え
+        }
+
+        private IEnumerator LoadSleepDataInFirstTime()
+        {
+            loadSleepData(selectedGraphIndex);
+
+            yield return new WaitForSeconds(0.1f);
+
+            AttachData();
+        }
+
+        public void UpdateGraphItem(int graphIndex, bool isToNext = false)
+        {
+            //Update graph data here
+            selectedGraphIndex = graphIndex;
+            graphItemSlider.cellIndex = selectedGraphIndex;
+            graphItemSlider.actualIndex = selectedGraphIndex;
+
+            loadSleepData(selectedGraphIndex);
+
+            if (sleepHeaderData != null && sleepDataList != null && sleepDataList.Count > 0)
+            {
+                AttachData();
+            } else
+            {
+                graphItemSlider.RemoveLayoutElement(graphIndex);
+                if (isToNext)
+                {
+                    if (graphIndex < graphItemSlider.filePaths.Count - 1)
+                    {
+                        //graphItemSlider.MoveToIndex(graphIndex);
+                        this.UpdateGraphItem(graphIndex, isToNext);
+                    }
+                }
                 else
                 {
-                    //最新データを表示したい場合
-                    _selectIndex = _selectMax;
+                    if (graphIndex > 0)
+                    {
+                        this.UpdateGraphItem(graphIndex - 1, isToNext);
+                        graphItemSlider.MoveToIndex(graphIndex - 1);
+                    }
                 }
+            }
 
-                if(_selectIndex >= 0)
-                {
-                    sleepDataList = ReadSleepDataFromCSV(_filepath[_selectIndex]);         //睡眠データをCSVから取得する
-                    sleepHeaderData = ReadSleepHeaderDataFromCSV(_filepath[_selectIndex]); //睡眠のヘッダーデータをCSVから取得する
-                    AttachData();
-                }
-			}
-
-			//表示するデータがなければ、NODATAを表示する
-			noDataImage.enabled = _filepath.Length == 0;
-			scrollView.SetActive (!noDataImage.enabled);
-            updateBackNextBtnState(); //暫定：次のインデックスが存在有無で有効/無効を切り替え
+            updatePrevNextBtnState();
         }
+
+        ////睡眠のヘッダーデータをCSVから取得する
+        public void loadSleepData(int graphIndex)
+        {
+            String filePath = graphItemSlider.filePaths[graphIndex];
+
+            if (graphItemSlider.sleepDatas[graphIndex] == null)
+            {
+                graphItemSlider.sleepDatas[graphIndex] = ReadSleepDataFromCSV(filePath); //睡眠データをCSVから取得する
+                graphItemSlider.sleepHeaderDatas[graphIndex] = ReadSleepHeaderDataFromCSV(filePath); //睡眠のヘッダーデータをCSVから取得する
+            }
+
+            this.sleepDataList = graphItemSlider.sleepDatas[graphIndex];
+            this.sleepHeaderData = graphItemSlider.sleepHeaderDatas[graphIndex];
+
+            graphItemSlider.graphItems[graphIndex].noDataImage.enabled = false;
+            graphItemSlider.graphItems[graphIndex].scrollView.SetActive(true);
+        }
+
+        public void GetSetFilePaths()
+        {
+            filePaths = Kaimin.Common.Utility.GetAllFiles(Kaimin.Common.Utility.GsDataPath(), "*.csv");
+        }
+
+        //Get valid MAX_FILE_POSITION
+        public void SetMaxFilePosition() {
+            MAX_FILE_POSITION = -1;
+            for (int i = filePaths.Length - 1; i >= 0; i--)
+            {
+                List<SleepData> sleepDatas = CSVSleepDataReader.GetSleepDatas(filePaths[i]); //最新の睡眠データのリスト
+                if (sleepDatas != null && sleepDatas.Count > 0)
+                {
+                    MAX_FILE_POSITION = i; //最新のファイルを取得
+                    break;
+                }
+            }
+        }
+
+        //Get valid MIN_FILE_POSITION
+        public void SetMinFilePosition()
+        {
+            MIN_FILE_POSITION = MAX_FILE_POSITION; //Default
+            for (int i = 0; i <= MAX_FILE_POSITION; i++)
+            {
+                List<SleepData> sleepData = CSVSleepDataReader.GetSleepDatas(filePaths[i]); //最新の睡眠データのリスト
+                if (sleepData != null && sleepData.Count > 0)
+                {
+                    MIN_FILE_POSITION = i; //最新のファイルを取得
+                    break;
+                }
+            }
+        }
+
 
         //AttachData()で自動的に呼び出される
         public List<IbikiGraph.Data> GetIbikiDatas()
@@ -229,10 +308,11 @@ namespace Graph
 
             DateTime from = new DateTime(bedTime.Year, bedTime.Month, bedTime.Day, 0, 0, 0);
             DateTime to = new DateTime(bedTime.Year, bedTime.Month, bedTime.Day, 23, 59, 59);
-            List<string> todayDataPathList = PickFilePathInPeriod(FilePath, from, to).Where(path => IsSameDay(bedTime, Utility.TransFilePathToDate(path))).ToList();
+            List<string> todayDataPathList = PickFilePathInPeriod(graphItemSlider.filePaths.ToArray(), from, to).Where(path => IsSameDay(bedTime, Utility.TransFilePathToDate(path))).ToList();
             int dateIndex = todayDataPathList
                 .Select((path, index) => new { Path = path, Index = index })
-                .Where(data => data.Path == FilePath[_selectIndex])
+                .Where(data => data.Path == graphItemSlider.filePaths[selectedGraphIndex])
+                //.Where(data => data.Path == FilePathsAll[selectedGraphIndex + MIN_FILE_POSITION])
                 .Select(data => data.Index)
                 .First();									//同一日の何個目のデータか(0はじまり)
             int crossSunCount = todayDataPathList
@@ -297,7 +377,21 @@ namespace Graph
         void AttachData()
         {
             UserDataManager.Scene.SaveGraphDate(sleepHeaderData.DateTime);
-            OnGraphDataChange.OnNext(Unit.Default); //データの変更を通知
+
+            GraphItem grapItm = graphItemSlider.graphItems[selectedGraphIndex];
+
+            if(!graphItem.isActive)
+            {
+                grapItm.ibikiGraph.InputData = grapItm;
+                grapItm.breathGraph.InputData = grapItm;
+
+                grapItm.ibikiGraph.SetActive();
+                grapItm.breathGraph.SetActive();
+
+                grapItm.OnGraphDataChange.OnNext(Unit.Default); //データの変更を通知
+
+                graphItemSlider.graphItems[selectedGraphIndex].isActive = true;
+            }
         }
 
         /// <summary>
@@ -306,20 +400,21 @@ namespace Graph
         /// </summary>
         public void ChangeNextDate()
         {
-            while (_selectIndex < _selectMax)
+            while (selectedGraphIndex < graphItemSlider.filePaths.Count - 1)
             { //暫定：範囲内であれば処理を実行
-                _selectIndex++;
-                sleepDataList = ReadSleepDataFromCSV(_filepath[_selectIndex]);         //睡眠データをCSVから取得する
-                sleepHeaderData = ReadSleepHeaderDataFromCSV(_filepath[_selectIndex]); //睡眠のヘッダーデータをCSVから取得する
-
+                selectedGraphIndex++;
+                loadSleepData(selectedGraphIndex);
                 if (sleepHeaderData != null && sleepDataList != null && sleepDataList.Count > 0)
                 {
+                    graphItemSlider.MoveToIndex(selectedGraphIndex);
+
                     AttachData();
+
                     break;
                 }
             }
 
-            updateBackNextBtnState();
+            updatePrevNextBtnState();
         }
         /// <summary>
         /// とりあえず日付送り機能用に
@@ -327,60 +422,43 @@ namespace Graph
         /// </summary>
         public void ChangeBackDate()
         {
-            while (_selectIndex > _selectMin)
+            while (selectedGraphIndex > 0)
             { //暫定：範囲内であれば処理を実行
-                _selectIndex--;
-                sleepDataList = ReadSleepDataFromCSV(_filepath[_selectIndex]);         //睡眠データをCSVから取得する
-                sleepHeaderData = ReadSleepHeaderDataFromCSV(_filepath[_selectIndex]); //睡眠のヘッダーデータをCSVから取得する
-
+                selectedGraphIndex--;
+                loadSleepData(selectedGraphIndex);
                 if (sleepHeaderData != null && sleepDataList != null && sleepDataList.Count > 0)
                 {
+                    graphItemSlider.MoveToIndex(selectedGraphIndex);
+
                     AttachData();
+
                     break;
                 }
             }
 
-            updateBackNextBtnState();
-        }
-
-        /// <summary>
-        /// 範囲内に選択日付があるかチェック
-        /// </summary>
-        /// <param name="path">減算・加算を指定</param>
-        /// <returns></returns>
-        public Boolean CheckSelecRange(int mode)
-        {
-            if (mode == 0) //減算
-            {
-                int tmpMin = _selectIndex - 1;
-                if (tmpMin < _selectMin) return false;
-            }
-            else //加算
-            {
-                int tmpMax = _selectIndex + 1;
-                if (tmpMax > _selectMax) return false;
-            }
-
-            return true;
+            updatePrevNextBtnState();
         }
 
         /// <summary>
         /// 次のインデックスが存在有無で有効/無効を切り替え
         /// </summary>
         /// <returns></returns>
-        public void updateBackNextBtnState()
+        public void updatePrevNextBtnState()
         {
-            _backDateButton.interactable = false;
-            _nextDateButton.interactable = false;
+            this._backDateButton.interactable = false;
+            this._nextDateButton.interactable = false;
 
-            if(_selectIndex > _selectMin)
+            if (filePaths != null && MAX_FILE_POSITION > 0 && MIN_FILE_POSITION != MAX_FILE_POSITION)
             {
-                _backDateButton.interactable = true;
-            }
+                if (selectedGraphIndex > 0)
+                {
+                    this._backDateButton.interactable = true;
+                }
 
-            if(_selectIndex < _selectMax)
-            {
-                _nextDateButton.interactable = true;
+                if (selectedGraphIndex < graphItemSlider.filePaths.Count - 1)
+                {
+                    this._nextDateButton.interactable = true;
+                }
             }
         }
     }

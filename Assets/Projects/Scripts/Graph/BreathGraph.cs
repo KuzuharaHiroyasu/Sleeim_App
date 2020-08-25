@@ -18,8 +18,8 @@ namespace Graph
         public Color lineColor;						//折れ線グラフの色
         public HeadDirGraph headDirGraph;			//頭の向きをグラフに表示する際の色のパターンを参照する
         public List<BreathState> breathLabelList;	//呼吸の状態をどうラベリングするか設定するリスト。閾値が低い順に設定する
-        public GraphDataSource InputData;			//呼吸データを持っている、IBreathGraphインターフェースを実装したクラス
-        IBreathData input;
+        public GraphItem InputData;			        //呼吸データを持っている、IBreathGraphインターフェースを実装したクラス
+        //IBreathData input;
         public BarChart Output_Bar;					//出力先のバーグラフ
         public WMG_Series Output_Line;				//出力先の折れ線グラフ
         public AxisTimeLabel Output_TimeLabel;		//時間を表示するためのラベル
@@ -27,8 +27,8 @@ namespace Graph
         public GameObject[] Label;					//呼吸グラフで表示するラベル　表示・非表示を切り替える
         public GameObject[] Legend;					//呼吸グラフで表示する凡例　表示・非表示を切り替える
         public GameObject Output_AnalyzeTable;		//呼吸グラフの分析データを表示する表全体のオブジェクト。表示・非表示に使用する
-        public Text[] Output_AnalyzeText_Normal;				//体の向きごとの分析データ出力先＿通常 (左・上・右・下の順で設定)
-        public Text[] Output_AnalyzeText_Apnea;					//体の向きごとの分析データ出力先＿無呼吸 (左・上・右・下の順で設定)
+        public Text[] Output_AnalyzeText_Normal;	//体の向きごとの分析データ出力先＿通常 (左・上・右・下の順で設定)
+        public Text[] Output_AnalyzeText_Apnea;		//体の向きごとの分析データ出力先＿無呼吸 (左・上・右・下の順で設定)
 
         public PercetageBarChart Output_Percentage_Left;	//体の向きが左のときの呼吸の状態の集計出力先
         public PercetageBarChart Output_Percentage_Up;		//体の向きが上のときの呼吸の状態の集計出力先
@@ -40,15 +40,16 @@ namespace Graph
 
         void Awake()
         {
+            /*
             input = InputData.GetComponent<IBreathData>();
             InputData.OnGraphDataChange.Subscribe(_ =>
             {
                 //グラフに表示するデータが変更された際に実行される
                 //最新のデータを取得し、保持する
-                dataList = input.GetBreathDatas();			//異常データを取り除く
+                dataList = input.GetBreathDatas(); //異常データを取り除く
             });
+            */
         }
-
 
         /// <summary>
         /// センシングした呼吸のデータをグラフ表示に適したデータに変換したクラス
@@ -243,6 +244,12 @@ namespace Graph
             }
             Output_AnalyzeTable.SetActive(true);
 
+            if(dataList == null)
+            {
+                //input = InputData.GetComponent<IBreathData>();
+                dataList = InputData.GetBreathDatas();
+            }
+
             if (dataList != null)
             {
                 //グラフに表示するためにラベルデータを作成
@@ -333,9 +340,7 @@ namespace Graph
 		}
 
 
-		public void ResizeBig(){
-
-
+		public void ResizeBig() {
 			if (dataList != null)
 			{
 				//グラフに表示するためにラベルデータを作成
@@ -351,9 +356,7 @@ namespace Graph
 		}
 
 
-		public void ResizeMin(){
-
-
+		public void ResizeMin() {
 			if (dataList != null)
 			{
 				//グラフに表示するためにラベルデータを作成

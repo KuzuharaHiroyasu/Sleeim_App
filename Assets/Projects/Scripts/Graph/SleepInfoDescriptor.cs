@@ -15,7 +15,7 @@ public class SleepInfoDescriptor : MonoBehaviour {
     /// <summary>
     /// 睡眠データの取得元
     /// </summary>
-    public GraphDataSource Input;
+    public GraphItem Input;
 
     /// <summary>
     /// 表示する情報を持っておく
