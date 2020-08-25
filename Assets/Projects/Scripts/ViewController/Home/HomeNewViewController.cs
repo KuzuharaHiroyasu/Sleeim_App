@@ -66,7 +66,7 @@ public class HomeNewViewController : ViewControllerBase
         pieChartSlider = canvas.GetComponentInChildren<PieChartSlider>();
         pieChartSlider.controllerDelegate = this;
 
-        UpdateLatestPieChart();
+        ShowLatestPieChart();
 
         this.btnPrev.GetComponent<Button>().onClick.AddListener(delegate { this.onClickPrevBtn(); });
         this.btnNext.GetComponent<Button>().onClick.AddListener(delegate { this.onClickNextBtn(); });
@@ -465,7 +465,7 @@ public class HomeNewViewController : ViewControllerBase
         }
     }
 
-    public void UpdateLatestPieChart()
+    public void ShowLatestPieChart()
     {
         GetSetFilePaths(); //Important
         SetMaxFilePosition(); //Recalculate MAX_FILE_POSITION
@@ -498,6 +498,31 @@ public class HomeNewViewController : ViewControllerBase
 
             pieChartSlider.pieCharts.Add(pieChart);
             updatePrevNextBtnState();
+        }
+    }
+
+    public void UpdateLatestPieChart()
+    {
+        if(MAX_FILE_POSITION < 0) //No data
+        {
+            ShowLatestPieChart();
+        } else
+        {
+            int oldMaxFilePostion = MAX_FILE_POSITION;
+
+            GetSetFilePaths(); //Important
+            SetMaxFilePosition(); //Recalculate MAX_FILE_POSITION
+            //SetMinFilePosition(); //Recalculate MIN_FILE_POSITION
+
+            int pieIndex = pieChartSlider.filePaths.Count - 1;
+            for (int i = oldMaxFilePostion + 1; i <= MAX_FILE_POSITION; i++)
+            {
+                pieIndex++;
+                pieChartSlider.PushPieChart(Instantiate(pieChart), pieIndex, filePaths[i]);
+            }
+
+            pieChartSlider.MoveToIndex(pieIndex);
+            this.UpdatePieChart(pieIndex); //Lastest pie chart
         }
     }
 
