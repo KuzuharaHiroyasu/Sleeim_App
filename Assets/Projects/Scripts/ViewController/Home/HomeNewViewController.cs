@@ -92,7 +92,7 @@ public class HomeNewViewController : ViewControllerBase
 
     }
 
-    public void UpdatePieChart(int pieIndex, bool isToNext = false)
+    public void UpdatePieChart(int pieIndex, bool isToNext = false, bool isClickBtn = false)
     {
         ChartInfo chartInfo = null;
 
@@ -200,8 +200,16 @@ public class HomeNewViewController : ViewControllerBase
                 {
                     if (pieIndex > 0)
                     {
-                        pieChartSlider.MoveToIndex(pieIndex - 1);
-                        this.UpdatePieChart(pieIndex - 1, isToNext);
+                        if(isClickBtn)
+                        {
+                            pieChartSlider.MoveToIndex(pieIndex - 1);
+                            this.UpdatePieChart(pieIndex - 1, isToNext);
+                        }
+                        else
+                        {
+                            pieChartSlider.SnapToIndex(pieIndex - 1, false);
+                        }
+                        
                         return;
                     }
                 }
@@ -324,7 +332,7 @@ public class HomeNewViewController : ViewControllerBase
         if (filePaths != null && selectedPieIndex < pieChartSlider.filePaths.Count - 1)
         {
             selectedPieIndex++;
-            UpdatePieChartByIndex(selectedPieIndex, true);
+            UpdatePieChartWhenClickBtn(selectedPieIndex, true);
         }
     }
 
@@ -333,14 +341,14 @@ public class HomeNewViewController : ViewControllerBase
         if(filePaths != null && selectedPieIndex > 0)
         {
             selectedPieIndex--;
-            UpdatePieChartByIndex(selectedPieIndex, false);
+            UpdatePieChartWhenClickBtn(selectedPieIndex, false);
         }
     }
 
-    public void UpdatePieChartByIndex(int pieIndex, bool isToNext = false)
+    public void UpdatePieChartWhenClickBtn(int pieIndex, bool isToNext = false)
     {
         pieChartSlider.MoveToIndex(pieIndex);
-        this.UpdatePieChart(pieIndex);
+        this.UpdatePieChart(pieIndex, isToNext, true);
     }
 
     public void updatePrevNextBtnState()
