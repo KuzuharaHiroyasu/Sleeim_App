@@ -137,8 +137,9 @@ namespace Graph
                 {
                     if (graphIndex > 0)
                     {
-                        this.UpdateGraphItem(graphIndex - 1, isToNext);
-                        graphItemSlider.MoveToIndex(graphIndex - 1);
+                        graphItemSlider.SnapToIndex(graphIndex - 1);
+                        //this.UpdateGraphItem(graphIndex - 1, isToNext);
+                        //graphItemSlider.MoveToIndex(graphIndex - 1);
                     }
                 }
             }
