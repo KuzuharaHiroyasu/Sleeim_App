@@ -17,8 +17,8 @@ namespace Graph
         public Color lineColor;					//折れ線グラフの色
         public HeadDirGraph headDirGraph;		//頭の向きをグラフに表示する際の色のパターンを参照する
         public List<IbikiLebel> ibikiLebelList;	//いびきの大きさをどうラベリングするか設定したリスト。閾値が低い順に設定する
-        public GraphDataSource InputData;		//いびきデータを持っている、IIbikiDataインターフェースを実装したクラス
-        IIbikiData input;						//入力データを取得するためのインターフェース
+        public GraphItem InputData;		        //いびきデータを持っている、IIbikiDataインターフェースを実装したクラス
+        //IIbikiData input;						//入力データを取得するためのインターフェース
         public BarChart Output_Bar;				//出力先のバーグラフ
         public WMG_Series Output_Line;			//出力先の折れ線グラフ
 		public AxisTimeLabel Output_TimeLabel;	//時間を表示するためのラベル
@@ -76,6 +76,7 @@ namespace Graph
 
         void Awake()
         {
+            /*
             input = InputData.GetComponent<IIbikiData>();
             InputData.OnGraphDataChange.Subscribe(_ =>
             {
@@ -83,6 +84,7 @@ namespace Graph
                 //最新のデータを取得し、保持する
                 dataList = input.GetIbikiDatas();
             });
+            */
         }
 
         /// <summary>
@@ -217,6 +219,12 @@ namespace Graph
 
             try
 			{
+                if(dataList == null)
+                {
+                    //input = InputData.GetComponent<IIbikiData>();
+                    dataList = InputData.GetIbikiDatas();
+                }
+
 				if (dataList != null)
 				{
 					//グラフに表示するためにラベルデータを作成
@@ -328,11 +336,8 @@ namespace Graph
 			}
 			catch
 			{
-
 				scrollView.SetActive (false);
 			}
-
-
         }
 
 

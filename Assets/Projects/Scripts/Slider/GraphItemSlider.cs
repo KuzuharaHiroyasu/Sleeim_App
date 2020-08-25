@@ -8,7 +8,7 @@ using System;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(ScrollRect), typeof(CanvasGroup))]
-public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
+public class GraphItemSlider : UIBehaviour, IDragHandler, IEndDragHandler
 {
     [SerializeField] public int startingIndex = 0;
     [SerializeField] public bool wrapAround = false;
@@ -23,7 +23,6 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
 
     public int actualIndex;
     public int cellIndex;
-
     ScrollRect scrollRect;
     CanvasGroup canvasGroup;
     RectTransform content;
@@ -34,10 +33,8 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
     Vector2 releasedPosition;
     Vector2 targetPosition;
 
-    //public SliderDemoViewControler controllerDelegate = null;
-    public HomeNewViewController controllerDelegate = null;
-
-    public List<PieChart>  pieCharts = null;
+    public Graph.GraphDataSource controllerDelegate = null;
+    public List<GraphItem>  graphItems = null;
     public List<String>  filePaths = null;
     public List<List<SleepData>> sleepDatas = null;
     public List<SleepHeaderData> sleepHeaderDatas = null;
@@ -57,7 +54,7 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
         int count = LayoutElementCount();
         SetContentSize(count);
 
-        pieCharts = new List<PieChart>();
+        graphItems = new List<GraphItem>();
         filePaths = new List<String>();
         sleepDatas = new List<List<SleepData>>();
         sleepHeaderDatas = new List<SleepHeaderData>();
@@ -83,14 +80,14 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
         }
     }
 
-    public void PushPieChart(PieChart pieChart, int i, String filePath)
+    public void PushGraphItem(GraphItem graphItem, int i, String filePath)
     {
-        pieCharts.Add(pieChart);
+        graphItems.Add(graphItem);
         filePaths.Add(filePath);
         sleepDatas.Add(null);
         sleepHeaderDatas.Add(null);
 
-        LayoutElement layoutElementPrefab = pieChart.GetComponent<LayoutElement>();
+        LayoutElement layoutElementPrefab = graphItem.GetComponent<LayoutElement>();
         PushLayoutElement(layoutElementPrefab);
     }
 
@@ -119,8 +116,8 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
                 cellIndex -= 1;
             }
 
+            graphItems.RemoveAt(index);
             filePaths.RemoveAt(index);
-            pieCharts.RemoveAt(index);
             sleepDatas.RemoveAt(index);
             sleepHeaderDatas.RemoveAt(index);
         }
@@ -206,7 +203,7 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
             return 1;
         if ((normalizedOffset - skipping) * 100f > triggerPercent)
         {
-            return 1; //skipping + 1
+            return 1; //skipping + 1;
         }
         else
         {
@@ -245,7 +242,7 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
 
         if (controllerDelegate != null)
         {
-            this.controllerDelegate.UpdatePieChart(cellIndex, isToNext);
+            this.controllerDelegate.UpdateGraphItem(cellIndex, isToNext);
         }
     }
 

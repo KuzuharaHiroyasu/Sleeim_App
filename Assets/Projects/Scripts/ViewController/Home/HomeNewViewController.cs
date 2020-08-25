@@ -53,7 +53,6 @@ public class HomeNewViewController : ViewControllerBase
     int MAX_FILE_POSITION = -1;
     PieChartSlider pieChartSlider;
 
-
     // Use this for initialization
     protected override void Start() {
         base.Start();
@@ -93,20 +92,31 @@ public class HomeNewViewController : ViewControllerBase
 
     }
 
-    public void UpdatePieChart(PieChartSlider slider, int pieIndex, bool isToNext = false)
+    public void UpdatePieChart(int pieIndex, bool isToNext = false)
     {
         ChartInfo chartInfo = null;
 
         try
         {
-            String filePath = slider.filePaths[pieIndex];
-            PieChart pieChart = slider.pieCharts[pieIndex];
-            List<SleepData> sleepDatas = CSVSleepDataReader.GetSleepDatas(filePath); //睡眠データのリスト
-            SleepHeaderData sleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(filePath); //睡眠データのヘッダーデータ
+            String filePath = pieChartSlider.filePaths[pieIndex];
+            PieChart currentPieChart = pieChartSlider.pieCharts[pieIndex];
+
+            if(pieChartSlider.sleepDatas[pieIndex] == null)
+            {
+                pieChartSlider.sleepDatas[pieIndex] = CSVSleepDataReader.GetSleepDatas(filePath); //睡眠データのリスト
+                pieChartSlider.sleepHeaderDatas[pieIndex] = CSVSleepDataReader.GetSleepHeaderData(filePath); //睡眠データのヘッダーデータ
+            }
+
+            List<SleepData> sleepDatas = pieChartSlider.sleepDatas[pieIndex];
+            SleepHeaderData sleepHeaderData = pieChartSlider.sleepHeaderDatas[pieIndex];
 
             if (sleepHeaderData != null && sleepDatas != null && sleepDatas.Count > 0)
             {
                 selectedPieIndex = pieIndex;
+                pieChartSlider.cellIndex = selectedPieIndex;
+                pieChartSlider.actualIndex = selectedPieIndex;
+
+                //checkValidItem(selectedPieIndex, isToNext);
 
                 DateTime startTime = sleepHeaderData.DateTime;
                 DateTime endTime = sleepDatas.Select(data => data.GetDateTime()).Last();
@@ -118,12 +128,12 @@ public class HomeNewViewController : ViewControllerBase
                 System.TimeSpan ts = new System.TimeSpan(hours: 0, minutes: 0, seconds: sleepTimeSec);
                 int hourWithDay = 24 * ts.Days + ts.Hours;      // 24時間超えた場合の時間を考慮
                 string sleepTime = string.Format("{0:00}:{1:00}", hourWithDay, ts.Minutes);
-                pieChart.sleepTimeText.text = sleepTime;
+                currentPieChart.sleepTimeText.text = sleepTime;
 
                 DateTime fileDateTime = Kaimin.Common.Utility.TransFilePathToDate(filePath);
                 DateTime realDateTime = CSVManager.getRealDateTime(fileDateTime);
-                pieChart.sleepDateText.text = CSVManager.isInvalidDate(realDateTime) ? "-" : CSVManager.getJpDateString(realDateTime);
-                sleepDateText.text = pieChart.sleepDateText.text;
+                currentPieChart.sleepDateText.text = CSVManager.isInvalidDate(realDateTime) ? "-" : CSVManager.getJpDateString(realDateTime);
+                sleepDateText.text = currentPieChart.sleepDateText.text;
 
                 //Step2: Show pie chart
                 chartInfo = CSVManager.convertSleepDataToChartInfo(sleepDatas);
@@ -139,7 +149,7 @@ public class HomeNewViewController : ViewControllerBase
                     //p1 = 95; p2 = 3; p3 = 2; p4 = 0;
                     double[] pieValues = new double[4] { p1, p2, p3, p4 }; //Percents of pKaiMin, Ibiki, Mukokyu, Fumei
                     string[] pieLabels = new string[4] { "快眠", "いびき", "呼吸レス", "不明" };
-                    Utility.makePieChart(pieChart, pieValues, pieLabels, pieColors);
+                    Utility.makePieChart(currentPieChart, pieValues, pieLabels, pieColors);
                 }
 
                 //Step 3: Change color of CircleOuter by sleepLevel (睡眠レベルによって色を変える)
@@ -172,9 +182,36 @@ public class HomeNewViewController : ViewControllerBase
                 }
 
                 String[] levelColors = new String[5] { "#ff0000", "#ff6600", "#ffff4d", "#72ef36", "#0063dc" };
-                pieChart.circleOuter.GetComponent<Image>().color = Utility.convertHexToColor(levelColors[sleepLevel - 1]);
+                currentPieChart.circleOuter.GetComponent<Image>().color = Utility.convertHexToColor(levelColors[sleepLevel - 1]);
+            } else
+            {
+                pieChartSlider.RemoveLayoutElement(pieIndex);
+
+                if (isToNext)
+                {
+                    if (pieIndex < pieChartSlider.filePaths.Count - 1)
+                    {
+                        //pieChartSlider.MoveToIndex(pieIndex);
+                        this.UpdatePieChart(pieIndex, isToNext);
+                        return;
+                    }
+                }
+                else
+                {
+                    if (pieIndex > 0)
+                    {
+                        pieChartSlider.MoveToIndex(pieIndex - 1);
+                        this.UpdatePieChart(pieIndex - 1, isToNext);
+                        return;
+                    }
+                }
             }
 
+            if (chartInfo == null) //Invalid Data
+            {
+                Utility.makePieChartEmpty(currentPieChart);
+                sleepDateText.text = "";
+            }
         }
         catch (System.Exception e)
         {
@@ -184,28 +221,54 @@ public class HomeNewViewController : ViewControllerBase
         {
             Utility.makePieChartEmpty(pieChart);
             sleepDateText.text = "";
-
-            slider.RemoveLayoutElement(pieIndex);
-
-            if (isToNext)
-            {
-                if (pieIndex < slider.filePaths.Count - 1)
-                {
-                    slider.MoveToIndex(pieIndex + 1);
-                    this.UpdatePieChart(slider, pieIndex + 1);
-                }
-            }
-            else
-            {
-                if (pieIndex > 0)
-                {
-                    slider.MoveToIndex(pieIndex - 1);
-                    this.UpdatePieChart(slider, pieIndex - 1);
-                }
-            }
         }
 
         updatePrevNextBtnState();
+    }
+
+    public void checkValidItem(int pieIndex, bool isToNext = false)
+    {
+        if (isToNext)
+        {
+            pieIndex++;
+            while (pieIndex < pieChartSlider.filePaths.Count - 1)
+            {
+                String filePath = pieChartSlider.filePaths[pieIndex];
+
+                List<SleepData> sleepDatas = CSVSleepDataReader.GetSleepDatas(filePath); //睡眠データのリスト
+                SleepHeaderData sleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(filePath); //睡眠データのヘッダーデータ
+                if (sleepHeaderData != null && sleepDatas != null && sleepDatas.Count > 0)
+                {
+                    break;
+                } else
+                {
+                    pieChartSlider.RemoveLayoutElement(pieIndex);
+                }
+                    
+            }
+        }
+        else
+        {
+            pieIndex--;
+            while (pieIndex > 0)
+            {
+                String filePath = pieChartSlider.filePaths[pieIndex];
+
+                List<SleepData> sleepDatas = CSVSleepDataReader.GetSleepDatas(filePath); //睡眠データのリスト
+                SleepHeaderData sleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(filePath); //睡眠データのヘッダーデータ
+
+                if (sleepHeaderData != null && sleepDatas != null && sleepDatas.Count > 0)
+                {
+                    break;
+                }
+                else
+                {
+                    pieChartSlider.RemoveLayoutElement(pieIndex);
+                    selectedPieIndex--;
+                    pieChartSlider.MoveToIndex(selectedPieIndex);
+                }
+            }
+        }
     }
 
     public void GetSetFilePaths()
@@ -277,19 +340,16 @@ public class HomeNewViewController : ViewControllerBase
     public void UpdatePieChartByIndex(int pieIndex, bool isToNext = false)
     {
         pieChartSlider.MoveToIndex(pieIndex);
-        this.UpdatePieChart(pieChartSlider, pieIndex);
+        this.UpdatePieChart(pieIndex);
     }
 
     public void updatePrevNextBtnState()
     {
-        if (filePaths == null || MAX_FILE_POSITION <= 0 || MIN_FILE_POSITION == MAX_FILE_POSITION)
+        this.btnPrev.interactable = false;
+        this.btnNext.interactable = false;
+
+        if (filePaths != null && MAX_FILE_POSITION > 0 && MIN_FILE_POSITION != MAX_FILE_POSITION)
         {
-            this.btnPrev.interactable = false;
-            this.btnNext.interactable = false;
-        } else
-        {
-            this.btnPrev.interactable = false;
-            this.btnNext.interactable = false;
             if (selectedPieIndex > 0)
             {
                 this.btnPrev.interactable = true;
@@ -419,6 +479,8 @@ public class HomeNewViewController : ViewControllerBase
         {
             pieChartSlider.pieCharts.Add(pieChart); //Add Min
             pieChartSlider.filePaths.Add(filePaths[MIN_FILE_POSITION]); //Add Min
+            pieChartSlider.sleepDatas.Add(null);
+            pieChartSlider.sleepHeaderDatas.Add(null);
             for (int i = MIN_FILE_POSITION + 1; i <= MAX_FILE_POSITION; i++)
             {
                 pieIndex++;
@@ -426,7 +488,7 @@ public class HomeNewViewController : ViewControllerBase
             }
 
             pieChartSlider.MoveToIndex(pieIndex);
-            this.UpdatePieChart(pieChartSlider, pieIndex);
+            this.UpdatePieChart(pieIndex); //Lastest pie chart
         }
         else
         {
