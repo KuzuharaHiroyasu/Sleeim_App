@@ -9,18 +9,19 @@ namespace Graph {
 	/// </summary>
 	public class GraphDataActivater : MonoBehaviour {
 
-		public GraphDataSource InputData;	//データの変更通知を発行するクラス
-		public IbikiGraph ibikiGraph;
-		public BreathGraph breathGraph;
+		//public GraphItem InputData; //データの変更通知を発行するクラス
+		//public IbikiGraph ibikiGraph;
+		//public BreathGraph breathGraph;
 
 		void Awake () {
+			/*
 			InputData.OnGraphDataChange.Subscribe (_ => {
 				//グラフに表示するデータが変更された際に実行される
 				//データが更新されたら、選択中のデータの表示を更新する
 				ibikiGraph.SetActive();
 				breathGraph.SetActive();
 			});
+			*/
 		}
-
 	}
 }

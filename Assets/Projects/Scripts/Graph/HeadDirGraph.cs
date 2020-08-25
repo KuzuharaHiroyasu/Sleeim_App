@@ -13,7 +13,7 @@ namespace Graph
     {
 
         public List<HeadDirGraphSetting> graphSettingList;	//どのように頭の向きのデータをグラフに表示するかの設定
-        public GraphDataSource InputData;					//頭の向きを持っている、IHeadDirDataを実装したクラス
+        public GraphItem InputData;					//頭の向きを持っている、IHeadDirDataを実装したクラス
         public BarChart Output_Bar;							//出力先のバーグラフ
         IHeadDirData input;
         List<Data> dataList;
