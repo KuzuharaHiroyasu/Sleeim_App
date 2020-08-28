@@ -2121,7 +2121,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224428975873659558}
   m_Layer: 5
-  m_Name: dummy2
+  m_Name: SnoreStopCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11788,6 +11788,7 @@ MonoBehaviour:
   - {fileID: 114351075866021970}
   SnoreTimeText: {fileID: 114339742265761836}
   SnoreCount: {fileID: 114271315790912970}
+  SnoreStopCount: {fileID: 114809875822732206}
   SnoreRateText: {fileID: 114020671248284522}
   ApneaTimeText: {fileID: 114875821489100546}
   ApneaCountText: {fileID: 114850402821772988}
@@ -12422,18 +12423,18 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: 1dfa69c647e1e0e4db53f463c7a9fbf7, type: 3}
-    m_FontSize: 32
+    m_FontSize: 24
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
     m_MaxSize: 200
-    m_Alignment: 4
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: "-<size=24>\u56DE</size>"
 --- !u!114 &114814541822851246
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -12596,7 +12597,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: "\u3044\u3073\u304D\u304C\u6B62\u307E\u3063\u305F\u56DE\u6570"
 --- !u!114 &114848502990000454
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -13072,6 +13073,7 @@ MonoBehaviour:
   graphDataSource: {fileID: 0}
   ibikiGraph: {fileID: 114328656746179850}
   breathGraph: {fileID: 114272744364656232}
+  isActive: 0
 --- !u!114 &114896445398063066
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -16381,8 +16383,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 113, y: 0}
-  m_SizeDelta: {x: 200, y: 60}
+  m_AnchoredPosition: {x: 133, y: 0}
+  m_SizeDelta: {x: 240, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224176566145536218
 RectTransform:
@@ -18512,8 +18514,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -66.06055, y: -0.0000038146973}
-  m_SizeDelta: {x: 131.88, y: 60}
+  m_AnchoredPosition: {x: -100, y: 0}
+  m_SizeDelta: {x: 140, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224493295764808144
 RectTransform:
