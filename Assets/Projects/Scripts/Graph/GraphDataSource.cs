@@ -105,9 +105,13 @@ namespace Graph
         {
             loadSleepData(selectedGraphIndex);
 
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.01f);
 
             AttachData();
+
+            yield return new WaitForSeconds(0.1f);
+
+            graphItemSlider.graphItems[selectedGraphIndex].ibikiGraph.ReSizeMin();
         }
 
         public void UpdateGraphItem(int graphIndex, bool isToNext = false)
