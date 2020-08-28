@@ -298,6 +298,7 @@ namespace Graph
             int longestApneaTime = sleepHeaderData.LongestApneaTime;
             var sleepTimeSpan = getUpTime.Subtract(bedTime);
             double sleepTimeTotal = sleepTimeSpan.TotalSeconds;
+            int snoreStopCount = getSnoreStopCount(sleepDataList);
 
             double  snoreRate10 = (snoreTime / sleepTimeTotal ) * 1000.0;
             int snoreRate10Int = (int)snoreRate10;
@@ -344,7 +345,37 @@ namespace Graph
                 crossSunCount,
                 sameDataNum,
                 crossSunNum,
-                sleepMode);
+                sleepMode,
+                snoreStopCount);
+        }
+
+        public static int getSnoreStopCount(List<SleepData> sleepData)
+        {
+            int snoreStopCount = 0;
+            int snoreContinueCount = 0;
+
+            foreach (var item in sleepData)
+            {
+                int[] states = { item.BreathState1, item.BreathState2, item.BreathState3 };
+                for (int i = 0; i < states.Length; i++)
+                {
+                    var state = states[i];
+                    if (state == (int)SleepData.BreathState.Snore)
+                    {
+                        snoreContinueCount++;
+                    } else
+                    {
+                        if(snoreContinueCount >= 1 && snoreContinueCount <= 2)
+                        {
+                            snoreStopCount++; //いびき判定が連続２回以下の場合
+                        }
+
+                        snoreContinueCount = 0; //Reset
+                    }
+                }
+            }
+               
+            return snoreStopCount;
         }
 
         //睡眠データのファイル一覧から指定した期間のもののみを取得
