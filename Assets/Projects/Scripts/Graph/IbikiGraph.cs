@@ -533,6 +533,8 @@ namespace Graph
             List<Vector2> valueList = new List<Vector2>();
             float xValueTotalRate = 0.0f;
             float yValueTotalRate = 0.0f;
+            float MAX_Y_VALUE = 0.8f;
+
             for (int i = 0; i < ibikiDataList.Count; i++)
             {
                 System.DateTime detectionStartTime = ibikiDataList.First().GetTime().Value;
@@ -565,6 +567,12 @@ namespace Graph
                         float aveXValueRate = xValueTotalRate / 3.0f;
                         float aveYValueRate = yValueTotalRate / 3.0f;
 
+                        aveYValueRate *= 2; //200単位(最大値800)を100単位にして最大値を400にする
+                        if(aveYValueRate > MAX_Y_VALUE)
+                        {
+                            aveYValueRate = MAX_Y_VALUE;
+                        }
+
                         valueList.Add(new Vector2(aveXValueRate, aveYValueRate));
                     }
                 }
@@ -572,6 +580,12 @@ namespace Graph
                     // 前に保持した３点と今回取得した３点の合計６点の平均値の１点を加える
                     float aveXValueRate = (xValueTotalRate + xValueRate1 + xValueRate2 + xValueRate3) / 6.0f;
                     float aveYValueRate = (yValueTotalRate + ibikiDataList[i].SnoreVolume1 + ibikiDataList[i].SnoreVolume2 + ibikiDataList[i].SnoreVolume3) / 6.0f;
+
+                    aveYValueRate *= 2; //200単位(最大値800)を100単位にして最大値を400にする
+                    if (aveYValueRate > MAX_Y_VALUE)
+                    {
+                        aveYValueRate = MAX_Y_VALUE;
+                    }
 
                     valueList.Add(new Vector2(aveXValueRate, aveYValueRate));
                 }
