@@ -53,6 +53,11 @@ public class SleepInfoDescriptor : MonoBehaviour {
     public Text SnoreCount;
 
     /// <summary>
+    /// 振動でいびきが止まった回数
+    /// </summary>
+    public Text SnoreStopCount;
+
+    /// <summary>
     /// いびき割合
     /// </summary>
     public Text SnoreRateText;
@@ -187,6 +192,7 @@ public class SleepInfoDescriptor : MonoBehaviour {
         SnoreTimeText.text = Graph.Time.CreateHMSString(Data.SnoreTimeSec);
         ApneaTimeText.text = Graph.Time.CreateHMSString(Data.ApneaTime);
         SnoreCount.text = Data.SnoreCount.ToString() + "<size=24>回</size>";
+        SnoreStopCount.text = Data.SnoreStopCount.ToString() + "<size=24>回</size>";
         ApneaAverageCount.text = Data.ApneaAverageCount.ToString() + "<size=24>回</size>";
 
         switch (Data.SleepMode)

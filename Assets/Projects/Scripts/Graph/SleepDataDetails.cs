@@ -38,6 +38,11 @@ public class SleepDataDetail {
     public int SnoreCount { get; }
 
     /// <summary>
+    /// 振動でいびきが止まった回数
+    /// </summary>
+    public int SnoreStopCount { get; }
+
+    /// <summary>
     /// 無呼吸検知数
     /// </summary>
     public int ApneaCount { get; }
@@ -99,6 +104,7 @@ public class SleepDataDetail {
     /// <param name="sameDateNum"></param>
     /// <param name="crossSunNum"></param>
     /// <param name="sleepMode">動作モード</param>
+    /// <param name="snoreStopCount">振動でいびきが止まった回数</param>
     public SleepDataDetail (
         DateTime bedTime,
         DateTime getUpTime,
@@ -113,13 +119,15 @@ public class SleepDataDetail {
         int crossSunCount,
         int sameDateNum,
         int crossSunNum,
-        int sleepMode)
+        int sleepMode,
+        int snoreStopCount)
     {
         this.BedTime = bedTime;
         this.GetUpTime = getUpTime;
         this.SnoreTimeSec = snoreTime;
         this.ApneaTime = apneaTime;
         this.SnoreCount = snoreCount;
+        this.SnoreStopCount = snoreStopCount;
         this.ApneaCount = apneaCount;
         this.LongestApneaTime = longestApneaTime;
         this.SnoreRate = snoreRate;
