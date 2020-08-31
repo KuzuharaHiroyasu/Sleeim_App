@@ -153,33 +153,13 @@ public class HomeNewViewController : ViewControllerBase
                 }
 
                 //Step 3: Change color of CircleOuter by sleepLevel (睡眠レベルによって色を変える)
-                //レベル１ 無呼吸平均回数(時)が５回以上
-                //レベル２ いびき割合が50％以上
-                //レベル３ いびき割合が25％以上
-                //レベル４ 睡眠時間が７時間未満
-                //レベル５ 上記すべての項目を満たしていない
-                int sleepLevel = 5; //Default
                 int apneaCount = sleepHeaderData.ApneaDetectionCount;
                 double sleepTimeTotal = endTime.Subtract(startTime).TotalSeconds;
                 //無呼吸平均回数(時)
                 double apneaAverageCount = sleepTimeTotal == 0 ? 0 : (double)(apneaCount * 3600) / sleepTimeTotal;  // 0除算を回避
                 apneaAverageCount = Math.Truncate(apneaAverageCount * 10) / 10.0;   // 小数点第2位以下を切り捨て
-                if (apneaAverageCount >= 5)
-                {
-                    sleepLevel = 1;
-                }
-                else if (chartInfo.pIbiki >= 0.5)
-                {
-                    sleepLevel = 2;
-                }
-                else if (chartInfo.pIbiki >= 0.25)
-                {
-                    sleepLevel = 3;
-                }
-                else if (sleepTimeTotal < 7 * 3600)
-                {
-                    sleepLevel = 4;
-                }
+
+                int sleepLevel = Utility.getSleepLevel(apneaAverageCount, chartInfo.pIbiki, sleepTimeTotal);
 
                 String[] levelColors = new String[5] { "#ff0000", "#ff6600", "#ffff4d", "#72ef36", "#0063dc" };
                 currentPieChart.circleOuter.GetComponent<Image>().color = Utility.convertHexToColor(levelColors[sleepLevel - 1]);

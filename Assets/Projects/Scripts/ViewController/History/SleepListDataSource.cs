@@ -138,24 +138,11 @@ public class SleepListDataSource : MonoBehaviour
         apneaAverageCount = Math.Truncate(apneaAverageCount * 10) / 10.0;   // 小数点第2位以下を切り捨て
 
         var chartInfo = CSVManager.convertSleepDataToChartInfo(sleepDataList);
-        if (apneaAverageCount >= 5)
-        {
-            return sleepLevelIcon_1;
-        }
-        if (chartInfo.pIbiki >= 0.5)
-        {
-            return sleepLevelIcon_2;
-        }
-        if (chartInfo.pIbiki >= 0.25)
-        {
-            return sleepLevelIcon_3;
-        }
-        if (sleepTimeTotal < 7 * 3600)
-        {
-            return sleepLevelIcon_4;
-        }
 
-        return sleepLevelIcon_5;
+        Sprite[] levelIcons = new Sprite[5] { sleepLevelIcon_1, sleepLevelIcon_2, sleepLevelIcon_3, sleepLevelIcon_4, sleepLevelIcon_5 };
+        int sleepLevel = Utility.getSleepLevel(apneaAverageCount, chartInfo.pIbiki, sleepTimeTotal);
+
+        return levelIcons[sleepLevel - 1];
     }
 
 	private Sprite GetActionModeIcon(ChartInfo info) {
