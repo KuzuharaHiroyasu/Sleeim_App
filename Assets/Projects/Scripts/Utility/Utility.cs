@@ -353,6 +353,41 @@ namespace Kaimin.Common
             return newCol;
         }
 
+        /**
+         * 条件１ 無呼吸平均回数(時)が５回以上
+         * 条件２ いびき割合が50％以上
+         * 条件３ いびき割合が25％以上
+         * 条件４ 睡眠時間が７時間未満
+         * レベル = 5 - 条件が当てはまっている数
+         */
+        public static int getSleepLevel(double apneaAverageCount, float pIbiki, double sleepTimeTotal)
+        {
+            int sleepLevel = 5;
+            int countMatchCondition = 0;
+
+            if (apneaAverageCount >= 5)
+            {
+                countMatchCondition++;
+            }
+            
+            if (pIbiki >= 0.5)
+            {
+                countMatchCondition++;
+            }
+            
+            if (pIbiki >= 0.25)
+            {
+                countMatchCondition++;
+            }
+            
+            if (sleepTimeTotal < 7 * 3600)
+            {
+                countMatchCondition++;
+            }
+
+            return sleepLevel - countMatchCondition;
+        }
+
         public static void makePieChartEmpty(PieChart pieChart)
         {
             //pieChart.circleOuter.SetActive(false);
