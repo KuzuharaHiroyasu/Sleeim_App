@@ -166,6 +166,7 @@ public class HomeNewViewController : ViewControllerBase
             } else
             {
                 pieChartSlider.RemoveLayoutElement(pieIndex);
+                StartCoroutine(Utility.DeleteInvalidFile(filePath));
 
                 if (isToNext)
                 {
@@ -231,6 +232,7 @@ public class HomeNewViewController : ViewControllerBase
                 } else
                 {
                     pieChartSlider.RemoveLayoutElement(pieIndex);
+                    StartCoroutine(Utility.DeleteInvalidFile(filePath));
                 }
                     
             }
@@ -252,6 +254,7 @@ public class HomeNewViewController : ViewControllerBase
                 else
                 {
                     pieChartSlider.RemoveLayoutElement(pieIndex);
+                    StartCoroutine(Utility.DeleteInvalidFile(filePath));
                     selectedPieIndex--;
                     pieChartSlider.MoveToIndex(selectedPieIndex);
                 }
