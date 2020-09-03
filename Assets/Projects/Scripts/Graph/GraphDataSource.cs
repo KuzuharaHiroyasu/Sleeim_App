@@ -128,7 +128,9 @@ namespace Graph
                 AttachData();
             } else
             {
+                String filePath = graphItemSlider.filePaths[graphIndex];
                 graphItemSlider.RemoveLayoutElement(graphIndex);
+                StartCoroutine(Utility.DeleteInvalidFile(filePath));
                 if (isToNext)
                 {
                     if (graphIndex < graphItemSlider.filePaths.Count - 1)
