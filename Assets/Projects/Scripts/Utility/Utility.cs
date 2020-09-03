@@ -7,6 +7,8 @@ using UnityEngine;
 using System.Security.Cryptography;
 using System.Text;
 using UnityEngine.UI;
+using Kaimin.Managers;
+using Asyncoroutine;
 
 namespace Kaimin.Common
 {
@@ -367,6 +369,34 @@ namespace Kaimin.Common
 
             // Return the encrypted data as a string
             return cipherText;
+        }
+
+        public static IEnumerator DeleteInvalidFile(String fullFilePath)
+        {
+            if (!File.Exists(fullFilePath))
+            {
+                yield break;
+            }
+
+            var sleepTable = MyDatabase.Instance.GetSleepTable();
+            string fileName = Path.GetFileNameWithoutExtension(fullFilePath); //例:20191226231111
+
+            //DBから削除する
+            sleepTable.DeleteFromTable(SleepTable.COL_DATE, fileName);
+            File.Delete(fullFilePath);
+
+            if (HttpManager.IsInternetAvailable())
+            {
+                var sleepData = sleepTable.SelectFromColumn(SleepTable.COL_DATE, fileName);
+                if (sleepData != null)
+                {
+                    string deviceId = HttpManager.getDeviceId(sleepData.file_path);
+                    var deleteTask = HttpManager.DeleteFile(deviceId, fileName + "_" + sleepData.file_id + Path.GetExtension(fullFilePath));
+                    yield return deleteTask.AsCoroutine();
+                }
+            }
+
+            yield return null;
         }
 
         public static Color convertHexToColor(String htmlValue)
