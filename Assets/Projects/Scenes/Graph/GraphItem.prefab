@@ -6520,7 +6520,7 @@ MonoBehaviour:
   - headDir: 0
     label:
       name: "\u5DE6"
-      color: {r: 0.4392157, g: 0.44705883, b: 1, a: 1}
+      color: {r: 0.23529412, g: 0.38039216, b: 1, a: 1}
       isUseTexture: 0
       texture: {fileID: 0}
     valueRate: 1
@@ -6534,18 +6534,18 @@ MonoBehaviour:
   - headDir: 2
     label:
       name: "\u53F3"
-      color: {r: 0.64705884, g: 0.5058824, b: 1, a: 1}
+      color: {r: 0.8235294, g: 0.9411765, b: 0.98039216, a: 1}
       isUseTexture: 0
       texture: {fileID: 0}
     valueRate: 1
   - headDir: 3
     label:
       name: "\u4E0B"
-      color: {r: 0.23529412, g: 0.38039216, b: 1, a: 1}
+      color: {r: 0.19607843, g: 0.15686275, b: 0.4509804, a: 1}
       isUseTexture: 0
       texture: {fileID: 0}
     valueRate: 1
-  InputData: {fileID: 0}
+  InputData: {fileID: 114890293487768048}
   Output_Bar: {fileID: 114033270222281830}
 --- !u!114 &114114627207277408
 MonoBehaviour:
@@ -7799,21 +7799,21 @@ MonoBehaviour:
   - state: 1
     label:
       name: "\u3044\u3073\u304D"
-      color: {r: 0.9411765, g: 0.9019608, b: 0.6509804, a: 1}
+      color: {r: 1, g: 1, b: 0, a: 1}
       isUseTexture: 0
       texture: {fileID: 0}
     valueRate: 0.5
   - state: 2
     label:
       name: "\u7121\u547C\u5438"
-      color: {r: 0.9490196, g: 0.81960785, b: 0.84705883, a: 1}
+      color: {r: 1, g: 0.34117648, b: 0.34117648, a: 1}
       isUseTexture: 0
       texture: {fileID: 0}
     valueRate: 0.5
   - state: 3
     label:
       name: "\u4E0D\u660E"
-      color: {r: 0.78431374, g: 0.8039216, b: 0.80784315, a: 1}
+      color: {r: 0.47058824, g: 0.50980395, b: 0.50980395, a: 1}
       isUseTexture: 0
       texture: {fileID: 0}
     valueRate: 0.5

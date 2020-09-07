@@ -221,7 +221,6 @@ namespace Graph
 			{
                 if(dataList == null)
                 {
-                    //input = InputData.GetComponent<IIbikiData>();
                     dataList = InputData.GetIbikiDatas();
                 }
 
@@ -270,8 +269,8 @@ namespace Graph
 					RectTransform rectEnd = EndTimeObject.GetComponent<RectTransform>();
 					rectEnd.localPosition = new Vector3(600*hour/2-55,rectStart.transform.localPosition.y,0);
 
-					StartTimeObject.SetActive (false);
-					EndTimeObject.SetActive (false);
+					StartTimeObject.SetActive(false);
+					EndTimeObject.SetActive(false);
 
 					// 頭位置グラフの幅変更
 					HeadDirGraphObject.GetComponent<HeadDirGraph> ().ResizeHeadDirDataBar (600*hour);
@@ -342,9 +341,6 @@ namespace Graph
 
 
         public void YLog(string prefix) {
-
-
-            
             float ly0 = IbikiMainGraph.transform.localPosition.y;
 
             float yyy = line250ImageRect.transform.localPosition.y;
@@ -352,9 +348,8 @@ namespace Graph
 
             GameObject obj = lineTouchiRect.gameObject.transform.parent.gameObject;
 
-
-					RectTransform rect0 = IbikiMainGraph.GetComponent<RectTransform>();
-					var y = rect0.position.y;
+			RectTransform rect0 = IbikiMainGraph.GetComponent<RectTransform>();
+			var y = rect0.position.y;
 
             Debug.Log(prefix + " graph " + ly0 + " " + IbikiMainGraph.transform.position.y);
             // Debug.Log(prefix + " parent " + obj.transform.localPosition.y + " " + obj.transform.position.y);
@@ -372,6 +367,7 @@ namespace Graph
             Output_Line.theGraph.yAxis.AxisMaxValue = 1.1f;
             //背景のいびきレベルを非表示
             IbikiLebelBack.SetActive(false);
+
             //ラベル・凡例を非表示
             foreach (GameObject label in Label)
             {
@@ -381,6 +377,7 @@ namespace Graph
             {
                 legend.SetActive(false);
             }
+
             Output_AnalyzeTable.SetActive(false);
 
             LineTitle.gameObject.SetActive(false);
@@ -404,7 +401,6 @@ namespace Graph
 			RectTransform rect0 = IbikiMainGraph.GetComponent<RectTransform>();
 			var x = rect0.transform.position.x;
 			var y = rect0.transform.position.y;
-
 
 			rect0.sizeDelta=new Vector2(600*hour,227);
 			if (onceDisplayFlag) {
@@ -433,7 +429,6 @@ namespace Graph
 
             lineTouchiRect.sizeDelta = new Vector2(600*hour,3.0f);
 
-
 			lineBottomRect.sizeDelta = new Vector2(600*hour,2.0f);
             line250ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
             line500ImageRect.sizeDelta = new Vector2(600*hour,2.0f);
@@ -458,7 +453,6 @@ namespace Graph
 			RectTransform rect0 = IbikiMainGraph.GetComponent<RectTransform>();
 			var x = rect0.transform.position.x;
 			var y = rect0.transform.position.y;
-
 
 			rect0.sizeDelta=new Vector2(600*hour,227);
 			if (onceDisplayFlag) {
@@ -528,7 +522,6 @@ namespace Graph
         //いびきの大きさのデータを折れ線グラフに設定する
         void SetIbikiDataToLineGraph(List<Data> ibikiDataList)
         {
-
 			RemoveIbikiDataFromLineGraph();	//折れ線グラフ初期化
             List<Vector2> valueList = new List<Vector2>();
             float xValueTotalRate = 0.0f;
@@ -575,8 +568,7 @@ namespace Graph
 
                         valueList.Add(new Vector2(aveXValueRate, aveYValueRate));
                     }
-                }
-                else {
+                } else {
                     // 前に保持した３点と今回取得した３点の合計６点の平均値の１点を加える
                     float aveXValueRate = (xValueTotalRate + xValueRate1 + xValueRate2 + xValueRate3) / 6.0f;
                     float aveYValueRate = (yValueTotalRate + ibikiDataList[i].SnoreVolume1 + ibikiDataList[i].SnoreVolume2 + ibikiDataList[i].SnoreVolume3) / 6.0f;
@@ -590,10 +582,8 @@ namespace Graph
                     valueList.Add(new Vector2(aveXValueRate, aveYValueRate));
                 }
                 
-                // valueList.Add(new Vector2(
-                //     xValueRate2, ibikiDataList[i].SnoreVolume2));
-                // valueList.Add(new Vector2(
-                //     xValueRate3, ibikiDataList[i].SnoreVolume3));
+                // valueList.Add(new Vector2(xValueRate2, ibikiDataList[i].SnoreVolume2));
+                // valueList.Add(new Vector2(xValueRate3, ibikiDataList[i].SnoreVolume3));
             }
 
             Output_Line.lineColor = lineColor;
@@ -607,8 +597,6 @@ namespace Graph
 			} else {
 				Output_TimeLabel.SetIbikiMinAxis (ibikiTimeList);
 			}
-
-            
         }
 
         //折れ線グラフから表示中のいびきデータを取り除きます
@@ -633,8 +621,8 @@ namespace Graph
 			scrollFlag = flag;
 		}
 
-		float sleepingTime(List<IbikiGraph.Data> dataList){
-
+		float sleepingTime(List<IbikiGraph.Data> dataList)
+        {
 			System.DateTime detectionStartTime = dataList.First().GetTime().Value;
 			System.DateTime detectionEndTime = dataList.Last().GetTime().Value.AddSeconds(20);
 
@@ -644,7 +632,6 @@ namespace Graph
 
 			return (float)(diff.TotalHours);
 		}
-
 
 		IEnumerator UpdateGraphPosition()
 		{
@@ -696,7 +683,6 @@ namespace Graph
             line750ImageRect.transform.localPosition = new Vector3(line750ImageRect.transform.localPosition.x,-316.65f-6.8f+68.0f*2 + lineUpValue);
             line1000ImageRect.transform.localPosition = new Vector3(line1000ImageRect.transform.localPosition.x,-316.65f-6.8f+68.0f*3 + lineUpValue);
 		}
-
 
 		IEnumerator UpdateGraphPositionResizeBig()
 		{
@@ -757,6 +743,7 @@ namespace Graph
                     return i > 0 ? ibikiLebelList[i - 1].GetLabel() : ibikiLebelList[i].GetLabel();
                 }
             }
+
             return ibikiLebelList[ibikiLebelList.Count - 1].GetLabel();
         }
 
@@ -768,19 +755,15 @@ namespace Graph
             foreach (SleepData.HeadDir headDir in System.Enum.GetValues(typeof(SleepData.HeadDir)))
             {
                 int count = 0;
-                count += ibikiDataList
-                    .Where(data => data.HeadDir1 == headDir)
-                    .Count();
+                count += ibikiDataList.Where(data => data.HeadDir1 == headDir).Count();
 
-                count += ibikiDataList
-                    .Where(data => data.HeadDir2 == headDir)
-                    .Count();
+                count += ibikiDataList.Where(data => data.HeadDir2 == headDir).Count();
 
-                count += ibikiDataList
-                    .Where(data => data.HeadDir3 == headDir)
-                    .Count();
+                count += ibikiDataList.Where(data => data.HeadDir3 == headDir).Count();
+
                 maxHeadDirCount = count > maxHeadDirCount ? count : maxHeadDirCount;
             }
+
             int addCount = 0;	//グラフの右端に余裕を持たせるために追加する値
             foreach (SleepData.HeadDir headDir in System.Enum.GetValues(typeof(SleepData.HeadDir)))
             {
@@ -811,6 +794,7 @@ namespace Graph
                     LabelData.Label label = ibikiLebel.GetLabel();
                     labelDataList.Add(new LabelData(value, label));
                 }
+
                 PercetageBarChart output = null;
                 //呼吸データを体の向きごとに集計したものをグラフに出力する
                 switch (headDir)
@@ -831,12 +815,13 @@ namespace Graph
                 addCount = maxHeadDirCount / 9;		//1割空白を作成するように
                 output.SetPercentageData(maxHeadDirCount + addCount, labelDataList);
             }
+
             //データ個数からラベルとして表示するための時間を算出します
             // 体の向きのデータ個数が3倍になったため、3で割っている
             int hour = ((maxHeadDirCount + addCount) / 2) / 3 / 60;
             int min = ((maxHeadDirCount + addCount) / 2) / 3 % 60;
             int sec = ((maxHeadDirCount + addCount) % 2) / 3 * 30;
-//            Output_AggrigateTimeLabel.SetAxis(hour, min, sec);
+            //Output_AggrigateTimeLabel.SetAxis(hour, min, sec);
         }
     }
 
