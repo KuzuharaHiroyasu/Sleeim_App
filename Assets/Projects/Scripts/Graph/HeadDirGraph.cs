@@ -13,8 +13,8 @@ namespace Graph
     {
 
         public List<HeadDirGraphSetting> graphSettingList;	//どのように頭の向きのデータをグラフに表示するかの設定
-        public GraphItem InputData;					//頭の向きを持っている、IHeadDirDataを実装したクラス
-        public BarChart Output_Bar;							//出力先のバーグラフ
+        public GraphItem InputData;	//頭の向きを持っている、IHeadDirDataを実装したクラス
+        public BarChart Output_Bar;	//出力先のバーグラフ
         IHeadDirData input;
         List<Data> dataList;
 
@@ -35,7 +35,7 @@ namespace Graph
         /// </summary>
         public class Data
         {
-            Graph.Time time;			//検知した時間
+            Graph.Time time; //検知した時間
 
             /// <summary>
             /// 頭の向き1
@@ -141,7 +141,15 @@ namespace Graph
         public void AttatchDataToGraph()
         {
             if (dataList == null)
+            {
+                dataList = input.GetHeadDirDatas();
+            }
+
+            if (dataList == null)
+            {
                 return;
+            }
+
             //グラフに表示するためにラベルデータを作成
             List<LabelData> labelDataList = TransSensingDataToLabelData(dataList);
             //バーグラフに呼吸データを設定・表示
@@ -175,27 +183,21 @@ namespace Graph
                     if (j == 0) {
                         yValueRate = graphSettingList
                             .Where(
-                                setting =>
-                                    setting.GetHeadDir().Equals(
-                                        headDirDataList[i].GetHeadDir1()))
+                                setting => setting.GetHeadDir().Equals(headDirDataList[i].GetHeadDir1()))
                             .First().GetValueRate();
                     }
                     else if (j == 1)
                     {
                         yValueRate = graphSettingList
                             .Where(
-                                setting =>
-                                    setting.GetHeadDir().Equals(
-                                        headDirDataList[i].GetHeadDir2()))
+                                setting => setting.GetHeadDir().Equals(headDirDataList[i].GetHeadDir2()))
                             .First().GetValueRate();
                     }
                     else
                     {
                         yValueRate = graphSettingList
                             .Where(
-                                setting =>
-                                    setting.GetHeadDir().Equals(
-                                        headDirDataList[i].GetHeadDir3()))
+                                setting => setting.GetHeadDir().Equals(headDirDataList[i].GetHeadDir3()))
                             .First().GetValueRate();
                     }
                     xValueRangeList.Add(new Vector2(xStart, xEnd));
