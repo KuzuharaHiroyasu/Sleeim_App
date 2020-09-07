@@ -89,6 +89,7 @@ public class BirthViewController : ViewControllerBase {
 	public void changeDayDropDownValue(int value){
 		Debug.Log("value = " + value);  //値を取得（先頭から連番(0～n-1)）
 		Debug.Log("text(options) = " + dropDownDay.options[value].text);  //リストからテキストを取得
+
 		dayValue = value + 1;
 	}
 
@@ -96,6 +97,7 @@ public class BirthViewController : ViewControllerBase {
 	private void changeBirth(){
 		DateTime dateTime = makeBirth ();
 		UserDataManager.Setting.Profile.SaveBirthDay (dateTime);
+
 		updateDropDownDayList ();
 	}
 
