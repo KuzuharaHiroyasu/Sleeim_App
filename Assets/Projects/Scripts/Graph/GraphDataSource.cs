@@ -15,7 +15,6 @@ namespace Graph
     /// </summary>
     public class GraphDataSource : MonoBehaviour
     {
- 
         List<SleepData> sleepDataList;      //取得した睡眠データ
         SleepHeaderData sleepHeaderData;    //取得したCSVヘッダーに記述された睡眠データ
 
@@ -28,18 +27,8 @@ namespace Graph
 
         string[] filePaths; //取得したファイル一覧
         int selectedGraphIndex = -1;
-        int MIN_FILE_POSITION = 0; //選択範囲のMIN
+        int MIN_FILE_POSITION = 0;  //選択範囲のMIN
         int MAX_FILE_POSITION = -1; //選択範囲のMAX
-
-        string[] FilePathsAll
-        {
-            get
-            {
-                if (filePaths == null)
-                    filePaths = Kaimin.Common.Utility.GetAllFiles(Kaimin.Common.Utility.GsDataPath(), "*.csv");
-                return filePaths;
-            }
-        }
 
         void Start()
         {
@@ -218,17 +207,21 @@ namespace Graph
                 float snoreVolume1Rate = data.SnoreVolume1 / (float)SleepData.MaxSnoreVolume;  // いびきの大きさ1
                 float snoreVolume2Rate = data.SnoreVolume2 / (float)SleepData.MaxSnoreVolume;  // いびきの大きさ2
                 float snoreVolume3Rate = data.SnoreVolume3 / (float)SleepData.MaxSnoreVolume;  // いびきの大きさ3
+
                 // 1超過時は1に丸める(デバイス側の設計上では、超過することはない)
                 snoreVolume1Rate = snoreVolume1Rate > 1.0f ? 1.0f : snoreVolume1Rate;
                 snoreVolume2Rate = snoreVolume2Rate > 1.0f ? 1.0f : snoreVolume2Rate;
                 snoreVolume3Rate = snoreVolume3Rate > 1.0f ? 1.0f : snoreVolume3Rate;
+
                 // ここで大きさ調整
                 snoreVolume1Rate = snoreVolume1Rate * 0.8f;
                 snoreVolume2Rate = snoreVolume2Rate * 0.8f;
                 snoreVolume3Rate = snoreVolume3Rate * 0.8f;
+
                 SleepData.HeadDir headDir1 = data.GetHeadDir1();
                 SleepData.HeadDir headDir2 = data.GetHeadDir2();
                 SleepData.HeadDir headDir3 = data.GetHeadDir3();
+
                 resultList.Add(
                     new IbikiGraph.Data(
                         new Time(time),
@@ -239,6 +232,7 @@ namespace Graph
                         headDir2,
                         headDir3));
             }
+
             return resultList;
         }
 
@@ -253,9 +247,11 @@ namespace Graph
                 SleepData.BreathState breathState1 = data.GetBreathState1();
                 SleepData.BreathState breathState2 = data.GetBreathState2();
                 SleepData.BreathState breathState3 = data.GetBreathState3();
+
                 SleepData.HeadDir headDir1 = data.GetHeadDir1();
                 SleepData.HeadDir headDir2 = data.GetHeadDir2();
                 SleepData.HeadDir headDir3 = data.GetHeadDir3();
+
                 resultList.Add(new BreathGraph.Data(
                     new Time(time),
                     breathState1,
@@ -265,6 +261,7 @@ namespace Graph
                     headDir2,
                     headDir3));
             }
+
             return resultList;
         }
 
@@ -279,12 +276,14 @@ namespace Graph
                 SleepData.HeadDir headDir1 = data.GetHeadDir1();
                 SleepData.HeadDir headDir2 = data.GetHeadDir2();
                 SleepData.HeadDir headDir3 = data.GetHeadDir3();
+
                 resultList.Add(new HeadDirGraph.Data(
                     new Time(time),
                     headDir1,
                     headDir2,
                     headDir3));
             }
+
             return resultList;
         }
 
@@ -298,6 +297,7 @@ namespace Graph
             int snoreTime = sleepHeaderData.SnoreTime;
             int apneaTime = sleepHeaderData.ApneaTime;
             int longestApneaTime = sleepHeaderData.LongestApneaTime;
+
             var sleepTimeSpan = getUpTime.Subtract(bedTime);
             double sleepTimeTotal = sleepTimeSpan.TotalSeconds;
             int snoreStopCount = getSnoreStopCount(sleepDataList);
@@ -308,6 +308,7 @@ namespace Graph
             if (snoreRate10 - snoreRate10Int >= 0.5) {
                 snoreRate10Int += 1;
             }
+
             double snoreRate = snoreRate10Int / 10.0;
             
             double apneaAverageCount = sleepTimeTotal == 0 ? 0 : (double) (apneaCount  * 3600) / sleepTimeTotal;  // 0除算を回避
@@ -320,7 +321,6 @@ namespace Graph
             int dateIndex = todayDataPathList
                 .Select((path, index) => new { Path = path, Index = index })
                 .Where(data => data.Path == graphItemSlider.filePaths[selectedGraphIndex])
-                //.Where(data => data.Path == FilePathsAll[selectedGraphIndex + MIN_FILE_POSITION])
                 .Select(data => data.Index)
                 .First();									//同一日の何個目のデータか(0はじまり)
             int crossSunCount = todayDataPathList
@@ -333,6 +333,7 @@ namespace Graph
                 .Count();									//同一日の日マタギのみのデータ個数
                 
             int sleepMode =  sleepHeaderData.SleepMode;
+
             return new SleepDataDetail(
                 bedTime,
                 getUpTime,

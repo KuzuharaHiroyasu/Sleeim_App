@@ -14,7 +14,6 @@ namespace Graph
     /// </summary>
     public class BreathGraph : MonoBehaviour, IGraphDataSwitch
     {
-
         public Color lineColor;						//折れ線グラフの色
         public HeadDirGraph headDirGraph;			//頭の向きをグラフに表示する際の色のパターンを参照する
         public List<BreathState> breathLabelList;	//呼吸の状態をどうラベリングするか設定するリスト。閾値が低い順に設定する
@@ -246,7 +245,6 @@ namespace Graph
 
             if(dataList == null)
             {
-                //input = InputData.GetComponent<IBreathData>();
                 dataList = InputData.GetBreathDatas();
             }
 
@@ -280,6 +278,7 @@ namespace Graph
             {
                 legend.SetActive(false);
             }
+
             Output_AnalyzeTable.SetActive(false);
         }
 
@@ -317,57 +316,54 @@ namespace Graph
                 // 0~10秒
                 detectTime += dataList.Where(
                     data =>
-                        data.HeadDir1.Equals(headDir)
-                            && data.GetBreathState1().Equals(breathState)
+                        data.HeadDir1.Equals(headDir) && data.GetBreathState1().Equals(breathState)
                     ).Count() * 10;	//検知データ件数×10秒で検知時間を計算
 
                 // 11~20秒
                 detectTime += dataList.Where(
                     data =>
-                        data.HeadDir2.Equals(headDir)
-                            && data.GetBreathState2().Equals(breathState)
+                        data.HeadDir2.Equals(headDir) && data.GetBreathState2().Equals(breathState)
                     ).Count() * 10;	//検知データ件数×10秒で検知時間を計算
 
                 // 21~30秒
                 detectTime += dataList.Where(
                     data =>
-                        data.HeadDir3.Equals(headDir)
-                            && data.GetBreathState3().Equals(breathState)
+                        data.HeadDir3.Equals(headDir) && data.GetBreathState3().Equals(breathState)
                     ).Count() * 10;	//検知データ件数×10秒で検知時間を計算
             }
+
             System.TimeSpan timeSpan = new System.TimeSpan(0, 0, detectTime);
+
             return timeSpan.ToString();	//hh:mm:ssの形式に変換して返す
 		}
-
 
 		public void ResizeBig() {
 			if (dataList != null)
 			{
 				//グラフに表示するためにラベルデータを作成
 				List<LabelData> labelDataList = TransSensingDataToLabelData(dataList);
+
 				//バーグラフに呼吸データを設定・表示
 				SetBreathDataToBarChart(dataList, labelDataList);
 				//分析データを設定・表示
 				SetBreathDataToAnalyzeTable();
 				//集計のバーグラフを設定・表示
 				SetBreathDataToPercentageBarChart(dataList);
-
 			}
 		}
-
 
 		public void ResizeMin() {
 			if (dataList != null)
 			{
 				//グラフに表示するためにラベルデータを作成
 				List<LabelData> labelDataList = TransSensingDataToLabelData(dataList);
+
 				//バーグラフに呼吸データを設定・表示
 				SetBreathDataToBarChart(dataList, labelDataList);
 				//分析データを設定・表示
 				SetBreathDataToAnalyzeTable();
 				//集計のバーグラフを設定・表示
 				SetBreathDataToPercentageBarChart(dataList);
-
 			}
 		}
 
@@ -383,6 +379,7 @@ namespace Graph
                 float xValueRate = Graph.Time.GetPositionRate(breathDataList[i].GetTime().Value, breathDataList.First().GetTime().Value, breathDataList.Last().GetTime().Value);
                 valueList.Add(new Vector2(xValueRate, breathDataList[i].GetOxygenRate()));
             }
+
             Output_Line.lineColor = lineColor;
             Output_Line.SetPointValues(valueList);
             //グラフの時間軸も合わせて設定
@@ -392,7 +389,6 @@ namespace Graph
         //呼吸のデータを集計用グラフに出力
         void SetBreathDataToPercentageBarChart(List<Data> breathDataList)
         {
-
             //頭の向きで最も要素数が大きいものを探す(異常データは含まない)
             int maxHeadDirCount = 0;
             foreach (SleepData.HeadDir headDir in System.Enum.GetValues(typeof(SleepData.HeadDir)))
@@ -426,6 +422,7 @@ namespace Graph
                 SleepData.BreathState.Apnea,
                 SleepData.BreathState.Empty
             };
+
             int addCount = 0;	//グラフの右端に余裕を持たせるために追加する値
             foreach (SleepData.HeadDir headDir in System.Enum.GetValues(typeof(SleepData.HeadDir)))
             {
@@ -440,31 +437,28 @@ namespace Graph
                     // 0~10秒
                     value += breathDataList.Where(
                         data =>
-                            data.HeadDir1.Equals(headDir)
-                                && data.GetBreathState1().Equals(breathState)
+                            data.HeadDir1.Equals(headDir) && data.GetBreathState1().Equals(breathState)
                         ).Count();
 
                     // 11~20秒
                     value += breathDataList.Where(
                         data =>
-                            data.HeadDir2.Equals(headDir)
-                                && data.GetBreathState2().Equals(breathState)
+                            data.HeadDir2.Equals(headDir) && data.GetBreathState2().Equals(breathState)
                         ).Count();
 
                     // 21~30秒
                     value += breathDataList.Where(
                         data =>
-                            data.HeadDir3.Equals(headDir)
-                                && data.GetBreathState3().Equals(breathState)
+                            data.HeadDir3.Equals(headDir) && data.GetBreathState3().Equals(breathState)
                         ).Count();
 
                     if (value == 0) continue;
                     LabelData.Label label = this.breathLabelList
-                        .Where(
-                            l => l.GetBreathState().Equals(breathState))
+                        .Where(l => l.GetBreathState().Equals(breathState))
                         .First().GetLabel();
                     labelDataList.Add(new LabelData(value, label));
                 }
+
                 PercetageBarChart output = null;
                 //呼吸データを体の向きごとに集計したものをグラフに出力する
                 switch (headDir)
@@ -482,6 +476,7 @@ namespace Graph
                         output = Output_Percentage_Down;
                         break;
                 }
+
                 addCount = maxHeadDirCount / 9;		//1割空白を作成するように
                 output.SetPercentageData(maxHeadDirCount + addCount, labelDataList);
             }
@@ -524,34 +519,30 @@ namespace Graph
                     {
                         yValueRate = breathLabelList
                             .Where(
-                                label =>
-                                    label.GetBreathState().Equals(
-                                        breathDataList[i].GetBreathState1()))
+                                label => label.GetBreathState().Equals(breathDataList[i].GetBreathState1()))
                             .First().GetValueRate();
                     }
                     else if (j == 1)
                     {
                         yValueRate = breathLabelList
                             .Where(
-                                label =>
-                                    label.GetBreathState().Equals(
-                                        breathDataList[i].GetBreathState2()))
+                                label => label.GetBreathState().Equals(breathDataList[i].GetBreathState2()))
                             .First().GetValueRate();
                     }
                     else
                     {
                         yValueRate = breathLabelList
                             .Where(
-                                label =>
-                                    label.GetBreathState().Equals(
-                                        breathDataList[i].GetBreathState3()))
+                                label => label.GetBreathState().Equals(breathDataList[i].GetBreathState3()))
                             .First().GetValueRate();
                     }
+
                     xValueRangeList.Add(xValueRange);
                     yValueList.Add(yValueRate);
                     labelList.Add(labelDataList[i * 3 + j].GetLabel());     // データが3倍になったので配列へのアクセス方法が複雑化した
                 }
             }
+
             Output_Bar.SetData(xValueRangeList, yValueList, labelList);
         }
 
@@ -616,6 +607,7 @@ namespace Graph
             labelDataList.RemoveAll(
                 s => s == null
             );
+
             return labelDataList;
         }
 
@@ -629,12 +621,11 @@ namespace Graph
             else if (j == 2 && data.GetBreathState3() != SleepData.BreathState.Apnea){
                 return true;
             }
+
             return false;
         }
 
         void BreathStateApneaToEmpty(int startRow,int startRow2,int endRow,int endRow2){
-            
-            
             dataList[startRow].BreathState3 = SleepData.BreathState.Empty;
             if (startRow2 <= 1) {
                 dataList[startRow].BreathState2 = SleepData.BreathState.Empty;
@@ -642,18 +633,19 @@ namespace Graph
                     dataList[startRow].BreathState1 = SleepData.BreathState.Empty;
                 }
             }
+
             for (int i = startRow + 1;i<endRow;i++){
                     dataList[i].BreathState1 = SleepData.BreathState.Empty;
                     dataList[i].BreathState2 = SleepData.BreathState.Empty;
                     dataList[i].BreathState3 = SleepData.BreathState.Empty;
             }
+
             if (endRow2 >= 1) {
                 dataList[endRow].BreathState1 = SleepData.BreathState.Empty;
                 if (endRow2 == 2) {
                     dataList[endRow].BreathState2 = SleepData.BreathState.Empty;
                 }
             }
-
         }
 
         /// <summary>
@@ -670,6 +662,7 @@ namespace Graph
                     return breathLabel.GetLabel();
                 }
             }
+
             return null;
         }
 
@@ -687,6 +680,7 @@ namespace Graph
                     return breathLabel.GetLabel();
                 }
             }
+
             return null;
         }
 
@@ -704,6 +698,7 @@ namespace Graph
                     return breathLabel.GetLabel();
                 }
             }
+
             return null;
         }
     }
