@@ -568,6 +568,16 @@ public class HomeNewViewController : ViewControllerBase
         StartCoroutine(ConnectOrDisConnectDevice());
     }
 
+    public void DisconectDevice()
+    {
+        bool isConnecting = UserDataManager.State.isConnectingDevice();
+        if (isConnecting)
+        {
+            BluetoothManager.Instance.Disconnect();
+            deviceIcon.sprite = deviceIcon_NotConnecting;
+        }
+    }
+
     IEnumerator ConnectOrDisConnectDevice()
     {
         bool isConnecting = UserDataManager.State.isConnectingDevice();
@@ -708,17 +718,25 @@ public class HomeNewViewController : ViewControllerBase
             yield return StartCoroutine(TellFailedSync());
             yield break;	//以降のBle処理を飛ばす
         }
+
         if (getDataCount == 0)
         {	//データが0件の時
             //同期時刻を保存
             UserDataManager.State.SaveDataReceptionTime(DateTime.Now);
             //同期時刻表示更新
             UpdateDataReceptionTime();
+
+            DisconectDevice();
+
             yield break;
         }
+
         if (!isOk)
-        {		//睡眠データを取得しないなら
-            yield break;	//以降のBle処理を飛ばす
+        {
+            DisconectDevice();
+
+            //睡眠データを取得しないなら以降のBle処理を飛ばす
+            yield break;
         }
 
         //睡眠データを取得
@@ -756,12 +774,7 @@ public class HomeNewViewController : ViewControllerBase
             UserDataManager.Scene.ResetGraphDate();
 
             //データ取得完了後、自動的にBLE接続を切る
-            bool isConnecting = UserDataManager.State.isConnectingDevice();
-            if (isConnecting)
-            {
-                BluetoothManager.Instance.Disconnect();
-                deviceIcon.sprite = deviceIcon_NotConnecting;
-            }
+            DisconectDevice();
 
             UpdateDialog.Dismiss();
             //データ取得完了のダイアログ表示
@@ -769,6 +782,8 @@ public class HomeNewViewController : ViewControllerBase
         }
         else
         {
+            DisconectDevice();
+
             //睡眠データの取得に失敗すれば
             yield return StartCoroutine(TellFailedSync());
         }
