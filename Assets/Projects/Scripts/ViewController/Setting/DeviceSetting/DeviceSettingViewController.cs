@@ -86,6 +86,9 @@ public class DeviceSettingViewController : ViewControllerBase {
             if (isSuccess) {
                 SaveDeviceSetting();
                 message = "設定を変更しました。";
+
+                //デバイス設定で変更完了後、自動的にBLE接続を切る
+                DisconectDevice();
             }
 
             bool isOk = false;
@@ -160,18 +163,33 @@ public class DeviceSettingViewController : ViewControllerBase {
         SelectValueDialog.Show(vs, (SelectValueDialog.ButtonItem status, float value, GameObject dialog) => {
             if (status == SelectValueDialog.ButtonItem.OK)
             {
+                SuppressionStartTime lastStartTime = TempDeviceSetting.SuppressionStartTime;
+
                 //結果をテキストに反映
                 suppressionStartTimeText.text = value.ToString("0") + unit;
                 
                 //アプリ内保存
                 TempDeviceSetting.SuppressionStartTime = (SuppressionStartTime)value;
-                SaveDeviceSetting();
+                if (lastStartTime != TempDeviceSetting.SuppressionStartTime) //Change data, need to send command to device
+                {
+                    SaveDeviceSetting();
+                    StartCoroutine(ChangeDeviceSettingCoroutine());
+                }
             }
             else
             {
                 //なにもしない
             }
         });
+    }
+
+    public void DisconectDevice()
+    {
+        bool isConnecting = UserDataManager.State.isConnectingDevice();
+        if (isConnecting)
+        {
+            BluetoothManager.Instance.Disconnect();
+        }
     }
 
     /// <summary>
@@ -189,11 +207,7 @@ public class DeviceSettingViewController : ViewControllerBase {
             LastDeviceSetting = UserDataManager.Setting.DeviceSettingData.Load();
 
             //デバイス設定で変更完了後、自動的にBLE接続を切る
-            bool isConnecting = UserDataManager.State.isConnectingDevice();
-            if (isConnecting)
-            {
-                BluetoothManager.Instance.Disconnect();
-            }
+            DisconectDevice();
 
             yield return StartCoroutine(ShowMessageDialogCoroutine("設定を変更しました。"));
         } else {
