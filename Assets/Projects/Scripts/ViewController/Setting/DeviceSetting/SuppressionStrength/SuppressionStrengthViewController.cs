@@ -72,7 +72,88 @@ public class SuppressionStrengthViewController : DeviceSettingViewController
     /// <summary>
     /// 戻るボタン押下イベントハンドラ
     /// </summary>
-    public void OnReturnButtonTap() {
+    public void OnReturnButtonTap()
+    {
+        //SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
+        StartCoroutine(BackButtonCoroutineForChildClass());
+    }
+
+    public IEnumerator BackButtonCoroutineForChildClass() {
+        if (LastDeviceSetting != null && TempDeviceSetting != null) 
+        {
+            if (LastDeviceSetting.SuppressionStrength != TempDeviceSetting.SuppressionStrength)
+            {
+                //チェック項目が変更されているが、[変更] が失敗している、もしくは[変更] がタップされていない場合
+                //BLE接続　⇒　停止コマンド送信　⇒　変更コマンド送信　⇒　BLE切断　⇒　前の画面に戻る
+
+                bool? isSaveSetting = null;
+                MessageDialog.Show(
+                "設定が保存されていません。保存しますか？",
+                    useOK: true,
+                    useCancel: true,
+                    onOK: () => { isSaveSetting = true; },
+                    onCancel: () => { isSaveSetting = false; },
+                    positiveItemName: "はい",
+                    negativeItemName: "保存せず戻る");
+                yield return new WaitUntil(() => isSaveSetting != null);
+
+                if (isSaveSetting == true)
+                {
+                    bool isSuccess = false;
+                    //停止コマンド送信
+                    yield return StartCoroutine(SendCommandToDeviceCoroutine(
+                                                DeviceSetting.CommandCodeVibrationStop,
+                                                (bool b) => isSuccess = b));
+
+                    isSuccess = false;
+                    string message = "設定変更に失敗しました。";
+                    //変更コマンド送信
+                    yield return StartCoroutine(SendCommandToDeviceCoroutine(
+                                                DeviceSetting.CommandCode,
+                                                (bool b) => isSuccess = b));
+                    if (isSuccess)
+                    {
+                        SaveDeviceSetting();
+                        message = "設定を変更しました。";
+
+                        //デバイス設定で変更完了後、自動的にBLE接続を切る
+                        DisconectDevice();
+                    }
+
+                    bool isOk = false;
+                    MessageDialog.Show(
+                        message,
+                        useOK: true,
+                        useCancel: false,
+                        onOK: () => isOk = true);
+                    yield return new WaitUntil(() => isOk);
+                }
+                else
+                {
+                    FlushTempDeviceSetting();
+                }
+            }
+            else
+            {   //チェック項目が変更されていない場合　
+                //➡ BLEが接続されている: バイブ停止コマンド送信 ⇒　BLE切断 ⇒　前の画面に戻る																
+                //➡ BLEが接続されていない: 前の画面に戻る
+                bool isConnecting = UserDataManager.State.isConnectingDevice();
+                if (isConnecting)
+                {
+                    bool isSuccess = false;
+
+                    //停止コマンド送信
+                    yield return StartCoroutine(SendCommandToDeviceCoroutine(
+                                                DeviceSetting.CommandCodeVibrationStop,
+                                                (bool b) => isSuccess = b));
+                    if (isSuccess)
+                    {
+                        DisconectDevice();
+                    }
+                }
+            }
+        }
+
         SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.DeviceSetting);
     }
 
@@ -119,6 +200,23 @@ public class SuppressionStrengthViewController : DeviceSettingViewController
         }
     }
 
+    public void OnSaveSuppressionStrengthButtonTap()
+    {
+        StartCoroutine(ChangeDeviceSettingCoroutineWhenSaveSuppressionStrength());
+    }
+
+    private IEnumerator ChangeDeviceSettingCoroutineWhenSaveSuppressionStrength()
+    {
+        bool isSuccess = false;
+        //停止コマンド送信
+        yield return StartCoroutine(SendCommandToDeviceCoroutine(
+                                    DeviceSetting.CommandCodeVibrationStop,
+                                    (bool b) => isSuccess = b));
+
+        //変更コマンド送信
+        yield return StartCoroutine(base.ChangeDeviceSettingCoroutine());
+    }
+
     public void StartVibrationConfirmCoroutine(SuppressionStrength suppressionStrength)
     {
         if (DeviceSettingViewController.TempDeviceSetting.SuppressionStrength != suppressionStrength)
@@ -138,7 +236,7 @@ public class SuppressionStrengthViewController : DeviceSettingViewController
             DeviceSetting.CommandCodeVibrationConfirm,
             (bool isSuccess) => {
                 if (isSuccess) {
-                    SaveDeviceSetting();
+                    //SaveDeviceSetting();
                 } else {
                     StartCoroutine(ShowMessageDialogCoroutine("バイブレーション確認に失敗しました。"));
                 }

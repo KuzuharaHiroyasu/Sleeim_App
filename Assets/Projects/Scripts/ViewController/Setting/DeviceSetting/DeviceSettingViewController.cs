@@ -196,7 +196,7 @@ public class DeviceSettingViewController : ViewControllerBase {
     /// デバイス設定を変更するコルーチン
     /// </summary>
     /// <returns></returns>
-    private IEnumerator ChangeDeviceSettingCoroutine() {
+    protected IEnumerator ChangeDeviceSettingCoroutine() {
         Debug.Log("DeviceSetting: start ChangeDeviceSettingCoroutine");
         bool isSuccess = false;
         yield return StartCoroutine(SendCommandToDeviceCoroutine(
@@ -225,7 +225,7 @@ public class DeviceSettingViewController : ViewControllerBase {
     /// <summary>
     /// 一時保存されたデバイス設定を破棄する
     /// </summary>
-    private void FlushTempDeviceSetting() {
+    protected void FlushTempDeviceSetting() {
         TempDeviceSetting = null;
     }
 
@@ -301,7 +301,7 @@ public class DeviceSettingViewController : ViewControllerBase {
                 //コマンド書き込み結果
                 Debug.Log (coroutineName + " write:" + success);
                 if (success) {
-                    if (commandCode == DeviceSetting.CommandCodeVibrationConfirm) isCommunicationSuccess = true;
+                    if (commandCode == DeviceSetting.CommandCodeVibrationConfirm || commandCode == DeviceSetting.CommandCodeVibrationStop) isCommunicationSuccess = true;
                 } else {
                     isCommunicationSuccess = false;
                 }
