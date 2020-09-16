@@ -300,7 +300,7 @@ namespace Graph
 
             var sleepTimeSpan = getUpTime.Subtract(bedTime);
             double sleepTimeTotal = sleepTimeSpan.TotalSeconds;
-            int snoreStopCount = getSnoreStopCount(sleepDataList);
+            int snoreStopCount = getSnoreStopCount(sleepDataList, sleepHeaderData.SleepMode);
 
             double  snoreRate10 = (snoreTime / sleepTimeTotal ) * 1000.0;
             int snoreRate10Int = (int)snoreRate10;
@@ -352,8 +352,13 @@ namespace Graph
                 snoreStopCount);
         }
 
-        public static int getSnoreStopCount(List<SleepData> sleepData)
+        public static int getSnoreStopCount(List<SleepData> sleepData, int sleepMode)
         {
+            if (sleepMode == 2 || sleepMode == 3) //2：モニタリングモード、3：振動モード（呼吸レス)
+            {
+                return -1;
+            }
+                
             int snoreStopCount = 0;
             int snoreContinueCount = 0;
 
