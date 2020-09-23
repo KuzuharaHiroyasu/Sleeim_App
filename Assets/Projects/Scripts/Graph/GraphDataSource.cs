@@ -85,6 +85,7 @@ namespace Graph
                 //表示するデータがなければ、NODATAを表示する
                 graphItem.noDataImage.enabled = true;
                 graphItem.scrollView.SetActive(false);
+                graphItem.ibikiGraph.zoomButton.SetActive(false);
             }
 
             updatePrevNextBtnState(); //暫定：次のインデックスが存在有無で有効/無効を切り替え
