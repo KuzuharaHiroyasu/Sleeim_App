@@ -30,7 +30,7 @@ public class GraphZoomManager : MonoBehaviour {
 		{
 			if (ibikiGraph.IsScroll())
 			{
-				return;
+				//return;
 			}
 			
 			ibikiGraph.ReSizeBig();
@@ -45,7 +45,7 @@ public class GraphZoomManager : MonoBehaviour {
 		{
 			if (!ibikiGraph.IsScroll())
 			{
-				return;
+				//return;
 			}
 
 			ibikiGraph.ReSizeMin();
