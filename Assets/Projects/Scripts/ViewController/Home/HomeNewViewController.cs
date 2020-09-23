@@ -769,9 +769,8 @@ public class HomeNewViewController : ViewControllerBase
             //UpdateApneaCountIcon();
             //UpdateApneaCountDate();
 
+            //UserDataManager.Scene.ResetGraphDate();
             UpdateLatestPieChart();
-            
-            UserDataManager.Scene.ResetGraphDate();
 
             //データ取得完了後、自動的にBLE接続を切る
             DisconectDevice();
