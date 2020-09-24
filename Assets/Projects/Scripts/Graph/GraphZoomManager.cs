@@ -25,36 +25,42 @@ public class GraphZoomManager : MonoBehaviour {
 
 	public void onTapGraphZoomButton()
 	{
-		float sleepingTime = ibikiGraph.sleepingTime();
-		if (isTapBigButton)
+		try
 		{
-			if (ibikiGraph.IsScroll())
+			float sleepingTime = ibikiGraph.sleepingTime();
+			if (isTapBigButton)
 			{
-				//return;
-			}
-			
-			ibikiGraph.ReSizeBig();
-			breathGraph.sleepingTime = sleepingTime;
-			breathGraph.ResizeBig();
-			ibikiGraph.setScroll(true);
+				if (ibikiGraph.IsScroll())
+				{
+					return;
+				}
 
-			isTapBigButton = false;
-			buttonImage.sprite = buttonImageMini;
-		} 
-		else  //Tap Minus Button
+				ibikiGraph.ReSizeBig();
+				breathGraph.sleepingTime = sleepingTime;
+				breathGraph.ResizeBig();
+				ibikiGraph.setScroll(true);
+
+				isTapBigButton = false;
+				buttonImage.sprite = buttonImageMini;
+			}
+			else  //Tap Minus Button
+			{
+				if (!ibikiGraph.IsScroll())
+				{
+					return;
+				}
+
+				ibikiGraph.ReSizeMin();
+				breathGraph.sleepingTime = sleepingTime;
+				breathGraph.ResizeMin();
+				ibikiGraph.setScroll(false);
+
+				isTapBigButton = true;
+				buttonImage.sprite = buttonImageBig;
+			}
+		} catch (System.Exception e)
 		{
-			if (!ibikiGraph.IsScroll())
-			{
-				//return;
-			}
-
-			ibikiGraph.ReSizeMin();
-			breathGraph.sleepingTime = sleepingTime;
-			breathGraph.ResizeMin();
-			ibikiGraph.setScroll(false);
-
-			isTapBigButton = true;
-			buttonImage.sprite = buttonImageBig;
+			System.Console.WriteLine("{0} Exception caught.", e);
 		}
 	}
 
