@@ -325,6 +325,6 @@ public class GraphItemSlider : UIBehaviour, IDragHandler, IEndDragHandler
 
     bool ShouldStopLerping()
     {
-        return Mathf.Abs(content.anchoredPosition.x - targetPosition.x) < 0.001f;
+        return Mathf.Abs(content.anchoredPosition.x - targetPosition.x) < 0.1f;
     }
 }
