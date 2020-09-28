@@ -1204,7 +1204,7 @@ public class HomeNewViewController : ViewControllerBase
                 string csvFileName = (string)json["KEY5"];				//CSVのファイル名。最終的にUnity側でDB登録時にリネームしてもらうファイル名（例：20180624182431.csv）
                 filePathList.Add(csvFilePath);
                 fileNameList.Add(csvFileName);
-                UpdateDialog.ChangeMessage("本体から睡眠データを取得しています。\n" + currentDataCount + "/" + dataCount + "件");
+                LoadingDialog.ChangeMessage("本体から睡眠データを取得しています。\n" + currentDataCount + "/" + dataCount + "件");
                 if (isEndData)
                 {
                     //最後のデータを取得完了すれば
