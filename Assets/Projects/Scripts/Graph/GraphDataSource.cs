@@ -20,6 +20,7 @@ namespace Graph
 
         Button _nextDateButton;
         Button _backDateButton;
+        public Text _dateText;
 
         [SerializeField] Canvas canvas;
         public GraphItem graphItem;
@@ -425,7 +426,7 @@ namespace Graph
 
             GraphItem grapItm = graphItemSlider.graphItems[selectedGraphIndex];
 
-            if(!graphItem.isActive)
+            if(!grapItm.isActive)
             {
                 grapItm.ibikiGraph.InputData = grapItm;
                 grapItm.breathGraph.InputData = grapItm;
@@ -435,8 +436,11 @@ namespace Graph
 
                 grapItm.OnGraphDataChange.OnNext(Unit.Default); //データの変更を通知
 
-                graphItemSlider.graphItems[selectedGraphIndex].isActive = true;
+                grapItm.isActive = true;
+                graphItemSlider.graphItems[selectedGraphIndex] = grapItm;
             }
+
+            _dateText.text = grapItm.graphDateText;
         }
 
         /// <summary>

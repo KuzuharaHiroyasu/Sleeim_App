@@ -1647,7 +1647,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1298459544043210
 GameObject:
   m_ObjectHideFlags: 1
@@ -11776,7 +11776,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Input: {fileID: 114890293487768048}
-  DateText: {fileID: 0}
   BedTimeText:
   - {fileID: 114946327788444852}
   - {fileID: 114548659574885822}
@@ -13074,6 +13073,7 @@ MonoBehaviour:
   ibikiGraph: {fileID: 114328656746179850}
   breathGraph: {fileID: 114272744364656232}
   isActive: 0
+  graphDateText: '-'
 --- !u!114 &114896445398063066
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -16663,7 +16663,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 274, y: -330}
-  m_SizeDelta: {x: 48, y: 48}
+  m_SizeDelta: {x: 80, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224228204731533366
 RectTransform:
@@ -16838,7 +16838,7 @@ RectTransform:
   - {fileID: 224199359317837600}
   - {fileID: 224839034704406948}
   - {fileID: 224203752451981076}
-  - {fileID: 224657278823950874}
+  - {fileID: 224751714060016304}
   - {fileID: 224001109660386276}
   - {fileID: 224560019246633222}
   m_Father: {fileID: 224698454784574884}
@@ -17819,8 +17819,8 @@ RectTransform:
   m_Children:
   - {fileID: 224540051296649348}
   - {fileID: 224053406778866038}
+  - {fileID: 224657278823950874}
   - {fileID: 224428975873659558}
-  - {fileID: 224751714060016304}
   - {fileID: 224277666218857412}
   - {fileID: 224271241861640436}
   m_Father: {fileID: 224698454784574884}
@@ -18031,7 +18031,7 @@ RectTransform:
   - {fileID: 224174014348669622}
   - {fileID: 224491388755773860}
   m_Father: {fileID: 224396709856183910}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -19445,8 +19445,8 @@ RectTransform:
   m_Children:
   - {fileID: 224148585381756330}
   - {fileID: 224672042704072316}
-  m_Father: {fileID: 224246414846537104}
-  m_RootOrder: 3
+  m_Father: {fileID: 224396709856183910}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -20052,7 +20052,7 @@ RectTransform:
   m_Children:
   - {fileID: 224976166844919364}
   - {fileID: 224375325224857774}
-  m_Father: {fileID: 224396709856183910}
+  m_Father: {fileID: 224246414846537104}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

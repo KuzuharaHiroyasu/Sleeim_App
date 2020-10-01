@@ -22,6 +22,7 @@ public class GraphItem : MonoBehaviour, IIbikiData, IBreathData, IHeadDirData, I
 	/// </summary>
 	public Subject<Unit> OnGraphDataChange = new Subject<Unit>();
 	public bool isActive = false;
+	public string graphDateText = "-";
 
 	// Use this for initialization
 	void Start () {
