@@ -25,7 +25,7 @@ public class SleepInfoDescriptor : MonoBehaviour {
     /// <summary>
     /// 日付
     /// </summary>
-    public Text DateText;
+    //public Text DateText;
 
     /// <summary>
     /// 就寝時間
@@ -174,7 +174,7 @@ public class SleepInfoDescriptor : MonoBehaviour {
 
     //詳細欄に情報を設定する
     void DescriptInfoToDetails () {
-        DateText.text = GetDateText(
+        Input.graphDateText = GetDateText(
             Data.DateIndex,
             Data.CrossSunCount,
             Data.SameDateNum,
