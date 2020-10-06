@@ -168,44 +168,54 @@ namespace Graph
 
             for (int i = 0; i < headDirDataList.Count - 1; i++)
             {
-                // 0~10, 10~20, 20~30秒のデータを順に詰める
-                for (int j = 0; j < 3; j++)
+                float yValueRate1 = graphSettingList.Where(setting => setting.GetHeadDir().Equals(headDirDataList[i].GetHeadDir1())).First().GetValueRate();
+                float yValueRate2 = graphSettingList.Where(setting => setting.GetHeadDir().Equals(headDirDataList[i].GetHeadDir2())).First().GetValueRate();
+                float yValueRate3 = graphSettingList.Where(setting => setting.GetHeadDir().Equals(headDirDataList[i].GetHeadDir3())).First().GetValueRate();
+
+                //Set default (0~10, 10~20, 20~30秒のデータを設定する)
+                int numLoop = 3;
+                int[] startJumVals = new int[3] { 0, 10, 20 };
+                int[] endJumVals = new int[3] { 10, 20, 30 };
+                float[] yValueRates = new float[3] { yValueRate1, yValueRate2, yValueRate3 };
+
+                if (yValueRate1 == yValueRate2 && yValueRate2 == yValueRate3) //Same value
+                {
+                    numLoop = 1;
+                    startJumVals = new int[3] { 0, 30, 30 };
+                    endJumVals = new int[3] { 30, 30, 30 };
+                }
+                else if (yValueRate1 == yValueRate2 && yValueRate2 != yValueRate3)
+                {
+                    numLoop = 2;
+                    startJumVals = new int[3] { 0, 20, 30 };
+                    endJumVals = new int[3] { 20, 30, 30 };
+                    yValueRates = new float[3] { yValueRate1, yValueRate3, yValueRate3 };
+                }
+                else if (yValueRate1 != yValueRate2 && yValueRate2 == yValueRate3)
+                {
+                    numLoop = 2;
+                    startJumVals = new int[3] { 0, 10, 30 };
+                    endJumVals = new int[3] { 10, 30, 30 };
+                }
+               
+                for (int j = 0; j < numLoop; j++)
                 {
                     float xStart = Graph.Time.GetPositionRate(
-                        headDirDataList[i].GetTime().Value.AddSeconds(j * 10),
+                        headDirDataList[i].GetTime().Value.AddSeconds(startJumVals[j]),
                         headDirDataList.First().GetTime().Value,
                         headDirDataList.Last().GetTime().Value);
                     float xEnd = Graph.Time.GetPositionRate(
-                        headDirDataList[i].GetTime().Value.AddSeconds(j * 10 + 10),
+                        headDirDataList[i].GetTime().Value.AddSeconds(endJumVals[j]),
                         headDirDataList.First().GetTime().Value,
                         headDirDataList.Last().GetTime().Value);
-                    float yValueRate;
-                    if (j == 0) {
-                        yValueRate = graphSettingList
-                            .Where(
-                                setting => setting.GetHeadDir().Equals(headDirDataList[i].GetHeadDir1()))
-                            .First().GetValueRate();
-                    }
-                    else if (j == 1)
-                    {
-                        yValueRate = graphSettingList
-                            .Where(
-                                setting => setting.GetHeadDir().Equals(headDirDataList[i].GetHeadDir2()))
-                            .First().GetValueRate();
-                    }
-                    else
-                    {
-                        yValueRate = graphSettingList
-                            .Where(
-                                setting => setting.GetHeadDir().Equals(headDirDataList[i].GetHeadDir3()))
-                            .First().GetValueRate();
-                    }
+                    
                     xValueRangeList.Add(new Vector2(xStart, xEnd));
-                    yValueList.Add(yValueRate);
+                    yValueList.Add(yValueRates[j]);
                 }
             }
-            List<LabelData.Label> labelList = labelDataList.Select(
-                labelData => labelData.GetLabel()).ToList();
+
+            List<LabelData.Label> labelList = labelDataList.Select(labelData => labelData.GetLabel()).ToList();
+
             Output_Bar.SetData(xValueRangeList, yValueList, labelList);
         }
 

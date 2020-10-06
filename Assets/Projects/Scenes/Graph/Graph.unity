@@ -1218,7 +1218,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingIndex: 0
   wrapAround: 0
-  lerpTimeMilliSeconds: 1600
+  lerpTimeMilliSeconds: 1000
   triggerPercent: 1
   triggerAcceleration: 5
   actualIndex: 0
