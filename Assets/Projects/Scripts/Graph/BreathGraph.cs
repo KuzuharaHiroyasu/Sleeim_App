@@ -501,45 +501,53 @@ namespace Graph
             List<LabelData.Label> labelList = new List<LabelData.Label>();
             for (int i = 0; i < breathDataList.Count - 1; i++)
             {
-                // 0~10, 10~20, 20~30秒のデータを設定する
-                for (int j = 0; j < 3; j++)
+                float yValueRate1 = breathLabelList.Where(label => label.GetBreathState().Equals(breathDataList[i].GetBreathState1())).First().GetValueRate();
+                float yValueRate2 = breathLabelList.Where(label => label.GetBreathState().Equals(breathDataList[i].GetBreathState2())).First().GetValueRate();
+                float yValueRate3 = breathLabelList.Where(label => label.GetBreathState().Equals(breathDataList[i].GetBreathState3())).First().GetValueRate();
+
+                //Set default (0~10, 10~20, 20~30秒のデータを設定する)
+                int numLoop = 3;
+                int[] startJumVals = new int[3] { 0, 10, 20 };
+                int[] endJumVals   = new int[3] { 10, 20, 30 };
+                float[] yValueRates = new float[3] { yValueRate1, yValueRate2, yValueRate3 };
+                LabelData[] labelDatas = new LabelData[3] { labelDataList[i * 3 + 0], labelDataList[i * 3 + 1], labelDataList[i * 3 + 2] };
+
+                if (yValueRate1 == yValueRate2 && yValueRate2 == yValueRate3) //Same value
+                {
+                    numLoop = 1;
+                    startJumVals = new int[3] { 0, 30, 30};
+                    endJumVals   = new int[3] { 30, 30, 30};
+                } else if (yValueRate1 == yValueRate2 && yValueRate2 != yValueRate3)
+                {
+                    numLoop = 2;
+                    startJumVals = new int[3] { 0, 20, 30 };
+                    endJumVals = new int[3] { 20, 30, 30 };
+                    yValueRates = new float[3] { yValueRate1, yValueRate3, yValueRate3 };
+                    labelDatas = new LabelData[3] { labelDataList[i * 3 + 0], labelDataList[i * 3 + 2], labelDataList[i * 3 + 2] };
+                } else if (yValueRate1 != yValueRate2 && yValueRate2 == yValueRate3)
+                {
+                    numLoop = 2;
+                    startJumVals = new int[3] { 0, 10, 30 };
+                    endJumVals = new int[3] { 10, 30, 30 };
+                }
+
+                for (int j = 0; j < numLoop; j++)
                 {
                     float xStart = Graph.Time.GetPositionRate(
-                        breathDataList[i].GetTime().Value.AddSeconds(j * 10),
+                        breathDataList[i].GetTime().Value.AddSeconds(startJumVals[j]),
                         breathDataList.First().GetTime().Value,
                         breathDataList.Last().GetTime().Value);
                     float xEnd = Graph.Time.GetPositionRate(
-                        breathDataList[i].GetTime().Value.AddSeconds(j * 10 + 10),
+                        breathDataList[i].GetTime().Value.AddSeconds(endJumVals[j]),
                         breathDataList.First().GetTime().Value,
                         breathDataList.Last().GetTime().Value);
                     Vector2 xValueRange = new Vector2(xStart, xEnd);
                     //ラベルの名前から、そのラベルに設定された値を取得する
-                    float yValueRate;
-                    if (j == 0)
-                    {
-                        yValueRate = breathLabelList
-                            .Where(
-                                label => label.GetBreathState().Equals(breathDataList[i].GetBreathState1()))
-                            .First().GetValueRate();
-                    }
-                    else if (j == 1)
-                    {
-                        yValueRate = breathLabelList
-                            .Where(
-                                label => label.GetBreathState().Equals(breathDataList[i].GetBreathState2()))
-                            .First().GetValueRate();
-                    }
-                    else
-                    {
-                        yValueRate = breathLabelList
-                            .Where(
-                                label => label.GetBreathState().Equals(breathDataList[i].GetBreathState3()))
-                            .First().GetValueRate();
-                    }
-
+                  
+                  
                     xValueRangeList.Add(xValueRange);
-                    yValueList.Add(yValueRate);
-                    labelList.Add(labelDataList[i * 3 + j].GetLabel());     // データが3倍になったので配列へのアクセス方法が複雑化した
+                    yValueList.Add(yValueRates[j]);
+                    labelList.Add(labelDatas[j].GetLabel());     // データが3倍になったので配列へのアクセス方法が複雑化した
                 }
             }
 
