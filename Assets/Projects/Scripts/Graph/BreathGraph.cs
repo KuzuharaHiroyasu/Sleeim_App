@@ -499,6 +499,7 @@ namespace Graph
             List<Vector2> xValueRangeList = new List<Vector2>();
             List<float> yValueList = new List<float>();
             List<LabelData.Label> labelList = new List<LabelData.Label>();
+
             for (int i = 0; i < breathDataList.Count - 1; i++)
             {
                 float yValueRate1 = breathLabelList.Where(label => label.GetBreathState().Equals(breathDataList[i].GetBreathState1())).First().GetValueRate();
@@ -512,24 +513,28 @@ namespace Graph
                 float[] yValueRates = new float[3] { yValueRate1, yValueRate2, yValueRate3 };
                 LabelData[] labelDatas = new LabelData[3] { labelDataList[i * 3 + 0], labelDataList[i * 3 + 1], labelDataList[i * 3 + 2] };
 
+                /*
                 if (yValueRate1 == yValueRate2 && yValueRate2 == yValueRate3) //Same value
                 {
                     numLoop = 1;
                     startJumVals = new int[3] { 0, 30, 30};
                     endJumVals   = new int[3] { 30, 30, 30};
-                } else if (yValueRate1 == yValueRate2 && yValueRate2 != yValueRate3)
+                } 
+                else if (yValueRate1 == yValueRate2 && yValueRate2 != yValueRate3)
                 {
                     numLoop = 2;
                     startJumVals = new int[3] { 0, 20, 30 };
                     endJumVals = new int[3] { 20, 30, 30 };
                     yValueRates = new float[3] { yValueRate1, yValueRate3, yValueRate3 };
                     labelDatas = new LabelData[3] { labelDataList[i * 3 + 0], labelDataList[i * 3 + 2], labelDataList[i * 3 + 2] };
-                } else if (yValueRate1 != yValueRate2 && yValueRate2 == yValueRate3)
+                } 
+                else if (yValueRate1 != yValueRate2 && yValueRate2 == yValueRate3)
                 {
                     numLoop = 2;
                     startJumVals = new int[3] { 0, 10, 30 };
                     endJumVals = new int[3] { 10, 30, 30 };
                 }
+                */
 
                 for (int j = 0; j < numLoop; j++)
                 {
@@ -541,15 +546,16 @@ namespace Graph
                         breathDataList[i].GetTime().Value.AddSeconds(endJumVals[j]),
                         breathDataList.First().GetTime().Value,
                         breathDataList.Last().GetTime().Value);
+
                     Vector2 xValueRange = new Vector2(xStart, xEnd);
-                    //ラベルの名前から、そのラベルに設定された値を取得する
-                  
-                  
+
                     xValueRangeList.Add(xValueRange);
                     yValueList.Add(yValueRates[j]);
-                    labelList.Add(labelDatas[j].GetLabel());     // データが3倍になったので配列へのアクセス方法が複雑化した
+                    labelList.Add(labelDatas[j].GetLabel());
                 }
             }
+
+            Kaimin.Common.Utility.refineByCombineSameContinuousLabel(ref xValueRangeList, ref yValueList, ref labelList);
 
             Output_Bar.SetData(xValueRangeList, yValueList, labelList);
         }
