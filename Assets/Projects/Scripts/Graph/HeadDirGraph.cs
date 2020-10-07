@@ -165,6 +165,7 @@ namespace Graph
         {
             List<Vector2> xValueRangeList = new List<Vector2>();
             List<float> yValueList = new List<float>();
+            List<LabelData.Label> labelList = new List<LabelData.Label>();
 
             for (int i = 0; i < headDirDataList.Count - 1; i++)
             {
@@ -177,7 +178,9 @@ namespace Graph
                 int[] startJumVals = new int[3] { 0, 10, 20 };
                 int[] endJumVals = new int[3] { 10, 20, 30 };
                 float[] yValueRates = new float[3] { yValueRate1, yValueRate2, yValueRate3 };
+                LabelData[] labelDatas = new LabelData[3] { labelDataList[i * 3 + 0], labelDataList[i * 3 + 1], labelDataList[i * 3 + 2] };
 
+                /*
                 if (yValueRate1 == yValueRate2 && yValueRate2 == yValueRate3) //Same value
                 {
                     numLoop = 1;
@@ -190,6 +193,7 @@ namespace Graph
                     startJumVals = new int[3] { 0, 20, 30 };
                     endJumVals = new int[3] { 20, 30, 30 };
                     yValueRates = new float[3] { yValueRate1, yValueRate3, yValueRate3 };
+                    labelDatas = new LabelData[3] { labelDataList[i * 3 + 0], labelDataList[i * 3 + 2], labelDataList[i * 3 + 2] };
                 }
                 else if (yValueRate1 != yValueRate2 && yValueRate2 == yValueRate3)
                 {
@@ -197,7 +201,8 @@ namespace Graph
                     startJumVals = new int[3] { 0, 10, 30 };
                     endJumVals = new int[3] { 10, 30, 30 };
                 }
-               
+                */
+
                 for (int j = 0; j < numLoop; j++)
                 {
                     float xStart = Graph.Time.GetPositionRate(
@@ -208,18 +213,21 @@ namespace Graph
                         headDirDataList[i].GetTime().Value.AddSeconds(endJumVals[j]),
                         headDirDataList.First().GetTime().Value,
                         headDirDataList.Last().GetTime().Value);
-                    
-                    xValueRangeList.Add(new Vector2(xStart, xEnd));
+
+                    Vector2 xValueRange = new Vector2(xStart, xEnd);
+
+                    xValueRangeList.Add(xValueRange);
                     yValueList.Add(yValueRates[j]);
+                    labelList.Add(labelDatas[j].GetLabel());
                 }
             }
-
-            List<LabelData.Label> labelList = labelDataList.Select(labelData => labelData.GetLabel()).ToList();
+            
+            Kaimin.Common.Utility.refineByCombineSameContinuousLabel(ref xValueRangeList, ref yValueList, ref labelList);
 
             Output_Bar.SetData(xValueRangeList, yValueList, labelList);
         }
 
-		bool firstPositionFlag = false;
+        bool firstPositionFlag = false;
 
 		// Head Dir Data Barのサイズを変える
 		public void ResizeHeadDirDataBar(float width) {
