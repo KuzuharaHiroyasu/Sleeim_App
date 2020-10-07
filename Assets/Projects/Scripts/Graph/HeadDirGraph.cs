@@ -180,29 +180,6 @@ namespace Graph
                 float[] yValueRates = new float[3] { yValueRate1, yValueRate2, yValueRate3 };
                 LabelData[] labelDatas = new LabelData[3] { labelDataList[i * 3 + 0], labelDataList[i * 3 + 1], labelDataList[i * 3 + 2] };
 
-                /*
-                if (yValueRate1 == yValueRate2 && yValueRate2 == yValueRate3) //Same value
-                {
-                    numLoop = 1;
-                    startJumVals = new int[3] { 0, 30, 30 };
-                    endJumVals = new int[3] { 30, 30, 30 };
-                }
-                else if (yValueRate1 == yValueRate2 && yValueRate2 != yValueRate3)
-                {
-                    numLoop = 2;
-                    startJumVals = new int[3] { 0, 20, 30 };
-                    endJumVals = new int[3] { 20, 30, 30 };
-                    yValueRates = new float[3] { yValueRate1, yValueRate3, yValueRate3 };
-                    labelDatas = new LabelData[3] { labelDataList[i * 3 + 0], labelDataList[i * 3 + 2], labelDataList[i * 3 + 2] };
-                }
-                else if (yValueRate1 != yValueRate2 && yValueRate2 == yValueRate3)
-                {
-                    numLoop = 2;
-                    startJumVals = new int[3] { 0, 10, 30 };
-                    endJumVals = new int[3] { 10, 30, 30 };
-                }
-                */
-
                 for (int j = 0; j < numLoop; j++)
                 {
                     float xStart = Graph.Time.GetPositionRate(
