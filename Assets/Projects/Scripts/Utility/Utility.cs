@@ -9,6 +9,7 @@ using System.Text;
 using UnityEngine.UI;
 using Kaimin.Managers;
 using Asyncoroutine;
+using Graph;
 
 namespace Kaimin.Common
 {
@@ -381,6 +382,52 @@ namespace Kaimin.Common
             }
 
             return newCol;
+        }
+
+        public static void refineByCombineSameContinuousLabel(ref List<Vector2> xValueRangeList, ref List<float> yValueList, ref List<LabelData.Label> labelList)
+        {
+            List<Vector2> xValueRangeList2 = new List<Vector2>();
+            List<float> yValueList2 = new List<float>();
+            List<LabelData.Label> labelList2 = new List<LabelData.Label>();
+
+            if (xValueRangeList.Count > 0)
+            {
+                Vector2 v1 = xValueRangeList[0];
+                float y1 = yValueList[0];
+                LabelData.Label label1 = labelList[0];
+
+
+                for (int i = 1; i < xValueRangeList.Count; i++)
+                {
+                    Vector2 v2 = xValueRangeList[i];
+                    float y2 = yValueList[i];
+                    LabelData.Label label2 = labelList[i];
+
+                    if (y2 == y1 && label2.Equals(label1))
+                    {
+                        v1 = new Vector2(v1.x, v2.y);
+                    }
+                    else
+                    {
+                        xValueRangeList2.Add(v1);
+                        yValueList2.Add(y1);
+                        labelList2.Add(label1);
+
+                        v1 = v2;
+                        y1 = y2;
+                        label1 = label2;
+                    }
+                }
+
+                //Add last item
+                xValueRangeList2.Add(v1);
+                yValueList2.Add(y1);
+                labelList2.Add(label1);
+            }
+
+            xValueRangeList = xValueRangeList2;
+            yValueList = yValueList2;
+            labelList = labelList2;
         }
 
         /**
