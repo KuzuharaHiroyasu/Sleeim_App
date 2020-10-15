@@ -80,13 +80,18 @@ public class GraphItemSlider : UIBehaviour, IDragHandler, IEndDragHandler
         }
     }
 
-    public void PushGraphItem(GraphItem graphItem, int i, String filePath)
+
+    public void PushGraphItemData(String filePath)
     {
-        graphItems.Add(graphItem);
+        graphItems.Add(null);
         filePaths.Add(filePath);
         sleepDatas.Add(null);
         sleepHeaderDatas.Add(null);
+    }
 
+    public void PushGraphItemLayout(GraphItem graphItem, int i)
+    {
+        graphItems[i] = graphItem;
         LayoutElement layoutElementPrefab = graphItem.GetComponent<LayoutElement>();
         PushLayoutElement(layoutElementPrefab);
     }
@@ -116,6 +121,31 @@ public class GraphItemSlider : UIBehaviour, IDragHandler, IEndDragHandler
                 cellIndex -= 1;
             }
 
+            graphItems.RemoveAt(index);
+            filePaths.RemoveAt(index);
+            sleepDatas.RemoveAt(index);
+            sleepHeaderDatas.RemoveAt(index);
+        }
+    }
+
+    public void RemoveGraphItemLayout(int index)
+    {
+        LayoutElement[] elements = content.GetComponentsInChildren<LayoutElement>();
+        if (index >= 0 && index < elements.Length && elements.Length > 0)
+        {
+            Destroy(elements[index].gameObject);
+            SetContentSize(LayoutElementCount() - 1);
+            if (cellIndex == CalculateMaxIndex())
+            {
+                cellIndex -= 1;
+            }
+        }
+    }
+
+    public void RemoveGraphItemData(int index)
+    {
+        if (index >= 0 && index < filePaths.Count && filePaths.Count > 0)
+        {
             graphItems.RemoveAt(index);
             filePaths.RemoveAt(index);
             sleepDatas.RemoveAt(index);

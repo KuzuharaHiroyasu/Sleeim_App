@@ -31,6 +31,9 @@ namespace Graph
         int MIN_FILE_POSITION = 0;  //選択範囲のMIN
         int MAX_FILE_POSITION = -1; //選択範囲のMAX
 
+        public int CURRENT_START_INDEX = 0;
+        public int CURRENT_END_INDEX = 0;
+
         void Start()
         {
             GameObject cube;
@@ -46,20 +49,18 @@ namespace Graph
             GetSetFilePaths();
             SetMaxFilePosition(); //Recalculate MAX_FILE_POSITION
             SetMinFilePosition(); //Recalculate MIN_FILE_POSITION
-
-            int graphIndex = 0;
+            
             graphItemSlider.graphItems = new List<GraphItem>();
             graphItemSlider.filePaths = new List<String>();
 
             if (MIN_FILE_POSITION >= 0 && MAX_FILE_POSITION >= 0)
             {
+                int graphIndex = 0;
                 for (int i = MIN_FILE_POSITION; i <= MAX_FILE_POSITION; i++)
                 {
-                    graphItemSlider.PushGraphItem(Instantiate(graphItem), graphIndex, filePaths[i]); 
+                    graphItemSlider.PushGraphItemData(filePaths[i]); 
                     graphIndex++;
                 }
-
-                graphItemSlider.RemoveDefaultLayoutElement(); //Remove default
 
                 selectedGraphIndex = graphIndex; //Default (最新データを表示)
 
@@ -77,9 +78,25 @@ namespace Graph
                         .First().Index;
                 }
 
+                CURRENT_START_INDEX = Math.Max(0, selectedGraphIndex - 5);
+                CURRENT_END_INDEX = Math.Min(graphItemSlider.filePaths.Count - 1, selectedGraphIndex + 5);
+
+                graphIndex = 0;
+                for (int i = MIN_FILE_POSITION; i <= MAX_FILE_POSITION; i++)
+                {
+                    if(graphIndex >= CURRENT_START_INDEX && graphIndex <= CURRENT_END_INDEX)
+                    {
+                        graphItemSlider.PushGraphItemLayout(Instantiate(graphItem), graphIndex);
+                    }
+
+                    graphIndex++;
+                }
+
+                graphItemSlider.RemoveDefaultLayoutElement(); //Remove default
+
                 StartCoroutine(LoadSleepDataInFirstTime());
 
-                graphItemSlider.MoveToIndex(selectedGraphIndex);
+                graphItemSlider.MoveToIndex(selectedGraphIndex - CURRENT_START_INDEX);
             }
             else
             {
@@ -105,12 +122,60 @@ namespace Graph
             graphItemSlider.graphItems[selectedGraphIndex].ibikiGraph.ReSizeMin();
         }
 
-        public void UpdateGraphItem(int graphIndex, bool isToNext = false)
+        // Update graph data here
+        public void UpdateGraphItem(int cellIndex, bool isToNext = false)
         {
-            //Update graph data here
-            selectedGraphIndex = graphIndex;
-            graphItemSlider.cellIndex = selectedGraphIndex;
-            graphItemSlider.actualIndex = selectedGraphIndex;
+            int beforeSelectedGraphIndex = selectedGraphIndex;
+            selectedGraphIndex = CURRENT_START_INDEX + cellIndex;
+
+            if(beforeSelectedGraphIndex == selectedGraphIndex) //Not change
+            {
+                if(cellIndex == 0) //Load more data if need when slider first item
+                {
+                    while(selectedGraphIndex > 0)
+                    {
+                        String filePath = graphItemSlider.filePaths[selectedGraphIndex - 1];
+                        SleepHeaderData tmpSleepHeaderData = ReadSleepHeaderDataFromCSV(filePath);
+                        List<SleepData> tmpSleepDatas = ReadSleepDataFromCSV(filePath);
+                        if (tmpSleepHeaderData != null && tmpSleepDatas != null && tmpSleepDatas.Count > 0)
+                        {
+                            UserDataManager.Scene.SaveGraphDate(tmpSleepHeaderData.DateTime);
+                            reloadGraphScreen();
+                            break;
+                        } else
+                        {
+                            selectedGraphIndex--;
+                        }
+                    }
+
+                    return;
+
+                }
+                else if (cellIndex == getNumGraphsCurrent() - 1) //Load more data if need when slider last item
+                {
+                    while (selectedGraphIndex < graphItemSlider.filePaths.Count - 1)
+                    {
+                        String filePath = graphItemSlider.filePaths[selectedGraphIndex + 1];
+                        SleepHeaderData tmpSleepHeaderData = ReadSleepHeaderDataFromCSV(filePath);
+                        List<SleepData> tmpSleepDatas = ReadSleepDataFromCSV(filePath);
+                        if (tmpSleepHeaderData != null && tmpSleepDatas != null && tmpSleepDatas.Count > 0)
+                        {
+                            UserDataManager.Scene.SaveGraphDate(tmpSleepHeaderData.DateTime);
+                            reloadGraphScreen();
+                            break;
+                        }
+                        else
+                        {
+                            selectedGraphIndex++;
+                        }
+                    }
+
+                    return;
+                }
+            }
+
+            graphItemSlider.cellIndex = cellIndex;
+            graphItemSlider.actualIndex = cellIndex;
 
             loadSleepData(selectedGraphIndex);
 
@@ -119,22 +184,23 @@ namespace Graph
                 AttachData();
             } else
             {
-                String filePath = graphItemSlider.filePaths[graphIndex];
-                graphItemSlider.RemoveLayoutElement(graphIndex);
+                String filePath = graphItemSlider.filePaths[selectedGraphIndex];
+                graphItemSlider.RemoveGraphItemData(selectedGraphIndex);
+                graphItemSlider.RemoveGraphItemLayout(selectedGraphIndex - CURRENT_START_INDEX);
                 StartCoroutine(Utility.DeleteInvalidFile(filePath));
+
                 if (isToNext)
                 {
-                    if (graphIndex < graphItemSlider.filePaths.Count - 1)
+                    if (selectedGraphIndex < graphItemSlider.filePaths.Count - 1)
                     {
-                        //graphItemSlider.MoveToIndex(graphIndex);
-                        this.UpdateGraphItem(graphIndex, isToNext);
+                        this.UpdateGraphItem(selectedGraphIndex - CURRENT_START_INDEX, isToNext);
                     }
                 }
                 else
                 {
-                    if (graphIndex > 0)
+                    if (selectedGraphIndex > 0)
                     {
-                        graphItemSlider.SnapToIndex(graphIndex - 1);
+                        graphItemSlider.SnapToIndex(selectedGraphIndex - CURRENT_START_INDEX - 1);
                         //this.UpdateGraphItem(graphIndex - 1, isToNext);
                         //graphItemSlider.MoveToIndex(graphIndex - 1);
                     }
@@ -142,6 +208,21 @@ namespace Graph
             }
 
             updatePrevNextBtnState();
+        }
+
+        public int getNumGraphsCurrent()
+        {
+            int num = 0;
+
+            for (int i = 0; i < graphItemSlider.graphItems.Count; i++)
+            {
+                if (i >= CURRENT_START_INDEX && i <= CURRENT_END_INDEX && graphItemSlider.graphItems[i] != null)
+                {
+                    num++;
+                }
+            }
+
+            return num;
         }
 
         ////睡眠のヘッダーデータをCSVから取得する
@@ -158,8 +239,24 @@ namespace Graph
             this.sleepDataList = graphItemSlider.sleepDatas[graphIndex];
             this.sleepHeaderData = graphItemSlider.sleepHeaderDatas[graphIndex];
 
-            graphItemSlider.graphItems[graphIndex].noDataImage.enabled = false;
-            graphItemSlider.graphItems[graphIndex].scrollView.SetActive(true);
+            if (graphItemSlider.graphItems[graphIndex] != null)
+            {
+                graphItemSlider.graphItems[graphIndex].noDataImage.enabled = false;
+                graphItemSlider.graphItems[graphIndex].scrollView.SetActive(true);
+            } else
+            {   //Reload Graph Screen
+                UserDataManager.Scene.SaveGraphDate(sleepHeaderData.DateTime);
+
+                reloadGraphScreen();
+            }
+        }
+
+        public void reloadGraphScreen()
+        {
+            //タブは初期状態で選択されるように設定
+            UserDataManager.Scene.InitGraphTabSave();
+            UserDataManager.Scene.InitGraphDataTabSave();
+            SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.Graph);
         }
 
         public void GetSetFilePaths()
@@ -455,7 +552,7 @@ namespace Graph
                 loadSleepData(selectedGraphIndex);
                 if (sleepHeaderData != null && sleepDataList != null && sleepDataList.Count > 0)
                 {
-                    graphItemSlider.MoveToIndex(selectedGraphIndex);
+                    graphItemSlider.MoveToIndex(selectedGraphIndex - CURRENT_START_INDEX);
 
                     AttachData();
 
@@ -477,8 +574,7 @@ namespace Graph
                 loadSleepData(selectedGraphIndex);
                 if (sleepHeaderData != null && sleepDataList != null && sleepDataList.Count > 0)
                 {
-                    graphItemSlider.MoveToIndex(selectedGraphIndex);
-
+                    graphItemSlider.MoveToIndex(selectedGraphIndex - CURRENT_START_INDEX);
                     AttachData();
 
                     break;
