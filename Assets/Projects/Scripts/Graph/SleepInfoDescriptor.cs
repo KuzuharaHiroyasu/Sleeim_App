@@ -192,7 +192,14 @@ public class SleepInfoDescriptor : MonoBehaviour {
         SnoreTimeText.text = Graph.Time.CreateHMSString(Data.SnoreTimeSec);
         ApneaTimeText.text = Graph.Time.CreateHMSString(Data.ApneaTime);
         SnoreCount.text = Data.SnoreCount.ToString() + "<size=24>回</size>";
-        SnoreStopCount.text = (Data.SnoreStopCount < 0 ? "-" : Data.SnoreStopCount.ToString()) + "<size=24>回</size>";
+        if(Data.SnoreStopCount >= Data.SnoreCount && Data.SnoreStopCount >= 0)
+        {
+            SnoreStopCount.text = SnoreCount.text;
+        } else
+        {
+            SnoreStopCount.text = (Data.SnoreStopCount < 0 ? "-" : Data.SnoreStopCount.ToString()) + "<size=24>回</size>";
+        }
+        
         ApneaAverageCount.text = Data.ApneaAverageCount.ToString() + "<size=24>回</size>";
 
         switch (Data.SleepMode)
