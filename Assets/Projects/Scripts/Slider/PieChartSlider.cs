@@ -83,13 +83,17 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
         }
     }
 
-    public void PushPieChart(PieChart pieChart, int i, String filePath)
+    public void PushPieChartItemData(String filePath)
     {
-        pieCharts.Add(pieChart);
+        pieCharts.Add(null);
         filePaths.Add(filePath);
         sleepDatas.Add(null);
         sleepHeaderDatas.Add(null);
+    }
 
+    public void PushPieChartItemLayout(PieChart pieChart, int i)
+    {
+        pieCharts[i] = pieChart;
         LayoutElement layoutElementPrefab = pieChart.GetComponent<LayoutElement>();
         PushLayoutElement(layoutElementPrefab);
     }
@@ -100,17 +104,22 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
         SetContentSize(LayoutElementCount());
     }
 
-
-    public void PopLayoutElement()
+    public void PopLayoutElement(int currentStartIdex)
     {
         LayoutElement[] elements = content.GetComponentsInChildren<LayoutElement>();
-        RemoveLayoutElement(elements.Length - 1);
+        RemoveLayoutElement(elements.Length - 1, currentStartIdex);
     }
 
-    public void RemoveLayoutElement(int index)
+    public void RemoveLayoutElement(int cellIndex, int currentStartIdex = 0)
+    {
+        RemovePieChartItemLayout(cellIndex);
+        RemovePieChartItemData(cellIndex + currentStartIdex);
+    }
+
+    public void RemovePieChartItemLayout(int index)
     {
         LayoutElement[] elements = content.GetComponentsInChildren<LayoutElement>();
-        if(index >= 0 && index < elements.Length && filePaths.Count > 0)
+        if (index >= 0 && index < elements.Length && elements.Length > 0)
         {
             Destroy(elements[index].gameObject);
             SetContentSize(LayoutElementCount() - 1);
@@ -118,9 +127,15 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
             {
                 cellIndex -= 1;
             }
+        }
+    }
 
-            filePaths.RemoveAt(index);
+    public void RemovePieChartItemData(int index)
+    {
+        if (index >= 0 && index < filePaths.Count && filePaths.Count > 0)
+        {
             pieCharts.RemoveAt(index);
+            filePaths.RemoveAt(index);
             sleepDatas.RemoveAt(index);
             sleepHeaderDatas.RemoveAt(index);
         }
@@ -245,7 +260,7 @@ public class PieChartSlider : UIBehaviour, IDragHandler, IEndDragHandler
 
         if (controllerDelegate != null)
         {
-            this.controllerDelegate.UpdatePieChart(cellIndex, isToNext);
+            this.controllerDelegate.UpdatePieChart(cellIndex, true, isToNext);
         }
     }
 

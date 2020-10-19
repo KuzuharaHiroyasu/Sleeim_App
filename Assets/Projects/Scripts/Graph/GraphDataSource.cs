@@ -31,8 +31,8 @@ namespace Graph
         int MIN_FILE_POSITION = 0;  //選択範囲のMIN
         int MAX_FILE_POSITION = -1; //選択範囲のMAX
 
-        public int CURRENT_START_INDEX = 0;
-        public int CURRENT_END_INDEX = 0;
+        int CURRENT_START_INDEX = 0;
+        int CURRENT_END_INDEX = 0;
 
         void Start()
         {
@@ -62,7 +62,7 @@ namespace Graph
                     graphIndex++;
                 }
 
-                selectedGraphIndex = graphIndex; //Default (最新データを表示)
+                selectedGraphIndex = graphItemSlider.filePaths.Count - 1; //Default (最新データを表示)
 
                 DateTime targetDate = UserDataManager.Scene.GetGraphDate();
                 //合致する日付データを検索する
