@@ -103,29 +103,16 @@ public class GraphItemSlider : UIBehaviour, IDragHandler, IEndDragHandler
     }
 
 
-    public void PopLayoutElement()
+    public void PopLayoutElement(int currentStartIdex)
     {
         LayoutElement[] elements = content.GetComponentsInChildren<LayoutElement>();
-        RemoveLayoutElement(elements.Length - 1);
+        RemoveLayoutElement(elements.Length - 1, currentStartIdex);
     }
 
-    public void RemoveLayoutElement(int index)
+    public void RemoveLayoutElement(int cellIndex, int currentStartIdex = 0)
     {
-        LayoutElement[] elements = content.GetComponentsInChildren<LayoutElement>();
-        if(index >= 0 && index < elements.Length && filePaths.Count > 0)
-        {
-            Destroy(elements[index].gameObject);
-            SetContentSize(LayoutElementCount() - 1);
-            if (cellIndex == CalculateMaxIndex())
-            {
-                cellIndex -= 1;
-            }
-
-            graphItems.RemoveAt(index);
-            filePaths.RemoveAt(index);
-            sleepDatas.RemoveAt(index);
-            sleepHeaderDatas.RemoveAt(index);
-        }
+        RemoveGraphItemLayout(cellIndex);
+        RemoveGraphItemData(cellIndex + currentStartIdex);
     }
 
     public void RemoveGraphItemLayout(int index)

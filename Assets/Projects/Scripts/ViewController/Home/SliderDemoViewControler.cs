@@ -51,7 +51,8 @@ public class SliderDemoViewControler : ViewControllerBase {
             for (int i = MIN_FILE_POSITION + 1; i <= MAX_FILE_POSITION; i++)
             {
                 pieIndex++;
-                pieChartSlider.PushPieChart(Instantiate(pieChart), pieIndex, filePaths[i]);
+                pieChartSlider.PushPieChartItemData(filePaths[i]);
+                pieChartSlider.PushPieChartItemLayout(Instantiate(pieChart), pieIndex);
             }
 
             pieChartSlider.MoveToIndex(pieIndex);

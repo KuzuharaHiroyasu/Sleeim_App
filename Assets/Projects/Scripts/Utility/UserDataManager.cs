@@ -278,6 +278,16 @@ public static class UserDataManager {
             PlayerPrefs.SetString (graphDateKey, dateTime);
         }
 
+        public static void SaveSelectedPieChartIndex(int selectedPieChartIndex)
+        {
+            PlayerPrefs.SetInt("SelectedPieChartIndex", selectedPieChartIndex);
+        }
+
+        public static int getSelectedPieChartIndex()
+        {
+           return PlayerPrefs.GetInt("SelectedPieChartIndex", -1);
+        }
+
         public static void ResetGraphDate()
         {
             PlayerPrefs.SetString(graphDateKey, "");

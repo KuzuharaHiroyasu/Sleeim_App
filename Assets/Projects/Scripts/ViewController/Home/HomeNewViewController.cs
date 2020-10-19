@@ -49,9 +49,13 @@ public class HomeNewViewController : ViewControllerBase
     string[] filePaths;
 
     int selectedPieIndex = -1;
+    int beforeSelectedPieIndex = -1;
     int MIN_FILE_POSITION = -1;
     int MAX_FILE_POSITION = -1;
     PieChartSlider pieChartSlider;
+
+    int CURRENT_START_INDEX = 0;
+    int CURRENT_END_INDEX = 0;
 
     // Use this for initialization
     protected override void Start() {
@@ -66,7 +70,7 @@ public class HomeNewViewController : ViewControllerBase
         pieChartSlider = canvas.GetComponentInChildren<PieChartSlider>();
         pieChartSlider.controllerDelegate = this;
 
-        ShowLatestPieChart();
+        loadPieChartSlider();
 
         this.btnPrev.GetComponent<Button>().onClick.AddListener(delegate { this.onClickPrevBtn(); });
         this.btnNext.GetComponent<Button>().onClick.AddListener(delegate { this.onClickNextBtn(); });
@@ -92,12 +96,56 @@ public class HomeNewViewController : ViewControllerBase
 
     }
 
-    public void UpdatePieChart(int pieIndex, bool isToNext = false, bool isClickBtn = false)
+    public void UpdatePieChart(int cellIndex, bool isSlider, bool isToNext)
     {
         ChartInfo chartInfo = null;
 
         try
         {
+            selectedPieIndex = CURRENT_START_INDEX + cellIndex;
+
+            if (isSlider && beforeSelectedPieIndex == selectedPieIndex) //If not change
+            {
+                if (cellIndex == 0 && CURRENT_START_INDEX > 0) //Load more data if need when slider first item
+                {
+                    while (selectedPieIndex > 0)
+                    {
+                        selectedPieIndex--;
+
+                        String tempFilePath = pieChartSlider.filePaths[selectedPieIndex];
+                        SleepHeaderData tmpSleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(tempFilePath);
+                        List<SleepData> tmpSleepDatas = CSVSleepDataReader.GetSleepDatas(tempFilePath);
+                        if (tmpSleepHeaderData != null && tmpSleepDatas != null && tmpSleepDatas.Count > 0)
+                        {
+                            reloadHomeScreen(selectedPieIndex);
+                            return;
+                        }
+                    }
+
+                    return;
+                }
+                else if (cellIndex == getNumPieChartsCurrent() - 1 && CURRENT_END_INDEX < pieChartSlider.filePaths.Count - 1) //Load more data if need when slider last item
+                {
+                    while (selectedPieIndex < pieChartSlider.filePaths.Count - 1)
+                    {
+                        selectedPieIndex++;
+
+                        String tempFilePath = pieChartSlider.filePaths[selectedPieIndex];
+                        SleepHeaderData tmpSleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(tempFilePath);
+                        List<SleepData> tmpSleepDatas = CSVSleepDataReader.GetSleepDatas(tempFilePath);
+                        if (tmpSleepHeaderData != null && tmpSleepDatas != null && tmpSleepDatas.Count > 0)
+                        {
+                            reloadHomeScreen(selectedPieIndex);
+                            return;
+                        }
+                    }
+
+                    return;
+                }
+            }
+
+
+            int pieIndex = selectedPieIndex;
             String filePath = pieChartSlider.filePaths[pieIndex];
             PieChart currentPieChart = pieChartSlider.pieCharts[pieIndex];
 
@@ -112,11 +160,9 @@ public class HomeNewViewController : ViewControllerBase
 
             if (sleepHeaderData != null && sleepDatas != null && sleepDatas.Count > 0)
             {
-                selectedPieIndex = pieIndex;
-                pieChartSlider.cellIndex = selectedPieIndex;
-                pieChartSlider.actualIndex = selectedPieIndex;
-
-                //checkValidItem(selectedPieIndex, isToNext);
+                beforeSelectedPieIndex = pieIndex;
+                pieChartSlider.cellIndex = cellIndex;
+                pieChartSlider.actualIndex = cellIndex;
 
                 DateTime startTime = sleepHeaderData.DateTime;
                 DateTime endTime = sleepDatas.Select(data => data.GetDateTime()).Last();
@@ -165,15 +211,15 @@ public class HomeNewViewController : ViewControllerBase
                 currentPieChart.circleOuter.GetComponent<Image>().color = Utility.convertHexToColor(levelColors[sleepLevel - 1]);
             } else
             {
-                pieChartSlider.RemoveLayoutElement(pieIndex);
+                pieChartSlider.RemovePieChartItemData(pieIndex);
+                pieChartSlider.RemovePieChartItemLayout(pieIndex - CURRENT_START_INDEX);
                 StartCoroutine(Utility.DeleteInvalidFile(filePath));
 
                 if (isToNext)
                 {
                     if (pieIndex < pieChartSlider.filePaths.Count - 1)
                     {
-                        //pieChartSlider.MoveToIndex(pieIndex);
-                        this.UpdatePieChart(pieIndex, isToNext);
+                        this.UpdatePieChart(pieIndex - CURRENT_START_INDEX, isSlider, isToNext);
                         return;
                     }
                 }
@@ -181,14 +227,15 @@ public class HomeNewViewController : ViewControllerBase
                 {
                     if (pieIndex > 0)
                     {
-                        if(isClickBtn)
+                        int newCellIndex = pieIndex - CURRENT_START_INDEX - 1;
+                        if (!isSlider) //When click Next/Prev button
                         {
-                            pieChartSlider.MoveToIndex(pieIndex - 1);
-                            this.UpdatePieChart(pieIndex - 1, isToNext);
+                            pieChartSlider.MoveToIndex(newCellIndex);
+                            this.UpdatePieChart(newCellIndex, isSlider, isToNext);
                         }
                         else
                         {
-                            pieChartSlider.SnapToIndex(pieIndex - 1, false);
+                            pieChartSlider.SnapToIndex(newCellIndex, false);
                         }
                         
                         return;
@@ -231,7 +278,8 @@ public class HomeNewViewController : ViewControllerBase
                     break;
                 } else
                 {
-                    pieChartSlider.RemoveLayoutElement(pieIndex);
+                    pieChartSlider.RemovePieChartItemData(pieIndex);
+                    pieChartSlider.RemovePieChartItemLayout(pieIndex - CURRENT_START_INDEX);
                     StartCoroutine(Utility.DeleteInvalidFile(filePath));
                 }
                     
@@ -253,7 +301,8 @@ public class HomeNewViewController : ViewControllerBase
                 }
                 else
                 {
-                    pieChartSlider.RemoveLayoutElement(pieIndex);
+                    pieChartSlider.RemovePieChartItemData(pieIndex);
+                    pieChartSlider.RemovePieChartItemLayout(pieIndex - CURRENT_START_INDEX);
                     StartCoroutine(Utility.DeleteInvalidFile(filePath));
                     selectedPieIndex--;
                     pieChartSlider.MoveToIndex(selectedPieIndex);
@@ -266,6 +315,12 @@ public class HomeNewViewController : ViewControllerBase
     {
         string dataPath = Kaimin.Common.Utility.GsDataPath();
         filePaths = Kaimin.Common.Utility.GetAllFiles(dataPath, "*.csv");
+    }
+
+    public void reloadHomeScreen(int selectedPieChartIndex)
+    {
+        UserDataManager.Scene.SaveSelectedPieChartIndex(selectedPieChartIndex);
+        SceneTransitionManager.LoadLevel(SceneTransitionManager.LoadScene.Home);
     }
 
     public void SetMaxFilePosition()
@@ -312,26 +367,64 @@ public class HomeNewViewController : ViewControllerBase
 
     public void onClickNextBtn()
     {
-        if (filePaths != null && selectedPieIndex < pieChartSlider.filePaths.Count - 1)
+        if (filePaths != null)
         {
-            selectedPieIndex++;
-            UpdatePieChartWhenClickBtn(selectedPieIndex, true);
+            while(selectedPieIndex < pieChartSlider.filePaths.Count - 1)
+            {
+                selectedPieIndex++;
+
+                if (pieChartSlider.pieCharts[selectedPieIndex] != null)
+                {
+                    String tempFilePath = pieChartSlider.filePaths[selectedPieIndex];
+                    SleepHeaderData tmpSleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(tempFilePath);
+                    List<SleepData> tmpSleepDatas = CSVSleepDataReader.GetSleepDatas(tempFilePath);
+                    if (tmpSleepHeaderData != null && tmpSleepDatas != null && tmpSleepDatas.Count > 0)
+                    {
+                        pieChartSlider.MoveToIndex(selectedPieIndex - CURRENT_START_INDEX);
+                        this.UpdatePieChart(selectedPieIndex - CURRENT_START_INDEX, false, true);
+                        return;
+                    }
+                }
+                else
+                {
+                    reloadHomeScreen(selectedPieIndex);
+                    return;
+                }
+            }
+
+            updatePrevNextBtnState();
         }
     }
 
     public void onClickPrevBtn()
     {
-        if(filePaths != null && selectedPieIndex > 0)
+        if(filePaths != null)
         {
-            selectedPieIndex--;
-            UpdatePieChartWhenClickBtn(selectedPieIndex, false);
-        }
-    }
+            while(selectedPieIndex > 0)
+            {
+                selectedPieIndex--;
 
-    public void UpdatePieChartWhenClickBtn(int pieIndex, bool isToNext = false)
-    {
-        pieChartSlider.MoveToIndex(pieIndex);
-        this.UpdatePieChart(pieIndex, isToNext, true);
+                if (pieChartSlider.pieCharts[selectedPieIndex] != null)
+                {
+                    String tempFilePath = pieChartSlider.filePaths[selectedPieIndex];
+                    SleepHeaderData tmpSleepHeaderData = CSVSleepDataReader.GetSleepHeaderData(tempFilePath);
+                    List<SleepData> tmpSleepDatas = CSVSleepDataReader.GetSleepDatas(tempFilePath);
+                    if (tmpSleepHeaderData != null && tmpSleepDatas != null && tmpSleepDatas.Count > 0)
+                    {
+                        pieChartSlider.MoveToIndex(selectedPieIndex - CURRENT_START_INDEX);
+                        this.UpdatePieChart(selectedPieIndex - CURRENT_START_INDEX, false, false);
+                        return;
+                    }
+                }
+                else
+                {
+                    reloadHomeScreen(selectedPieIndex);
+                    return;
+                }
+            }
+
+            updatePrevNextBtnState();
+        }
     }
 
     public void updatePrevNextBtnState()
@@ -456,30 +549,58 @@ public class HomeNewViewController : ViewControllerBase
         }
     }
 
-    public void ShowLatestPieChart()
+
+    public void loadPieChartSlider()
     {
         GetSetFilePaths(); //Important
         SetMaxFilePosition(); //Recalculate MAX_FILE_POSITION
         SetMinFilePosition(); //Recalculate MIN_FILE_POSITION
 
-        int pieIndex = 0;
         pieChartSlider.pieCharts = new List<PieChart>();
         pieChartSlider.filePaths = new List<String>();
+        pieChartSlider.sleepDatas = new List<List<SleepData>>();
+        pieChartSlider.sleepHeaderDatas = new List<SleepHeaderData>();
 
         if (MIN_FILE_POSITION >= 0 && MAX_FILE_POSITION >= 0)
         {
-            pieChartSlider.pieCharts.Add(pieChart); //Add Min
-            pieChartSlider.filePaths.Add(filePaths[MIN_FILE_POSITION]); //Add Min
-            pieChartSlider.sleepDatas.Add(null);
-            pieChartSlider.sleepHeaderDatas.Add(null);
-            for (int i = MIN_FILE_POSITION + 1; i <= MAX_FILE_POSITION; i++)
+            int pieIndex = 0;
+            for (int i = MIN_FILE_POSITION; i <= MAX_FILE_POSITION; i++)
             {
+                pieChartSlider.PushPieChartItemData(filePaths[i]);
                 pieIndex++;
-                pieChartSlider.PushPieChart(Instantiate(pieChart), pieIndex, filePaths[i]);
             }
 
-            pieChartSlider.MoveToIndex(pieIndex);
-            this.UpdatePieChart(pieIndex); //Lastest pie chart
+            int selectedPieIndex = UserDataManager.Scene.getSelectedPieChartIndex();
+            //Reset to -1 to ensure always show latest piechart when go to HomeScreen from other screen
+            UserDataManager.Scene.SaveSelectedPieChartIndex(-1);
+
+            if (selectedPieIndex == -1) //Default (最新データを表示)
+            {
+                selectedPieIndex = pieChartSlider.filePaths.Count - 1;
+            }
+
+            CURRENT_START_INDEX = Math.Max(0, selectedPieIndex - 10);
+            CURRENT_END_INDEX = Math.Min(pieChartSlider.filePaths.Count - 1, selectedPieIndex + 10);
+
+            pieIndex = 0;
+            for (int i = MIN_FILE_POSITION; i <= MAX_FILE_POSITION; i++)
+            {
+                if (pieIndex >= CURRENT_START_INDEX && pieIndex <= CURRENT_END_INDEX)
+                {
+                    if(pieIndex == CURRENT_START_INDEX)
+                    {
+                        pieChartSlider.PushPieChartItemLayout(pieChart, pieIndex);
+                    } else
+                    {
+                        pieChartSlider.PushPieChartItemLayout(Instantiate(pieChart), pieIndex);
+                    }
+                }
+
+                pieIndex++;
+            }
+
+            pieChartSlider.MoveToIndex(selectedPieIndex - CURRENT_START_INDEX);
+            this.UpdatePieChart(selectedPieIndex - CURRENT_START_INDEX, false, false);
         }
         else
         {
@@ -492,29 +613,19 @@ public class HomeNewViewController : ViewControllerBase
         }
     }
 
-    public void UpdateLatestPieChart()
+    public int getNumPieChartsCurrent()
     {
-        if(MAX_FILE_POSITION < 0) //No data
-        {
-            ShowLatestPieChart();
-        } else
-        {
-            int oldMaxFilePostion = MAX_FILE_POSITION;
+        int num = 0;
 
-            GetSetFilePaths(); //Important
-            SetMaxFilePosition(); //Recalculate MAX_FILE_POSITION
-            //SetMinFilePosition(); //Recalculate MIN_FILE_POSITION
-
-            int pieIndex = pieChartSlider.filePaths.Count - 1;
-            for (int i = oldMaxFilePostion + 1; i <= MAX_FILE_POSITION; i++)
+        for (int i = 0; i < pieChartSlider.pieCharts.Count; i++)
+        {
+            if (i >= CURRENT_START_INDEX && i <= CURRENT_END_INDEX && pieChartSlider.pieCharts[i] != null)
             {
-                pieIndex++;
-                pieChartSlider.PushPieChart(Instantiate(pieChart), pieIndex, filePaths[i]);
+                num++;
             }
-
-            pieChartSlider.MoveToIndex(pieIndex);
-            this.UpdatePieChart(pieIndex); //Lastest pie chart
         }
+
+        return num;
     }
 
     //「ニックネーム」ボタンが押されると呼び出される
@@ -770,7 +881,6 @@ public class HomeNewViewController : ViewControllerBase
             //UpdateApneaCountDate();
 
             //UserDataManager.Scene.ResetGraphDate();
-            UpdateLatestPieChart();
 
             //データ取得完了後、自動的にBLE接続を切る
             DisconectDevice();
@@ -778,6 +888,8 @@ public class HomeNewViewController : ViewControllerBase
             UpdateDialog.Dismiss();
             //データ取得完了のダイアログ表示
             yield return StartCoroutine(TellGetDataComplete(csvPathList.Count));
+
+            reloadHomeScreen(-1);
         }
         else
         {
