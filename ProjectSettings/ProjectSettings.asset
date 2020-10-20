@@ -168,7 +168,7 @@ PlayerSettings:
     iPhone: jp.co.one-a.sleeim
   buildNumber:
     iPhone: 1.0.17
-  AndroidBundleVersionCode: 1
+  AndroidBundleVersionCode: 17
   AndroidMinSdkVersion: 21
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 2
