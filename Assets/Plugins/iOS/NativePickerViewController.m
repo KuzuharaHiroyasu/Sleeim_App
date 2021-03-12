@@ -82,6 +82,9 @@
 	// Do any additional setup after loading the view.
     
     self.mode = PickerViewControllerModeTime;
+	if (@available(iOS 13.4, *)) {
+        self.datePicker.preferredDatePickerStyle = UIDatePickerStyleWheels;
+    }
 }
 
 - (void)didReceiveMemoryWarning
