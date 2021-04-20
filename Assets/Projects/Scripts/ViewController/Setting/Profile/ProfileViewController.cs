@@ -170,7 +170,7 @@ public class ProfileViewController : ViewControllerBase {
 			//日付が変更された
 			var date = NativePicker.ConvertToDateTime (val);
 			//表示を更新する
-			string dateTimeString = date.Year.ToString () + "/" + date.Month.ToString () + "/" + date.Day.ToString ();
+			string dateTimeString = date.Year.ToString () + "/" + date.Month.ToString ("00") + "/" + date.Day.ToString ("00");
 			birthDayText.text = dateTimeString;
 			//日付を生年月日として保存する
 			UserDataManager.Setting.Profile.SaveBirthDay (date);
