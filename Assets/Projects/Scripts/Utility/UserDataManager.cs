@@ -411,7 +411,7 @@ public static class UserDataManager {
             /// </summary>
             public static Sex GetSex () {
                 //保存された数値から、Sexの項目に変換して返す
-                return (Sex) Enum.ToObject (typeof(Sex), PlayerPrefs.GetInt (sexKey, 2)); //デフォルトは女性
+                return (Sex) Enum.ToObject (typeof(Sex), PlayerPrefs.GetInt (sexKey, 0)); //デフォルトは未選択
             }
 
             /// <summary>
