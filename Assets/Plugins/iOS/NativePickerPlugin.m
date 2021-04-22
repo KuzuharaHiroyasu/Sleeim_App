@@ -63,7 +63,7 @@ extern void UnitySendMessage(const char *, const char *, const char *);
 //        [_debugLabel setFrame:rect];
 //    }
     
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone || [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
         __block CGRect pickerFrame = _pickerViewController.view.frame;
         int thisHeight = _glView.frame.size.height;
         int thisWidth = _glView.frame.size.width;
@@ -112,7 +112,7 @@ extern void UnitySendMessage(const char *, const char *, const char *);
 }
 
 - (void)hidePicker {
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone || [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
         __block CGRect frame = _pickerViewController.view.frame;
         CGRect thisFrame = _glView.frame;
         
