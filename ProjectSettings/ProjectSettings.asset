@@ -161,7 +161,7 @@ PlayerSettings:
     Standalone: jp.co.onea.sleeim
     iOS: jp.co.one-a.sleeim
   buildNumber:
-    iOS: 1.0.22
+    iOS: 1.0.31
   AndroidBundleVersionCode: 15
   AndroidMinSdkVersion: 21
   AndroidTargetSdkVersion: 0
